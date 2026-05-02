@@ -10,10 +10,11 @@ const SEVERITY_TONE: Record<Severity, { color: string; rank: number }> = {
 };
 
 export default function AuditFindings() {
-  const [openId, setOpenId] = useState<string | null>(AUDIT_FINDINGS[0]?.id ?? null);
+  const [openId, setOpenId] = useState<string | null>(
+    AUDIT_FINDINGS[0]?.id ?? null,
+  );
   const sorted = [...AUDIT_FINDINGS].sort(
-    (a, b) =>
-      SEVERITY_TONE[a.severity].rank - SEVERITY_TONE[b.severity].rank,
+    (a, b) => SEVERITY_TONE[a.severity].rank - SEVERITY_TONE[b.severity].rank,
   );
 
   return (
@@ -24,7 +25,10 @@ export default function AuditFindings() {
           외부 감사 finding 11 건
         </h2>
         <p className="mt-2 subhead text-[13px] max-w-2xl">
-          Zellic 의 보고서 (2026 년 1 월 19 일) 가 명시한 모든 finding 입니다. Critical 또는 High 등급 영향은 없었으며, Medium 3 건과 Low 2 건, Informational 6 건이 발견되었습니다. 헤더를 클릭하면 상세가 펼쳐집니다.
+          Zellic 의 보고서 (2026 년 1 월 19 일) 가 명시한 모든 finding 입니다.
+          Critical 또는 High 등급 영향은 없었으며, Medium 3 건과 Low 2 건,
+          Informational 6 건이 발견되었습니다. 헤더를 클릭하면 상세가
+          펼쳐집니다.
         </p>
       </div>
 
@@ -52,6 +56,9 @@ function FindingRow({
   onToggle: () => void;
 }) {
   const tone = SEVERITY_TONE[finding.severity];
+  const isFixed = finding.remediation.status === "fixed";
+  const statusColor = isFixed ? "var(--signal)" : "var(--warn)";
+  const statusLabel = isFixed ? "fixed" : "ack";
   return (
     <div>
       <button
@@ -59,7 +66,7 @@ function FindingRow({
         aria-expanded={open}
         className="w-full text-left px-5 py-4 hover:bg-ink-900 transition-colors"
       >
-        <div className="grid grid-cols-[60px_120px_1fr_24px] gap-4 items-center">
+        <div className="grid grid-cols-[88px_minmax(0,180px)_1fr_88px_16px] gap-3 items-center">
           <span
             className="font-mono text-[10.5px] px-2 py-0.5 rounded text-center"
             style={{
@@ -67,13 +74,25 @@ function FindingRow({
               background: `${tone.color}15`,
             }}
           >
-            {finding.severity}
+            {finding.severity === "Informational" ? "Info" : finding.severity}
           </span>
-          <span className="font-mono text-[11px] text-ink-400">
+          <span
+            className="font-mono text-[11px] text-ink-400 truncate"
+            title={finding.target}
+          >
             {finding.target}
           </span>
           <span className="text-[13px] text-ink-100 font-medium leading-snug">
             {finding.title}
+          </span>
+          <span
+            className="font-mono text-[10.5px] px-2 py-0.5 rounded text-center"
+            style={{
+              color: statusColor,
+              background: `${statusColor}15`,
+            }}
+          >
+            {statusLabel}
           </span>
           <span className="text-[12px] font-mono text-ink-500 text-right">
             {open ? "−" : "+"}
