@@ -17,25 +17,42 @@ const fmtCompactUsd = (n: number) => {
 };
 const fmtPct = (n: number) =>
   `${n >= 0 ? "+" : ""}${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}%`;
-const fmtCount = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+const fmtCount = (n: number) =>
+  n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 
 export default function LaunchSnapshot() {
   const s = LAUNCH_SNAPSHOT;
-  const { remote, lastUpdated, loading, error } = useLiveMetrics(60_000);
+  const { remote, lastUpdated, loading, error } = useLiveMetrics(1_000);
 
   const price = remote ? fmtUsd(remote.market.priceUSD) : s.metrics.price;
-  const priceUSDm = remote ? `${remote.market.priceUSDm.toFixed(2)} USDm` : s.metrics.priceUSDm;
-  const liquidity = remote ? fmtCompactUsd(remote.market.liquidityUSD) : s.metrics.liquidity;
+  const priceUSDm = remote
+    ? `${remote.market.priceUSDm.toFixed(2)} USDm`
+    : s.metrics.priceUSDm;
+  const liquidity = remote
+    ? fmtCompactUsd(remote.market.liquidityUSD)
+    : s.metrics.liquidity;
   const fdv = remote ? fmtCompactUsd(remote.market.fdvUSD) : s.metrics.fdv;
   const delta24h = remote ? fmtPct(remote.delta.h24) : s.metrics.delta24h;
   const delta6h = remote ? fmtPct(remote.delta.h6) : s.metrics.delta6h;
   const delta1h = remote ? fmtPct(remote.delta.h1) : s.metrics.delta1h;
-  const volume = remote ? fmtCompactUsd(remote.flow.volume24h) : s.metrics.volume;
-  const buys = remote ? fmtCount(remote.flow.buys24h) : s.metrics.buys.toString();
-  const sells = remote ? fmtCount(remote.flow.sells24h) : s.metrics.sells.toString();
-  const txns = remote ? fmtCount(remote.flow.txns24h) : s.metrics.txns.toString();
-  const poolRBT = remote ? `${(remote.market.poolBase / 1000).toFixed(2)}K RBT` : s.metrics.poolRBT;
-  const poolUSDm = remote ? `${(remote.market.poolQuote / 1000).toFixed(2)}K USDm` : s.metrics.poolUSDm;
+  const volume = remote
+    ? fmtCompactUsd(remote.flow.volume24h)
+    : s.metrics.volume;
+  const buys = remote
+    ? fmtCount(remote.flow.buys24h)
+    : s.metrics.buys.toString();
+  const sells = remote
+    ? fmtCount(remote.flow.sells24h)
+    : s.metrics.sells.toString();
+  const txns = remote
+    ? fmtCount(remote.flow.txns24h)
+    : s.metrics.txns.toString();
+  const poolRBT = remote
+    ? `${(remote.market.poolBase / 1000).toFixed(2)}K RBT`
+    : s.metrics.poolRBT;
+  const poolUSDm = remote
+    ? `${(remote.market.poolQuote / 1000).toFixed(2)}K USDm`
+    : s.metrics.poolUSDm;
 
   const navStatic = s.metrics.nav;
   const navNumber = parseFloat(navStatic);
@@ -56,7 +73,7 @@ export default function LaunchSnapshot() {
                     error ? "bg-warn" : "bg-signal animate-pulseDot",
                   ].join(" ")}
                 />
-                {error ? "Live, stale" : "Live, 60s polling"}
+                {error ? "Live, stale" : "Live, 1s polling"}
               </span>
               <span className="chip">{s.venue}</span>
             </div>
@@ -69,13 +86,28 @@ export default function LaunchSnapshot() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-[11.5px] font-mono">
-            <a className="chip hover:text-ink-50" href={s.appMetrics} target="_blank" rel="noreferrer">
+            <a
+              className="chip hover:text-ink-50"
+              href={s.appMetrics}
+              target="_blank"
+              rel="noreferrer"
+            >
               app
             </a>
-            <a className="chip hover:text-ink-50" href={s.dexscreener} target="_blank" rel="noreferrer">
+            <a
+              className="chip hover:text-ink-50"
+              href={s.dexscreener}
+              target="_blank"
+              rel="noreferrer"
+            >
               dexscreener
             </a>
-            <a className="chip hover:text-ink-50" href={s.poolUrl} target="_blank" rel="noreferrer">
+            <a
+              className="chip hover:text-ink-50"
+              href={s.poolUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
               kumbaya
             </a>
           </div>
@@ -127,8 +159,18 @@ export default function LaunchSnapshot() {
 
         {/* Sub metrics */}
         <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-[11.5px]">
-          <SubMetric label="Liquidity" value={liquidity} sub={`FDV ${fdv}`} live />
-          <SubMetric label="Volume 24h" value={volume} sub={`Buy ${buys}, Sell ${sells}`} live />
+          <SubMetric
+            label="Liquidity"
+            value={liquidity}
+            sub={`FDV ${fdv}`}
+            live
+          />
+          <SubMetric
+            label="Volume 24h"
+            value={volume}
+            sub={`Buy ${buys}, Sell ${sells}`}
+            live
+          />
           <SubMetric label="Pool" value={poolRBT} sub={poolUSDm} live />
           <SubMetric
             label="Supply"
@@ -167,7 +209,10 @@ export default function LaunchSnapshot() {
                   <div className="flex items-center gap-2">
                     <span
                       className="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded"
-                      style={{ color: tone.color, background: "rgba(255,255,255,0.04)" }}
+                      style={{
+                        color: tone.color,
+                        background: "rgba(255,255,255,0.04)",
+                      }}
                     >
                       {tone.label}
                     </span>
@@ -189,17 +234,17 @@ export default function LaunchSnapshot() {
               {s.livePriority.map((p) => {
                 const tone = VERDICT_TONE[p.verdict];
                 return (
-                  <div
-                    key={p.play}
-                    className="rounded-lg border p-3 hairline"
-                  >
+                  <div key={p.play} className="rounded-lg border p-3 hairline">
                     <div className="flex items-center justify-between">
                       <span className="text-[12.5px] font-medium text-ink-50">
                         {p.play}
                       </span>
                       <span
                         className="font-mono text-[10.5px] px-2 py-0.5 rounded"
-                        style={{ color: tone.color, background: `${tone.color}15` }}
+                        style={{
+                          color: tone.color,
+                          background: `${tone.color}15`,
+                        }}
                       >
                         {tone.label}
                       </span>
@@ -235,8 +280,12 @@ function SubMetric({
         <div className="eyebrow">{label}</div>
         {live && <span className="text-[9px] text-signal font-mono">live</span>}
       </div>
-      <div className="mt-1 text-[13px] text-ink-50 font-mono mono-num">{value}</div>
-      {sub && <div className="text-[10.5px] text-ink-500 font-mono mt-0.5">{sub}</div>}
+      <div className="mt-1 text-[13px] text-ink-50 font-mono mono-num">
+        {value}
+      </div>
+      {sub && (
+        <div className="text-[10.5px] text-ink-500 font-mono mt-0.5">{sub}</div>
+      )}
     </div>
   );
 }

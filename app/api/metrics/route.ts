@@ -1,6 +1,6 @@
-// 온체인/마켓 메트릭 server fetch — CORS 우회 + 30초 edge 캐싱.
+// 온체인/마켓 메트릭 server fetch.
 // 원본: dexscreener API (Kumbaya RBT/USDm pool on MegaETH).
-// NAV(reservesPerRBT)는 별도 소스 필요 — 현재는 정적 fallback.
+// NAV(reservesPerRBT)는 별도 소스이며 현재는 정적 fallback 입니다.
 
 import { NextResponse } from "next/server";
 
@@ -24,13 +24,15 @@ type DexPair = {
   quoteToken?: { address?: string; symbol?: string; name?: string };
 };
 
-export const revalidate = 30; // edge 캐시 30s — 클라이언트 폴링은 60s
+// 클라이언트 폴링 1s. 서버 캐시 1s 로 매 초 fresh 응답.
+export const revalidate = 1;
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     const res = await fetch(DEXSCREENER_URL, {
       headers: { accept: "application/json" },
-      next: { revalidate: 30 },
+      next: { revalidate: 1 },
     });
     if (!res.ok) {
       return NextResponse.json(
@@ -41,7 +43,10 @@ export async function GET() {
     const json = (await res.json()) as { pair?: DexPair; pairs?: DexPair[] };
     const pair: DexPair | undefined = json.pair ?? json.pairs?.[0];
     if (!pair) {
-      return NextResponse.json({ ok: false, error: "no pair" }, { status: 502 });
+      return NextResponse.json(
+        { ok: false, error: "no pair" },
+        { status: 502 },
+      );
     }
 
     const buys24 = pair.txns?.h24?.buys ?? 0;

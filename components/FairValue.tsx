@@ -33,8 +33,10 @@ const LAYER_COLORS = {
 };
 
 export default function FairValue() {
-  const [yieldMode, setYieldMode] = useState<"conservative" | "base" | "aggressive">("base");
-  const live = useLiveMetrics(60_000);
+  const [yieldMode, setYieldMode] = useState<
+    "conservative" | "base" | "aggressive"
+  >("base");
+  const live = useLiveMetrics(1_000);
 
   const fwdYield = useMemo(() => {
     if (yieldMode === "conservative") return DEFAULT_FWD_STAKE_APR;
@@ -108,7 +110,7 @@ export default function FairValue() {
                     live.error ? "bg-warn" : "bg-signal animate-pulseDot",
                   ].join(" ")}
                 />
-                {live.error ? "stale" : "live, 60s"}
+                {live.error ? "stale" : "live, 1s"}
               </span>
             </div>
             <h2 className="mt-4 text-[26px] headline text-ink-50">
@@ -116,7 +118,8 @@ export default function FairValue() {
             </h2>
             <p className="mt-2 text-[13px] text-ink-300 max-w-2xl leading-relaxed">
               하나의 정답 가격이 아니라{" "}
-              <span className="text-ink-50">네 단계의 가격대</span> 로 봅니다. 각 단계는 서로 다른 가정에서 나오는 다른 종류의 공정함입니다.
+              <span className="text-ink-50">네 단계의 가격대</span> 로 봅니다.
+              각 단계는 서로 다른 가정에서 나오는 다른 종류의 공정함입니다.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-1 text-[11px]">
@@ -222,7 +225,11 @@ export default function FairValue() {
                 </div>
                 <div className="mt-1 text-[11px] text-ink-400 font-mono">
                   vs NAV{" "}
-                  <span style={{ color: premium > 0 ? "var(--warn)" : "var(--signal)" }}>
+                  <span
+                    style={{
+                      color: premium > 0 ? "var(--warn)" : "var(--signal)",
+                    }}
+                  >
                     {pct(premium)}
                   </span>
                 </div>
@@ -249,7 +256,8 @@ export default function FairValue() {
               </li>
               <li>
                 <span className="text-ink-400">Bond </span>
-                Effective {fmt(fv.bondEffective)} 이며 시장가 진입의 마지노선입니다.
+                Effective {fmt(fv.bondEffective)} 이며 시장가 진입의
+                마지노선입니다.
               </li>
               <li>
                 <span className="text-ink-400">Market </span>
@@ -265,16 +273,24 @@ export default function FairValue() {
             <div className="eyebrow text-warn">어떤 가격대에 진입하느냐</div>
             <ul className="mt-3 space-y-1.5 text-[12.5px] text-ink-100 leading-relaxed">
               <li>
-                <span className="text-ink-50">Floor 이하</span> 의 가격에서는 BAM 매수 윈도우가 열려 비대칭이 가장 큽니다.
+                <span className="text-ink-50">Floor 이하</span> 의 가격에서는
+                BAM 매수 윈도우가 열려 비대칭이 가장 큽니다.
               </li>
               <li>
-                <span className="text-ink-50">Floor 와 Yield-fair 사이</span> 에서는 본드를 거치지 않고 시장가 진입이 가능합니다.
+                <span className="text-ink-50">Floor 와 Yield-fair 사이</span>{" "}
+                에서는 본드를 거치지 않고 시장가 진입이 가능합니다.
               </li>
               <li>
-                <span className="text-ink-50">Yield-fair 와 Bond Effective 사이</span> 에서는 본드를 통해서만 진입합니다.
+                <span className="text-ink-50">
+                  Yield-fair 와 Bond Effective 사이
+                </span>{" "}
+                에서는 본드를 통해서만 진입합니다.
               </li>
               <li>
-                <span className="text-ink-50">Bond Effective 와 Market 사이</span> 는 패스하고 다음 라운드를 기다립니다.
+                <span className="text-ink-50">
+                  Bond Effective 와 Market 사이
+                </span>{" "}
+                는 패스하고 다음 라운드를 기다립니다.
               </li>
             </ul>
           </div>
@@ -285,19 +301,25 @@ export default function FairValue() {
           <div className="eyebrow">계산에 쓴 가정</div>
           <div className="mt-3 grid md:grid-cols-3 gap-px bg-white/5 rounded-md overflow-hidden">
             <div className="bg-ink-950 px-4 py-3">
-              <div className="text-[10.5px] text-ink-500 font-mono">Forward yield</div>
+              <div className="text-[10.5px] text-ink-500 font-mono">
+                Forward yield
+              </div>
               <div className="mt-0.5 text-ink-50 font-mono mono-num">
                 {pct(fwdYield)} {yieldMode}
               </div>
             </div>
             <div className="bg-ink-950 px-4 py-3">
-              <div className="text-[10.5px] text-ink-500 font-mono">Max bond discount</div>
+              <div className="text-[10.5px] text-ink-500 font-mono">
+                Max bond discount
+              </div>
               <div className="mt-0.5 text-ink-50 font-mono mono-num">
                 {pct(fv.maxBondDiscount, 0)}, 30 일 본드
               </div>
             </div>
             <div className="bg-ink-950 px-4 py-3">
-              <div className="text-[10.5px] text-ink-500 font-mono">Protocol fee</div>
+              <div className="text-[10.5px] text-ink-500 font-mono">
+                Protocol fee
+              </div>
               <div className="mt-0.5 text-ink-50 font-mono mono-num">
                 {pct(fv.protocolFee, 0)}, Genesis Phase 1
               </div>
@@ -320,7 +342,9 @@ export default function FairValue() {
             <span className="text-ink-50 font-mono">
               ${STAKE_TVL_USD.toLocaleString()}
             </span>{" "}
-            입니다. Forward yield 는 stake APR 과 commit annualized 의 가중합으로 계산하며, 온체인 또는 attestation 을 통해 갱신할 수 있습니다.
+            입니다. Forward yield 는 stake APR 과 commit annualized 의
+            가중합으로 계산하며, 온체인 또는 attestation 을 통해 갱신할 수
+            있습니다.
           </p>
         </div>
       </div>

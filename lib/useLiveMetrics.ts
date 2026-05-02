@@ -46,7 +46,7 @@ const FALLBACK: LiveState = {
   error: null,
 };
 
-export function useLiveMetrics(intervalMs: number = 60_000): LiveState {
+export function useLiveMetrics(intervalMs: number = 1_000): LiveState {
   const [state, setState] = useState<LiveState>(FALLBACK);
   const ranOnce = useRef(false);
 
@@ -58,15 +58,19 @@ export function useLiveMetrics(intervalMs: number = 60_000): LiveState {
       try {
         const res = await fetch("/api/metrics", { cache: "no-store" });
         if (!res.ok) throw new Error(`api ${res.status}`);
-        const data = (await res.json()) as RemoteMetrics | { ok: false; error: string };
+        const data = (await res.json()) as
+          | RemoteMetrics
+          | { ok: false; error: string };
         if ("ok" in data && data.ok === false) throw new Error(data.error);
         const remote = data as RemoteMetrics;
         if (cancelled) return;
         setState((prev) => ({
           metrics: {
             ...prev.metrics, // NAV/reserves는 정적 유지
-            marketPriceUSDm: remote.market.priceUSDm || prev.metrics.marketPriceUSDm,
-            liquidityUSD: remote.market.liquidityUSD || prev.metrics.liquidityUSD,
+            marketPriceUSDm:
+              remote.market.priceUSDm || prev.metrics.marketPriceUSDm,
+            liquidityUSD:
+              remote.market.liquidityUSD || prev.metrics.liquidityUSD,
             poolRBT: remote.market.poolBase || prev.metrics.poolRBT,
             poolUSDm: remote.market.poolQuote || prev.metrics.poolUSDm,
             capturedAt: remote.capturedAt,
