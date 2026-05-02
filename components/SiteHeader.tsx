@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const NAV = [
   { href: "/", label: "Live" },
   { href: "/about", label: "About" },
+  { href: "/playbook", label: "Playbook" },
   { href: "/forks", label: "Forks" },
 ];
 
@@ -29,7 +30,7 @@ export default function SiteHeader() {
             </div>
           </div>
         </Link>
-        <nav className="flex items-center gap-7 text-[12.5px] text-ink-300">
+        <nav className="flex items-center gap-6 text-[12.5px] text-ink-300">
           {NAV.map((n) => (
             <Link
               key={n.href}

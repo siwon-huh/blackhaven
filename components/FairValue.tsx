@@ -9,6 +9,8 @@ import {
   DEFAULT_PROTOCOL_FEE,
   DEFAULT_FWD_STAKE_APR,
   COMMIT_24W_REWARD,
+  REFLEXIVITY_DISCOUNT,
+  type ReflexivityMode,
 } from "@/lib/fairValue";
 import { formatRelative, useLiveMetrics } from "@/lib/useLiveMetrics";
 
@@ -36,6 +38,7 @@ export default function FairValue() {
   const [yieldMode, setYieldMode] = useState<
     "conservative" | "base" | "aggressive"
   >("base");
+  const [reflexMode, setReflexMode] = useState<ReflexivityMode>("soft");
   const live = useLiveMetrics(1_000);
 
   const fwdYield = useMemo(() => {
@@ -50,9 +53,12 @@ export default function FairValue() {
       computeFairValue(live.metrics, LIVE_BONDS, {
         protocolFee: DEFAULT_PROTOCOL_FEE,
         forwardYield: fwdYield,
+        reflexivity: reflexMode,
       }),
-    [fwdYield, live.metrics],
+    [fwdYield, reflexMode, live.metrics],
   );
+
+  const reflexInfo = REFLEXIVITY_DISCOUNT[reflexMode];
 
   const domainMax = fv.market * 1.1;
   const xPct = (v: number) => (v / domainMax) * 100;
@@ -71,7 +77,7 @@ export default function FairValue() {
       label: "Yield-adjusted Fair",
       value: fv.yieldFair,
       color: LAYER_COLORS.yieldFair,
-      description: `NAV 에 1 더하기 ${pct(fwdYield)} 를 곱한 값입니다. Stake 와 Commit 으로 받을 1 년치 forward yield 의 NPV 를 floor 에 더한 보수적 공정가입니다.`,
+      description: `forward yield ${pct(fwdYield)} 에 reflexivity 디스카운트 ${pct(fv.reflexivityFactor)} 를 적용한 ${pct(fwdYield * (1 - fv.reflexivityFactor))} 를 NAV 에 더한 값입니다. Stake 와 Commit 분배의 1 년치 NPV 에 셸링 약화 가능성을 반영한 위험조정 공정가입니다.`,
     },
     {
       key: "bondEffective" as const,
@@ -110,7 +116,7 @@ export default function FairValue() {
                     live.error ? "bg-warn" : "bg-signal animate-pulseDot",
                   ].join(" ")}
                 />
-                {live.error ? "stale" : "live, 1s"}
+                {live.error ? "stale" : "Live, 1초 간격 업데이트"}
               </span>
             </div>
             <h2 className="mt-4 text-[26px] headline text-ink-50">
@@ -122,22 +128,49 @@ export default function FairValue() {
               각 단계는 서로 다른 가정에서 나오는 다른 종류의 공정함입니다.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-1 text-[11px]">
-            <span className="text-ink-400 font-mono mr-2">Forward yield</span>
-            {yieldButtons.map((b) => (
-              <button
-                key={b.id}
-                onClick={() => setYieldMode(b.id)}
-                className={[
-                  "px-2.5 py-1 rounded-md font-mono transition-colors",
-                  yieldMode === b.id
-                    ? "bg-ink-700 text-ink-50"
-                    : "text-ink-400 hover:text-ink-50",
-                ].join(" ")}
+          <div className="flex flex-col gap-1 text-[11px]">
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="text-ink-400 font-mono mr-2 w-[88px]">
+                Forward yield
+              </span>
+              {yieldButtons.map((b) => (
+                <button
+                  key={b.id}
+                  onClick={() => setYieldMode(b.id)}
+                  className={[
+                    "px-2.5 py-1 rounded-md font-mono transition-colors",
+                    yieldMode === b.id
+                      ? "bg-ink-700 text-ink-50"
+                      : "text-ink-400 hover:text-ink-50",
+                  ].join(" ")}
+                >
+                  {b.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center gap-1">
+              <span
+                className="text-ink-400 font-mono mr-2 w-[88px]"
+                title="OHM 류 게임이론의 셸링이 깨질 가능성에 대한 디스카운트"
               >
-                {b.label}
-              </button>
-            ))}
+                Reflexivity
+              </span>
+              {(["none", "soft", "hard"] as ReflexivityMode[]).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setReflexMode(m)}
+                  className={[
+                    "px-2.5 py-1 rounded-md font-mono transition-colors",
+                    reflexMode === m
+                      ? "bg-ink-700 text-ink-50"
+                      : "text-ink-400 hover:text-ink-50",
+                  ].join(" ")}
+                  title={REFLEXIVITY_DISCOUNT[m].detail}
+                >
+                  {REFLEXIVITY_DISCOUNT[m].label}
+                </button>
+              ))}
+            </div>
           </div>
         </header>
 
@@ -296,16 +329,47 @@ export default function FairValue() {
           </div>
         </div>
 
+        {/* Reflexivity explanation */}
+        <div className="mt-6 card-2 p-5 border-warn/20">
+          <div className="flex items-baseline justify-between flex-wrap gap-2">
+            <div className="eyebrow text-warn">
+              Reflexivity discount, {reflexInfo.label}
+            </div>
+            <span className="font-mono text-[11px] text-warn">
+              forward yield 에서 {pct(reflexInfo.factor, 0)} 차감
+            </span>
+          </div>
+          <p className="mt-2 text-[12.5px] text-ink-200 leading-relaxed">
+            {reflexInfo.detail}
+          </p>
+          <p className="mt-2 text-[11.5px] text-ink-400 leading-relaxed">
+            OHM 류 게임이론은 (3,3) 셸링이 깨지는 순간 매도가 매도를 부르는 데스
+            스파이럴로 전환되었습니다. Blackhaven 은 BAM 의 자동 양방향
+            차익거래로 이 패턴을 구조적으로 완화하지만, 사용자 행동의 불확실성은
+            남아 있습니다. Reflexivity 디스카운트는 그 불확실성을 forward yield
+            에서 깎는 보수적 가정입니다. NAV (Floor) 자체는 트레저리 백킹이
+            받쳐주므로 영향을 받지 않습니다.
+          </p>
+        </div>
+
         {/* Assumptions */}
         <div className="mt-6 pt-5 border-t hairline">
           <div className="eyebrow">계산에 쓴 가정</div>
-          <div className="mt-3 grid md:grid-cols-3 gap-px bg-white/5 rounded-md overflow-hidden">
+          <div className="mt-3 grid md:grid-cols-4 gap-px bg-white/5 rounded-md overflow-hidden">
             <div className="bg-ink-950 px-4 py-3">
               <div className="text-[10.5px] text-ink-500 font-mono">
                 Forward yield
               </div>
               <div className="mt-0.5 text-ink-50 font-mono mono-num">
                 {pct(fwdYield)} {yieldMode}
+              </div>
+            </div>
+            <div className="bg-ink-950 px-4 py-3">
+              <div className="text-[10.5px] text-ink-500 font-mono">
+                Reflexivity
+              </div>
+              <div className="mt-0.5 text-ink-50 font-mono mono-num">
+                −{pct(fv.reflexivityFactor, 0)} {reflexInfo.label}
               </div>
             </div>
             <div className="bg-ink-950 px-4 py-3">

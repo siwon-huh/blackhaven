@@ -2,7 +2,7 @@ import type { ScenarioDefinition } from "@/lib/scenarios";
 
 const TAG_DOT: Record<ScenarioDefinition["weekly"][number]["tag"], string> = {
   본드: "#FFFFFF",
-  락업: "#3DDC97",
+  Commit: "#3DDC97",
   트레이드: "#C9CDD4",
   클레임: "#F4C756",
   지켜보기: "#6E7480",
@@ -34,9 +34,7 @@ export default function WeekPlan({
                 <span className="font-mono text-[11px] text-ink-400 shrink-0 w-16">
                   {w.week}
                 </span>
-                <span
-                  className="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 border border-white/10 text-ink-300"
-                >
+                <span className="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 border border-white/10 text-ink-300">
                   {w.tag}
                 </span>
                 <span className="text-[12.5px] text-ink-100 leading-relaxed">

@@ -27,14 +27,15 @@ export type CommitTerm = {
 
 export type FairValueModel = {
   floor: number; // NAV (BAM이 지키는 하한)
-  yieldFair: number; // NAV × (1 + forward yield)
+  yieldFair: number; // NAV × (1 + forward yield × (1 - reflexivity))
   bondEffective: number; // 시장가에서 본드 디스카운트 + protocol fee 반영
   market: number;
   premiumToNAV: number; // %
   bondPremiumToNAV: number; // %
   yieldFairPremiumToNAV: number; // %
   poolImpliedFloor: number; // 풀 안 USDm / 풀 RBT (단순)
-  forwardYieldUsed: number; // 계산에 쓴 yield rate
+  forwardYieldUsed: number; // 계산에 쓴 forward yield (reflexivity 적용 전)
+  reflexivityFactor: number; // 적용된 reflexivity 비율
   protocolFee: number;
   maxBondDiscount: number;
 };
@@ -91,6 +92,36 @@ export const DEFAULT_PROTOCOL_FEE = 0.1; // Genesis Phase 1: 10% fee at bond iss
 export const DEFAULT_FWD_STAKE_APR = 0.05; // 보수적 — 실제 stake reward rate 활성화 전
 export const COMMIT_24W_REWARD = 0.158; // 앱 표시값
 
+// Reflexivity discount — OHM 류 게임이론의 셸링이 깨질 가능성에 대한 디스카운트.
+// forward yield 의 일부를 깎습니다. NAV 자체는 BAM 으로 받쳐지므로 영향 받지 않습니다.
+export type ReflexivityMode = "none" | "soft" | "hard";
+
+export const REFLEXIVITY_DISCOUNT: Record<
+  ReflexivityMode,
+  { factor: number; label: string; detail: string }
+> = {
+  none: {
+    factor: 0,
+    label: "None",
+    detail:
+      "메커니즘이 설계대로 작동하고 사용자 행동이 합리적이라고 가정합니다. forward yield 가 그대로 반영됩니다.",
+  },
+  soft: {
+    factor: 0.25,
+    label: "Soft",
+    detail:
+      "신규 자본 유입이 둔화되거나 (3,3) 셸링이 약화되는 시나리오입니다. forward yield 의 25퍼센트를 디스카운트로 차감합니다.",
+  },
+  hard: {
+    factor: 0.55,
+    label: "Hard",
+    detail:
+      "OHM 류 시즌 패턴이 재현되는 시나리오입니다. forward yield 의 55퍼센트를 디스카운트로 차감합니다.",
+  },
+};
+
+export const DEFAULT_REFLEXIVITY: ReflexivityMode = "soft";
+
 // 24w commit 15.8% → annualized 단순 환산 (복리 X, 보수적)
 export const annualizeCommit = (weekRate: number, weeks: number) =>
   (weekRate / weeks) * 52;
@@ -112,15 +143,19 @@ export function computeFairValue(
   opts?: {
     protocolFee?: number;
     forwardYield?: number;
+    reflexivity?: ReflexivityMode;
   },
 ): FairValueModel {
   const protocolFee = opts?.protocolFee ?? DEFAULT_PROTOCOL_FEE;
   const fwdYield = opts?.forwardYield ?? estimateForwardYield();
+  const reflexMode = opts?.reflexivity ?? DEFAULT_REFLEXIVITY;
+  const reflexFactor = REFLEXIVITY_DISCOUNT[reflexMode].factor;
 
   const floor = m.reservesPerRBT;
 
-  // Yield-adjusted: 미래 1년치 yield의 NPV를 NAV에 더함 (단순화: 할인율 0)
-  const yieldFair = floor * (1 + fwdYield);
+  // Yield-adjusted: forward yield 의 NPV 를 NAV 에 더하되 reflexivity 로 일부 차감.
+  const adjustedYield = fwdYield * (1 - reflexFactor);
+  const yieldFair = floor * (1 + adjustedYield);
 
   // Bond effective: 시장가에 본드 디스카운트 적용. fee는 트레저리에 가서 NAV에 환류
   // 사용자 입장 effective = market × (1 - discount). 그게 만기 때 받는 RBT 1개의 비용 베이스라인.
@@ -145,6 +180,7 @@ export function computeFairValue(
     yieldFairPremiumToNAV,
     poolImpliedFloor,
     forwardYieldUsed: fwdYield,
+    reflexivityFactor: reflexFactor,
     protocolFee,
     maxBondDiscount,
   };

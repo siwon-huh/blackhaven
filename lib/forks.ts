@@ -19,6 +19,44 @@ export const STATUS_TONE: Record<ForkStatus, { label: string; color: string }> =
     rugged: { label: "Rugged", color: "#FF6A4A" },
   };
 
+// 출시에서 정점까지 걸린 개월 수 계산
+export function monthsToPeak(launched: string, peakDate: string): number {
+  const [ly, lm] = launched.split("-").map(Number);
+  const [py, pm] = peakDate.split("-").map(Number);
+  return (py - ly) * 12 + (pm - lm);
+}
+
+// 출시 가격 대비 현재 가격 변화율
+export function priceChangeFromLaunch(fork: Fork): number {
+  return (fork.recentPriceUSD - fork.launchPriceUSD) / fork.launchPriceUSD;
+}
+
+// 정점 100 으로 정규화한 단순 곡선
+export function normalizedCurve(
+  peakUSD: number,
+  recentUSD: number,
+): { x: number; y: number }[] {
+  const recentY = Math.max(0.4, (recentUSD / peakUSD) * 100);
+  const a12 = Math.max(recentY, 8);
+  const a24 = Math.max(recentY, recentY * 1.4);
+  const x = [0, 0.5, 1, 2, 3, 6, 9, 12, 18, 24, 30, 36];
+  const y = [
+    100,
+    92,
+    78,
+    62,
+    44,
+    24,
+    14,
+    a12,
+    Math.max(recentY, a12 * 0.8),
+    a24 * 0.7 + recentY * 0.3,
+    recentY * 1.05,
+    recentY,
+  ];
+  return x.map((xi, i) => ({ x: xi, y: y[i] }));
+}
+
 export type Fork = {
   id: string;
   ticker: string;
@@ -28,6 +66,7 @@ export type Fork = {
   peakDate: string;
   peakPrice: string;
   peakPriceUSD: number; // 정규화된 곡선 차트용
+  launchPriceUSD: number; // 출시 직후 첫 거래가 근사
   recentPriceUSD: number; // 2024 이후 근사 가격
   drawdown: string;
   status: ForkStatus;
@@ -48,6 +87,7 @@ export const FORKS: Fork[] = [
     peakDate: "2021-04",
     peakPrice: "약 $1,330",
     peakPriceUSD: 1330,
+    launchPriceUSD: 4,
     recentPriceUSD: 25,
     drawdown: "정점 대비 약 98퍼센트 하락",
     status: "alive",
@@ -70,6 +110,7 @@ export const FORKS: Fork[] = [
     peakDate: "2021-11",
     peakPrice: "약 $10,000",
     peakPriceUSD: 10000,
+    launchPriceUSD: 130,
     recentPriceUSD: 5,
     drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "rugged",
@@ -92,6 +133,7 @@ export const FORKS: Fork[] = [
     peakDate: "2021-10",
     peakPrice: "약 $3,700",
     peakPriceUSD: 3700,
+    launchPriceUSD: 70,
     recentPriceUSD: 1.5,
     drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "moribund",
@@ -114,6 +156,7 @@ export const FORKS: Fork[] = [
     peakDate: "2021-12",
     peakPrice: "약 $155",
     peakPriceUSD: 155,
+    launchPriceUSD: 6,
     recentPriceUSD: 0.4,
     drawdown: "정점 대비 약 99퍼센트 하락",
     status: "wound-down",
@@ -136,6 +179,7 @@ export const FORKS: Fork[] = [
     peakDate: "2022-01",
     peakPrice: "약 $3,500",
     peakPriceUSD: 3500,
+    launchPriceUSD: 1500,
     recentPriceUSD: 180,
     drawdown: "정점 대비 약 95퍼센트 하락",
     status: "alive-pivoted",
@@ -158,6 +202,7 @@ export const FORKS: Fork[] = [
     peakDate: "2021-11",
     peakPrice: "약 $1,500",
     peakPriceUSD: 1500,
+    launchPriceUSD: 80,
     recentPriceUSD: 1,
     drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "abandoned",
@@ -177,6 +222,7 @@ export const FORKS: Fork[] = [
     peakDate: "2021-11",
     peakPrice: "약 $60",
     peakPriceUSD: 60,
+    launchPriceUSD: 3,
     recentPriceUSD: 0.05,
     drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "abandoned",

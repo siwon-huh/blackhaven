@@ -77,7 +77,7 @@ export default function LaunchSnapshot() {
                     error ? "bg-warn" : "bg-signal animate-pulseDot",
                   ].join(" ")}
                 />
-                {error ? "Live, stale" : "Live, 1s polling"}
+                {error ? "Live, stale" : "Live, 1초 간격 업데이트"}
               </span>
               <span className="chip">{s.venue}</span>
             </div>
