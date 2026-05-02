@@ -15,7 +15,7 @@ const fmtUsd = (n: number) =>
       : `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
 export default function CapitalGuide() {
-  const live = useBondMetrics(5_000);
+  const live = useBondMetrics(1_000);
   const [capital, setCapital] = useState<number>(2_500);
 
   const recommendation = useMemo(
@@ -31,7 +31,9 @@ export default function CapitalGuide() {
           자본 규모와 본드 풀 깊이 매칭
         </h2>
         <p className="mt-2 text-[13px] text-ink-300 max-w-2xl leading-relaxed">
-          본드 풀 깊이 (TVL) 의 5퍼센트를 권장 max 로 봅니다. 그 이상이 들어가면 디스카운트가 빠르게 잠식됩니다. 자본 규모를 입력하면 라이브 본드 데이터로 권장 만기를 골라줍니다.
+          본드 풀 깊이 (TVL) 의 5퍼센트를 권장 max 로 봅니다. 그 이상이 들어가면
+          디스카운트가 빠르게 잠식됩니다. 자본 규모를 입력하면 라이브 본드
+          데이터로 권장 만기를 골라줍니다.
         </p>
       </div>
 
@@ -39,7 +41,9 @@ export default function CapitalGuide() {
         <div className="flex items-baseline justify-between flex-wrap gap-2">
           <div className="eyebrow">진입 자본</div>
           <span className="text-[10px] font-mono text-ink-500">
-            {live.snapshot.source === "static" ? "static, manual sync" : "onchain"}
+            {live.snapshot.source === "static"
+              ? "static, manual sync"
+              : "onchain"}
             {live.lastUpdated && `, 갱신 ${formatRelative(live.lastUpdated)}`}
           </span>
         </div>
@@ -75,7 +79,8 @@ export default function CapitalGuide() {
         <div className="mt-5 grid md:grid-cols-3 gap-px bg-white/5 rounded-md overflow-hidden">
           {live.snapshot.bonds.map((b) => {
             const fits = capital <= b.recommendedMaxUSDm;
-            const ratio = b.recommendedMaxUSDm > 0 ? capital / b.recommendedMaxUSDm : 0;
+            const ratio =
+              b.recommendedMaxUSDm > 0 ? capital / b.recommendedMaxUSDm : 0;
             const isPicked = recommendation.picked.days === b.days;
             const tone = fits
               ? "var(--signal)"

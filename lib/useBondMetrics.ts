@@ -17,7 +17,7 @@ const FALLBACK: BondLiveState = {
   error: null,
 };
 
-export function useBondMetrics(intervalMs: number = 5_000): BondLiveState {
+export function useBondMetrics(intervalMs: number = 1_000): BondLiveState {
   const [state, setState] = useState<BondLiveState>(FALLBACK);
   const ranOnce = useRef(false);
 
@@ -30,7 +30,8 @@ export function useBondMetrics(intervalMs: number = 5_000): BondLiveState {
         const res = await fetch("/api/bond-metrics", { cache: "no-store" });
         if (!res.ok) throw new Error(`api ${res.status}`);
         const data = await res.json();
-        if (data.ok === false) throw new Error(data.error ?? "bond fetch failed");
+        if (data.ok === false)
+          throw new Error(data.error ?? "bond fetch failed");
         if (cancelled) return;
         setState({
           snapshot: data as BondSnapshot,

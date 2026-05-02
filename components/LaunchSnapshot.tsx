@@ -27,7 +27,7 @@ export default function LaunchSnapshot() {
   const s = LAUNCH_SNAPSHOT;
   const { remote, lastUpdated, loading, error, metrics } =
     useLiveMetrics(1_000);
-  const bondLive = useBondMetrics(5_000);
+  const bondLive = useBondMetrics(1_000);
   const fv = computeFairValue(metrics, LIVE_BONDS);
   const verdict = entryVerdict(fv);
 
