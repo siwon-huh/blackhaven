@@ -24,15 +24,14 @@ type DexPair = {
   quoteToken?: { address?: string; symbol?: string; name?: string };
 };
 
-// 클라이언트 폴링 1s. 서버 캐시 1s 로 매 초 fresh 응답.
-export const revalidate = 1;
+// 클라이언트 폴링 1s. force-dynamic 으로 매번 fresh 응답.
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     const res = await fetch(DEXSCREENER_URL, {
       headers: { accept: "application/json" },
-      next: { revalidate: 1 },
+      cache: "no-store",
     });
     if (!res.ok) {
       return NextResponse.json(
