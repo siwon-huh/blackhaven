@@ -24,7 +24,7 @@ export default function ForkCards() {
                     <span className="text-[14px] text-mist-200">{f.name}</span>
                   </div>
                   <div className="mt-1 text-[11.5px] text-mist-400 font-mono">
-                    {f.chain} · 출시 {f.launched}
+                    {f.chain}, 출시 {f.launched}
                   </div>
                 </div>
                 <span
@@ -52,7 +52,7 @@ export default function ForkCards() {
               </div>
 
               <p className="mt-4 text-[13px] text-mist-100 leading-relaxed">
-                <span className="text-mist-400">차별점 · </span>
+                <span className="text-mist-400">차별점. </span>
                 {f.hook}
               </p>
 
@@ -61,13 +61,17 @@ export default function ForkCards() {
                   <div className="text-[10.5px] uppercase tracking-wider font-mono text-jade-400 mb-1">
                     잘 됐던 이유
                   </div>
-                  <div className="text-[12.5px] text-mist-200 leading-relaxed">{f.whyItGrew}</div>
+                  <div className="text-[12.5px] text-mist-200 leading-relaxed">
+                    {f.whyItGrew}
+                  </div>
                 </div>
                 <div>
                   <div className="text-[10.5px] uppercase tracking-wider font-mono text-ember-400 mb-1">
                     깨진 이유
                   </div>
-                  <div className="text-[12.5px] text-mist-200 leading-relaxed">{f.whyItBroke}</div>
+                  <div className="text-[12.5px] text-mist-200 leading-relaxed">
+                    {f.whyItBroke}
+                  </div>
                 </div>
                 <div>
                   <div className="text-[10.5px] uppercase tracking-wider font-mono text-mist-400 mb-1">
@@ -78,7 +82,7 @@ export default function ForkCards() {
                 {f.signature && (
                   <div className="mt-3 pt-3 border-t hairline">
                     <p className="text-[12px] text-mist-300 italic leading-relaxed">
-                      “ {f.signature} ”
+                      {f.signature}
                     </p>
                   </div>
                 )}

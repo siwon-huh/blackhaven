@@ -10,13 +10,10 @@ export default function ScenarioBoard({ scenario: s }: { scenario: ScenarioDefin
     <section className="max-w-6xl mx-auto px-6 pb-12">
       <div className="mb-5">
         <div className="text-[11px] uppercase tracking-wider text-mist-400 font-mono">
-          Step 2 · {s.code} · {s.korean}
+          Step 2, {s.code}, {s.korean}
         </div>
-        <h2 className="mt-1 text-2xl font-semibold">
-          {s.emoji} {s.korean}의 알파
-        </h2>
+        <h2 className="mt-1 text-2xl font-semibold">{s.korean}의 알파</h2>
         <p className="mt-2 text-[13.5px] text-mist-300 leading-relaxed max-w-3xl">
-          <span className="text-mist-400">시장 상태 · </span>
           {s.state}
         </p>
       </div>
@@ -26,7 +23,7 @@ export default function ScenarioBoard({ scenario: s }: { scenario: ScenarioDefin
 
         <div>
           <div className="mt-2 mb-3 text-[11px] uppercase tracking-wider text-mist-400 font-mono">
-            보조 플레이 · 같이 깔 수 있는 것
+            보조 플레이
           </div>
           <ExtraPlays plays={s.extras} />
         </div>

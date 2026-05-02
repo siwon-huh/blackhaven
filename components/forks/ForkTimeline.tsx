@@ -1,7 +1,5 @@
 import { FORKS, STATUS_TONE } from "@/lib/forks";
 
-// 각 프로젝트를 launch 시점부터 가로 막대로 표시.
-// 시간 축은 2021-Q1 ~ 2024+ (정성적 위치).
 const TIMELINE_START = "2021-01";
 const TIMELINE_END = "2024-12";
 
@@ -16,7 +14,6 @@ const TOTAL_MONTHS = monthsBetween(TIMELINE_START, TIMELINE_END);
 const monthsToPct = (date: string) =>
   Math.max(0, Math.min(100, (monthsBetween(TIMELINE_START, date) / TOTAL_MONTHS) * 100));
 
-// status에 따라 종료 시점을 추정 (정성적 표시용)
 const ESTIMATED_END: Record<string, string> = {
   rugged: "2022-02",
   abandoned: "2022-06",
@@ -35,7 +32,7 @@ export default function ForkTimeline() {
         </div>
         <h2 className="mt-1 text-2xl font-semibold">출시부터 결말까지</h2>
         <p className="mt-1 text-[13px] text-mist-400">
-          2021 출시 → 2022 1분기 폭락이 거의 모든 포크에 공통. 살아남은 건 메커니즘이 아니라 피벗.
+          2021년 출시 후 2022년 1분기에 거의 모든 포크가 무너지는 패턴이 공통적으로 나타났습니다. 살아남은 사례는 메커니즘이 아니라 피벗에 가깝습니다.
         </p>
       </div>
 
@@ -47,10 +44,10 @@ export default function ForkTimeline() {
             const peakPct = monthsToPct(f.peakDate);
             const tone = STATUS_TONE[f.status];
             return (
-              <div key={f.id} className="grid grid-cols-[88px_1fr_120px] items-center gap-3">
+              <div key={f.id} className="grid grid-cols-[88px_1fr_140px] items-center gap-3">
                 <div className="font-mono text-[12px] text-white">
                   {f.ticker}
-                  <span className="ml-1 text-mist-400">· {f.chain.slice(0, 3)}</span>
+                  <span className="ml-1 text-mist-400">{f.chain.slice(0, 3)}</span>
                 </div>
                 <div className="relative h-6 rounded-md bg-ink-700/40 overflow-hidden">
                   <div
@@ -60,12 +57,12 @@ export default function ForkTimeline() {
                       width: `${Math.max(2, endPct - startPct)}%`,
                       background: `linear-gradient(90deg, ${tone.color}80, ${tone.color}30)`,
                     }}
-                    title={`${f.name} · ${f.launched} → ${ESTIMATED_END[f.status]}`}
+                    title={`${f.name} ${f.launched} 부터 ${ESTIMATED_END[f.status]}`}
                   />
                   <div
                     className="absolute top-1/2 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full ring-2 ring-ink-900"
                     style={{ left: `${peakPct}%`, background: "#F4C756" }}
-                    title={`Peak · ${f.peakDate} · ${f.peakPrice}`}
+                    title={`Peak ${f.peakDate} ${f.peakPrice}`}
                   />
                 </div>
                 <div className="text-right">
@@ -85,7 +82,7 @@ export default function ForkTimeline() {
           <span>2021</span>
           <span>2022</span>
           <span>2023</span>
-          <span className="text-right">2024+</span>
+          <span className="text-right">2024 이후</span>
         </div>
 
         <div className="mt-4 pt-3 border-t hairline flex flex-wrap gap-3 text-[11px]">

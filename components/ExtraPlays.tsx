@@ -35,7 +35,7 @@ export default function ExtraPlays({ plays }: { plays: Play[] }) {
 
           <details className="mt-3 group">
             <summary className="cursor-pointer text-[11.5px] text-mist-400 font-mono select-none hover:text-white">
-              실행 절차 ↓
+              실행 절차 펼치기
             </summary>
             <ol className="mt-3 space-y-1.5 pl-1">
               {p.steps.map((s, i) => (
@@ -47,11 +47,11 @@ export default function ExtraPlays({ plays }: { plays: Play[] }) {
             </ol>
             <div className="mt-3 grid grid-cols-2 gap-2 text-[11.5px]">
               <div className="rounded-md bg-jade-500/8 border border-jade-500/15 p-2.5">
-                <span className="text-jade-400">✓ </span>
+                <span className="text-jade-400 font-mono mr-1">Up</span>
                 <span className="text-mist-200">{p.reward.replace(/\*\*/g, "")}</span>
               </div>
               <div className="rounded-md bg-ember-500/8 border border-ember-500/15 p-2.5">
-                <span className="text-ember-400">✗ </span>
+                <span className="text-ember-400 font-mono mr-1">Down</span>
                 <span className="text-mist-200">{p.loss}</span>
               </div>
             </div>

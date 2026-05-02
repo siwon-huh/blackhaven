@@ -21,7 +21,7 @@ export default function HeroPlay({ play }: { play: Play }) {
               className="chip"
               style={{ color: EFFORT_TONE[play.effort], borderColor: `${EFFORT_TONE[play.effort]}40` }}
             >
-              난이도 · {play.effort}
+              난이도 {play.effort}
             </span>
           </div>
           <h3 className="mt-4 text-[28px] font-semibold tracking-tight text-white">
@@ -35,12 +35,12 @@ export default function HeroPlay({ play }: { play: Play }) {
           <div className="mt-1 text-[36px] font-semibold text-white tracking-tight">
             {play.apr}
           </div>
-          <div className="text-[11px] text-mist-400">연환산 · 베스트케이스</div>
+          <div className="text-[11px] text-mist-400">연환산, 베스트케이스 가정입니다</div>
         </div>
       </div>
 
       <p className="mt-5 text-[14.5px] text-mist-200 leading-relaxed max-w-3xl">
-        <span className="text-mist-400">왜 지금 이 플레이가 우세한가 · </span>
+        <span className="text-mist-400">왜 지금 이 플레이가 우세한가. </span>
         {play.why}
       </p>
 
@@ -65,7 +65,7 @@ export default function HeroPlay({ play }: { play: Play }) {
         <div className="space-y-3">
           <div className="rounded-xl border border-jade-500/20 bg-jade-500/5 p-4">
             <div className="text-[10.5px] uppercase tracking-wider font-mono text-jade-400 mb-1.5">
-              ✓ Upside
+              Upside
             </div>
             <div
               className="text-[13px] text-mist-100 leading-relaxed"
@@ -79,7 +79,7 @@ export default function HeroPlay({ play }: { play: Play }) {
           </div>
           <div className="rounded-xl border border-ember-500/20 bg-ember-500/5 p-4">
             <div className="text-[10.5px] uppercase tracking-wider font-mono text-ember-400 mb-1.5">
-              ✗ Downside
+              Downside
             </div>
             <div className="text-[13px] text-mist-100 leading-relaxed">{play.loss}</div>
           </div>

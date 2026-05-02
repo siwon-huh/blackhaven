@@ -10,7 +10,7 @@ export default function AllocBar({ allocation }: { allocation: Allocation[] }) {
           </div>
           <div className="text-[14px] font-semibold mt-1">권장 자본 배분</div>
         </div>
-        <div className="text-[11px] text-mist-400">합계 100%</div>
+        <div className="text-[11px] text-mist-400">합계 100퍼센트</div>
       </div>
 
       <div className="flex h-3 rounded-full overflow-hidden">
@@ -19,7 +19,7 @@ export default function AllocBar({ allocation }: { allocation: Allocation[] }) {
             key={a.label}
             style={{ width: `${a.share}%`, background: a.color }}
             className="first:rounded-l-full last:rounded-r-full"
-            title={`${a.label} · ${a.share}%`}
+            title={`${a.label} ${a.share}%`}
           />
         ))}
       </div>
@@ -40,7 +40,7 @@ export default function AllocBar({ allocation }: { allocation: Allocation[] }) {
       </div>
 
       <div className="mt-4 pt-3 border-t hairline text-[11px] text-mist-400 leading-relaxed">
-        본인 유동성·리스크 허용에 맞춰 조정. 락업 자본은 만기까지 transfer 불가, 정말 안 쓸 자본만.
+        본인의 유동성과 리스크 허용에 맞춰 조정하시기 바랍니다. 락업에 들어간 자본은 만기까지 회수가 어려우므로 정말 사용하지 않을 자본만 배정하시기 바랍니다.
       </div>
     </div>
   );

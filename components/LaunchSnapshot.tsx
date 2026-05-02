@@ -4,8 +4,8 @@ import { LAUNCH_SNAPSHOT, VERDICT_TONE } from "@/lib/launch";
 import { formatRelative, useLiveMetrics } from "@/lib/useLiveMetrics";
 
 const SIGNAL_TONE = {
-  warn: { color: "#F4C756", icon: "⚠" },
-  ok: { color: "#3DDC97", icon: "✓" },
+  warn: { color: "#F4C756", label: "Warn" },
+  ok: { color: "#3DDC97", label: "OK" },
 };
 
 const fmtUsd = (n: number, digits = 2) =>
@@ -23,7 +23,6 @@ export default function LaunchSnapshot() {
   const s = LAUNCH_SNAPSHOT;
   const { remote, lastUpdated, loading, error } = useLiveMetrics(60_000);
 
-  // 라이브가 있으면 라이브, 없으면 정적 fallback
   const price = remote ? fmtUsd(remote.market.priceUSD) : s.metrics.price;
   const priceUSDm = remote
     ? `${remote.market.priceUSDm.toFixed(2)} USDm`
@@ -44,15 +43,13 @@ export default function LaunchSnapshot() {
     ? `${(remote.market.poolQuote / 1000).toFixed(2)}K USDm`
     : s.metrics.poolUSDm;
 
-  // NAV는 정적
   const navStatic = s.metrics.nav;
   const treasury = s.metrics.navTreasury;
 
-  // 동적 premium (가능하면 라이브 가격으로 재계산)
   const navNumber = parseFloat(navStatic);
   const livePriceUSDm = remote?.market.priceUSDm ?? 18.66;
   const premiumNum = (livePriceUSDm - navNumber) / navNumber;
-  const premiumLabel = `+${(premiumNum * 100).toFixed(1)}% (${(livePriceUSDm / navNumber).toFixed(2)}× NAV)`;
+  const premiumLabel = `NAV 위 ${(premiumNum * 100).toFixed(1)}퍼센트, NAV의 ${(livePriceUSDm / navNumber).toFixed(2)}배`;
 
   return (
     <section id="live" className="max-w-6xl mx-auto px-6 pb-10">
@@ -75,7 +72,7 @@ export default function LaunchSnapshot() {
                     error ? "bg-ember-500" : "bg-jade-400 animate-pulse",
                   ].join(" ")}
                 />
-                {error ? `Live · stale (${error})` : `Live · 60s polling`}
+                {error ? "Live, stale" : "Live, 60s polling"}
               </span>
               <span className="chip">{s.venue}</span>
               <span className="chip">{s.asset}</span>
@@ -84,20 +81,20 @@ export default function LaunchSnapshot() {
               출시 직후 스냅샷
             </h2>
             <p className="mt-1 text-[12px] text-mist-400 font-mono">
-              updated {formatRelative(lastUpdated)}
-              {loading && !lastUpdated && " · loading…"}
-              {remote && ` · src: ${remote.source}`}
+              마지막 갱신 {formatRelative(lastUpdated)}
+              {loading && !lastUpdated && ", loading"}
+              {remote && `, source ${remote.source}`}
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-[11.5px] font-mono">
             <a className="chip hover:text-white" href={s.appMetrics} target="_blank" rel="noreferrer">
-              app ↗
+              app
             </a>
             <a className="chip hover:text-white" href={s.dexscreener} target="_blank" rel="noreferrer">
-              dexscreener ↗
+              dexscreener
             </a>
             <a className="chip hover:text-white" href={s.poolUrl} target="_blank" rel="noreferrer">
-              kumbaya ↗
+              kumbaya
             </a>
           </div>
         </header>
@@ -105,7 +102,7 @@ export default function LaunchSnapshot() {
         <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-3">
           <Metric label="Market Price" value={price} sub={priceUSDm} live={!!remote} />
           <Metric
-            label="NAV (Reserves/RBT)"
+            label="NAV (Reserves per RBT)"
             value={navStatic}
             sub={treasury}
             tone="ok"
@@ -115,7 +112,7 @@ export default function LaunchSnapshot() {
           <Metric
             label="24h Δ"
             value={delta24h}
-            sub={`peak ${s.metrics.peakApprox} · ${s.metrics.drawdownFromPeak}`}
+            sub={`정점 ${s.metrics.peakApprox}, ${s.metrics.drawdownFromPeak}`}
             tone="up"
             live={!!remote}
           />
@@ -123,17 +120,17 @@ export default function LaunchSnapshot() {
 
         <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-[11.5px]">
           <SubMetric
-            label="Circulating / Total"
-            value={`${s.metrics.circulating} / ${s.metrics.totalSupply}`}
+            label="Circulating, Total"
+            value={`${s.metrics.circulating}, ${s.metrics.totalSupply}`}
           />
-          <SubMetric label="Pool Balance" value={`${poolRBT} · ${poolUSDm}`} live={!!remote} />
+          <SubMetric label="Pool Balance" value={`${poolRBT}, ${poolUSDm}`} live={!!remote} />
           <SubMetric label="Volume 24h" value={volume} live={!!remote} />
-          <SubMetric label="6h / 1h" value={`${delta6h} / ${delta1h}`} live={!!remote} />
+          <SubMetric label="6h, 1h" value={`${delta6h}, ${delta1h}`} live={!!remote} />
         </div>
 
         <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-[11.5px]">
           <SubMetric label="TXNS 24h" value={txns} live={!!remote} />
-          <SubMetric label="Buys / Sells" value={`${buys} / ${sells}`} live={!!remote} />
+          <SubMetric label="Buys, Sells" value={`${buys}, ${sells}`} live={!!remote} />
           <SubMetric label="Stake TVL" value={s.metrics.stakeTVL} />
           <SubMetric label="Commit 24w" value={s.metrics.commit24wReward} />
         </div>
@@ -147,10 +144,10 @@ export default function LaunchSnapshot() {
         <div className="mt-6 grid lg:grid-cols-[1.2fr_1fr] gap-4">
           <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-4">
             <div className="text-[10.5px] uppercase tracking-wider text-amber-400 font-mono mb-1.5">
-              NAV premium · 시장가 vs 백킹
+              NAV Premium, 시장가 대 백킹
             </div>
             <div className="flex items-baseline gap-3 mt-1">
-              <div className="text-[24px] font-semibold text-white tracking-tight">
+              <div className="text-[20px] font-semibold text-white tracking-tight">
                 {premiumLabel}
               </div>
             </div>
@@ -164,7 +161,9 @@ export default function LaunchSnapshot() {
               </div>
               <div className="rounded-md bg-ink-700/60 p-2">
                 <div className="text-mist-400">Market (live)</div>
-                <div className="mt-0.5 text-white">{livePriceUSDm.toFixed(2)} USDm</div>
+                <div className="mt-0.5 text-white">
+                  {livePriceUSDm.toFixed(2)} USDm
+                </div>
               </div>
             </div>
             <p className="mt-3 text-[10.5px] text-mist-400 font-mono leading-relaxed">
@@ -182,12 +181,15 @@ export default function LaunchSnapshot() {
                   style={{ borderColor: `${tone.color}30`, background: `${tone.color}08` }}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[11px]" style={{ color: tone.color }}>
-                      {tone.icon}
+                    <span
+                      className="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded"
+                      style={{ color: tone.color, background: `${tone.color}15` }}
+                    >
+                      {tone.label}
                     </span>
                     <span className="text-[12.5px] font-semibold text-white">{sig.label}</span>
                   </div>
-                  <p className="mt-1 ml-5 text-[11.5px] text-mist-300 leading-relaxed">
+                  <p className="mt-1.5 text-[11.5px] text-mist-300 leading-relaxed">
                     {sig.detail}
                   </p>
                 </div>
@@ -226,10 +228,7 @@ export default function LaunchSnapshot() {
         </div>
 
         <div className="mt-5 pt-4 border-t hairline text-[11px] text-mist-400 leading-relaxed">
-          <span className="text-mist-300">live</span> 표시 메트릭은 60초 간격으로 dexscreener에서
-          갱신. NAV/Reserves/Stake/Commit은 정적 fallback (앱 Metrics 페이지 수기 동기화).
-          숫자가 변하면 <span className="font-mono">lib/launch.ts</span>와
-          <span className="font-mono"> lib/fairValue.ts</span>만 업데이트.
+          live 표시 메트릭은 60초 간격으로 갱신됩니다. NAV, Reserves, Stake, Commit 항목은 정적 fallback이며 앱 Metrics 페이지의 수치를 수기로 동기화합니다.
         </div>
       </div>
     </section>
@@ -266,14 +265,10 @@ function Metric({
           {label}
         </div>
         {live && (
-          <span className="text-[9px] font-mono text-jade-400" title="60s polling">
-            ● live
-          </span>
+          <span className="text-[9px] font-mono text-jade-400">live</span>
         )}
         {staticHint && (
-          <span className="text-[9px] font-mono text-mist-500" title="manual sync">
-            ○ static
-          </span>
+          <span className="text-[9px] font-mono text-mist-500">static</span>
         )}
       </div>
       <div
@@ -302,7 +297,7 @@ function SubMetric({
         <div className="text-[10px] uppercase tracking-wider text-mist-400 font-mono">
           {label}
         </div>
-        {live && <span className="text-[9px] text-jade-400 font-mono">●</span>}
+        {live && <span className="text-[9px] text-jade-400 font-mono">live</span>}
       </div>
       <div className="mt-0.5 text-[12.5px] text-white font-mono">{value}</div>
     </div>

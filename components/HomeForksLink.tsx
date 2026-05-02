@@ -12,13 +12,13 @@ export default function HomeForksLink() {
             Postmortem
           </div>
           <div className="mt-1 text-[15px] font-semibold text-white">
-            OHM과 그 포크들은 어떻게 됐는가?
+            OHM과 그 포크들은 어떻게 됐을까요
           </div>
           <div className="mt-1 text-[12.5px] text-mist-300">
-            메이저 포크 7개의 결말, 공통 실패 패턴 7개, Blackhaven이 다르게 한 것 →
+            메이저 포크 일곱 개의 결말, 공통 실패 패턴 일곱 가지, Blackhaven이 다르게 한 것을 정리합니다.
           </div>
         </div>
-        <div className="text-[24px] text-mist-300">→</div>
+        <div className="text-[18px] text-mist-300 font-mono">{"->"}</div>
       </Link>
     </section>
   );

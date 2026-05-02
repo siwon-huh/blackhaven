@@ -12,8 +12,7 @@ export default function LessonsBlock() {
             Blackhaven이 그 실패에서 다르게 한 것
           </h2>
           <p className="mt-1 text-[13px] text-mist-400 max-w-2xl">
-            아래 항목들은 전부 docs.blackhaven.xyz의 실제 메커니즘. 마케팅이 아니라
-            컨트랙트·TOS에 박힌 설계입니다.
+            아래 항목은 모두 docs.blackhaven.xyz 에 명시된 실제 메커니즘입니다. 마케팅이 아니라 컨트랙트와 TOS 에 박힌 설계입니다.
           </p>
         </div>
       </div>
@@ -45,10 +44,11 @@ export default function LessonsBlock() {
           Bottom line
         </div>
         <p className="mt-2 text-[14px] text-mist-100 leading-relaxed max-w-3xl">
-          OHM 메커니즘 자체는 백킹 부근까지는 사용자 자본을 지켰습니다. 깨진 건 메커니즘이 아니라
-          <span className="text-white"> 게임이론의 외피와 무한 인플레이션, 자산/거버넌스 결합, 사람 리스크</span>.
-          Blackhaven은 그 외피들을 차례로 제거하고 본질(treasury + bond + POL)만 남겨,
-          사용자가 backing 한참 위에서 진입할 동기를 구조적으로 줄입니다.
+          OHM 메커니즘 자체는 백킹 부근까지 사용자 자본을 지켰습니다. 깨진 것은 메커니즘이 아니라{" "}
+          <span className="text-white">
+            게임이론의 외피, 무한 인플레이션, 자산과 거버넌스의 결합, 사람 리스크
+          </span>
+          였습니다. Blackhaven은 그 외피들을 차례로 제거하고 본질인 트레저리, 본드, POL만 남겨, 사용자가 backing 한참 위에서 진입할 동기를 구조적으로 줄입니다.
         </p>
       </div>
     </section>

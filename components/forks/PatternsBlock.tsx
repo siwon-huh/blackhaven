@@ -7,9 +7,9 @@ export default function PatternsBlock() {
         <div className="text-[11px] uppercase tracking-wider text-mist-400 font-mono">
           Common failure modes
         </div>
-        <h2 className="mt-1 text-2xl font-semibold">공통 실패 패턴 7개</h2>
+        <h2 className="mt-1 text-2xl font-semibold">공통 실패 패턴 일곱 가지</h2>
         <p className="mt-1 text-[13px] text-mist-400">
-          개별 포크가 깨진 이유는 다르지만, 거의 모든 포크가 이 7개 중 2~3개에 동시에 걸렸습니다.
+          개별 포크가 깨진 이유는 다르지만, 거의 모든 포크가 이 일곱 가지 중 두세 가지에 동시에 걸려 있었습니다.
         </p>
       </div>
 

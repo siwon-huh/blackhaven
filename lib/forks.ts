@@ -1,17 +1,17 @@
-// OHM과 그 메이저 포크들의 운명.
-// 정점 가격은 CMC/CG 기준 근사치, 결말은 공개 자료 기준 — 시장 데이터는 항상 변동 가능.
+// OlympusDAO와 그 메이저 포크들의 운명.
+// 정점 가격은 CMC와 CoinGecko 기준의 근사치이며, 결말은 공개 자료를 기준으로 정리했습니다.
 
 export type ForkStatus =
-  | "alive" // 운영 중, 살아있음
-  | "alive-pivoted" // 피벗 후 다른 카테고리로 생존
-  | "moribund" // 운영은 하지만 거의 죽음
-  | "wound-down" // 질서있는 종료
-  | "abandoned" // 사실상 방치 / 종료
-  | "rugged"; // 신뢰 붕괴 / 사실상 러그
+  | "alive"
+  | "alive-pivoted"
+  | "moribund"
+  | "wound-down"
+  | "abandoned"
+  | "rugged";
 
 export const STATUS_TONE: Record<ForkStatus, { label: string; color: string }> = {
   alive: { label: "Alive", color: "#3DDC97" },
-  "alive-pivoted": { label: "Alive · Pivoted", color: "#9C8CFF" },
+  "alive-pivoted": { label: "Alive, Pivoted", color: "#9C8CFF" },
   moribund: { label: "Moribund", color: "#F4C756" },
   "wound-down": { label: "Wound-down", color: "#6B7589" },
   abandoned: { label: "Abandoned", color: "#FF6A1F" },
@@ -23,16 +23,16 @@ export type Fork = {
   ticker: string;
   name: string;
   chain: string;
-  launched: string; // YYYY-MM
+  launched: string;
   peakDate: string;
-  peakPrice: string; // 표시용
-  drawdown: string; // 정점 대비 표시
+  peakPrice: string;
+  drawdown: string;
   status: ForkStatus;
-  hook: string; // 한 줄 차별점
+  hook: string;
   whyItGrew: string;
   whyItBroke: string;
-  ending: string; // 결말 한 줄
-  signature?: string; // 인용할 만한 디테일 (옵션)
+  ending: string;
+  signature?: string;
 };
 
 export const FORKS: Fork[] = [
@@ -43,17 +43,18 @@ export const FORKS: Fork[] = [
     chain: "Ethereum",
     launched: "2021-03",
     peakDate: "2021-04",
-    peakPrice: "≈ $1,330",
-    drawdown: "−98% (peak → trough)",
+    peakPrice: "약 $1,330",
+    drawdown: "정점 대비 약 98퍼센트 하락",
     status: "alive",
-    hook: "원조. Bond + (3,3) staking + DAO treasury 패러다임을 만든 프로토콜.",
+    hook: "본드와 (3,3) staking, DAO treasury 패러다임을 만든 원조 프로토콜입니다.",
     whyItGrew:
-      "고APY rebase × DAO treasury × (3,3) 셸링이 결합돼 6개월 만에 treasury $4B+ 도달. 디파이 시즌 2의 상징.",
+      "고APY rebase, DAO treasury, (3,3) 셸링이 결합되어 6개월 만에 트레저리가 $4B 이상에 도달했습니다. 디파이 시즌 2의 상징이 되었습니다.",
     whyItBroke:
-      "(3,3)은 모두가 stake한다는 가정 위에 서있었음. 매도 한 번이 dilution 가속을 트리거 → 데스 스파이럴. 시장가가 RFV 위 100배에서 시작해 RFV 근처까지 −98% 직행.",
+      "(3,3)은 모두가 stake한다는 가정 위에 서있었습니다. 매도 한 번이 dilution 가속을 트리거하면서 데스 스파이럴이 시작되었고, 시장가가 RFV 위 100배에서 시작해 RFV 근처까지 98퍼센트 직행했습니다.",
     ending:
-      "프로토콜은 살아남음. V2/gOHM으로 전환, treasury는 여전히 가치 보유. 토큰 가격은 RFV 부근 안정.",
-    signature: "RFV 부근에선 결국 backing이 받쳤음 — 메커니즘 자체는 유효, 시장가만 미친 가격에서 시작했을 뿐.",
+      "프로토콜은 살아남았습니다. V2와 gOHM으로 전환했고, 트레저리는 여전히 가치를 보유하고 있습니다. 토큰 가격은 RFV 부근에서 안정화되었습니다.",
+    signature:
+      "RFV 부근에서 결국 backing이 받쳐주었습니다. 메커니즘 자체는 유효했고, 시장가만 비합리적인 수준에서 시작했을 뿐입니다.",
   },
   {
     id: "time",
@@ -62,17 +63,19 @@ export const FORKS: Fork[] = [
     chain: "Avalanche",
     launched: "2021-09",
     peakDate: "2021-11",
-    peakPrice: "≈ $10,000",
-    drawdown: "−99%+",
+    peakPrice: "약 $10,000",
+    drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "rugged",
-    hook: "Avalanche 첫 OHM 포크. Daniele Sestagalli의 후광으로 폭발적 성장.",
+    hook:
+      "Avalanche의 첫 OHM 포크입니다. Daniele Sestagalli의 후광으로 폭발적으로 성장했습니다.",
     whyItGrew:
-      "OHM 메커니즘 + AVAX 시즌 + 카리스마 있는 리더십. TVL $1.5B 도달, 한때 OHM보다 가격 표면이 컸음.",
+      "OHM 메커니즘에 AVAX 시즌과 카리스마 있는 리더십이 더해졌습니다. TVL이 $1.5B에 도달했고, 한때 가격 표면이 OHM보다 컸습니다.",
     whyItBroke:
-      "2022-01, 0xSifu(트레저리 운영자)가 QuadrigaCX 공동창립자 Michael Patryn으로 폭로됨. 신뢰 붕괴 → 거버넌스 청산 표결 → 사실상 종료.",
+      "2022년 1월, 트레저리 운영자였던 0xSifu가 QuadrigaCX 공동창립자 Michael Patryn 으로 폭로되었습니다. 신뢰가 붕괴되며 거버넌스 청산 표결로 이어졌고, 사실상 종료되었습니다.",
     ending:
-      "트레저리 청산 표결 통과, 운영 사실상 중단. OHM 포크 시즌의 가장 유명한 사망 사례.",
-    signature: "메커니즘은 작동했지만 사람이 결국 이슈였다 — 디파이의 'trust assumption'이 무엇을 의미하는지 보여줌.",
+      "트레저리 청산 표결이 통과되며 운영이 사실상 중단되었습니다. OHM 포크 시즌의 가장 유명한 사망 사례입니다.",
+    signature:
+      "메커니즘은 작동했지만 사람이 결국 이슈였습니다. 디파이의 신뢰 가정이 무엇을 의미하는지 보여주는 사례입니다.",
   },
   {
     id: "klima",
@@ -81,16 +84,18 @@ export const FORKS: Fork[] = [
     chain: "Polygon",
     launched: "2021-10",
     peakDate: "2021-10",
-    peakPrice: "≈ $3,700",
-    drawdown: "−99%+",
+    peakPrice: "약 $3,700",
+    drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "moribund",
-    hook: "탄소 크레딧(BCT, MCO2) 백킹. ‘기후 보호’ 내러티브 차별화.",
+    hook: "탄소 크레딧(BCT, MCO2) 백킹을 채택하여 기후 보호 내러티브로 차별화했습니다.",
     whyItGrew:
-      "ESG 내러티브 + OHM 게임이론 결합. ‘탄소 가격이 오를수록 KLIMA가 오른다’는 스토리.",
+      "ESG 내러티브와 OHM 게임이론이 결합되었습니다. 탄소 가격이 오를수록 KLIMA가 오른다는 스토리가 통했습니다.",
     whyItBroke:
-      "백킹 자산인 토큰화 탄소 크레딧 자체의 유동성·신뢰성이 약했음. 실제 카본 마켓이 OHM 게임이론 속도를 따라가지 못해 backing이 무너짐. 일반적 OHM 데스 사이클 추가.",
-    ending: "운영은 유지되지만 거래량·활동 거의 없음. 카테고리 자체가 거의 사망.",
-    signature: "내러티브가 좋아도 백킹 자산이 약하면 메커니즘이 작동하지 않는다.",
+      "백킹 자산인 토큰화 탄소 크레딧 자체의 유동성과 신뢰성이 약했습니다. 실제 카본 마켓이 OHM 게임이론의 속도를 따라가지 못해 backing이 무너졌고, 일반적인 OHM 데스 사이클이 더해졌습니다.",
+    ending:
+      "운영은 유지되지만 거래량과 활동이 거의 없습니다. 카테고리 자체가 거의 사망 상태입니다.",
+    signature:
+      "내러티브가 좋아도 백킹 자산이 약하면 메커니즘이 작동하지 않습니다.",
   },
   {
     id: "hec",
@@ -99,16 +104,19 @@ export const FORKS: Fork[] = [
     chain: "Fantom",
     launched: "2021-09",
     peakDate: "2021-12",
-    peakPrice: "≈ $155",
-    drawdown: "−99%",
+    peakPrice: "약 $155",
+    drawdown: "정점 대비 약 99퍼센트 하락",
     status: "wound-down",
-    hook: "Fantom 생태계 통합 + derivatives/launchpad/스테이블코인까지 확장 시도.",
-    whyItGrew: "Fantom 시즌의 주력 OHM 포크. 빠른 확장 시도로 한때 Fantom TVL 상위.",
+    hook:
+      "Fantom 생태계 통합과 derivatives, launchpad, 스테이블코인까지 시도한 확장형 포크입니다.",
+    whyItGrew:
+      "Fantom 시즌의 주력 OHM 포크였습니다. 빠른 확장 시도로 한때 Fantom TVL 상위에 올랐습니다.",
     whyItBroke:
-      "확장이 다 흩어졌고 핵심 메커니즘은 OHM과 동일하게 무너짐. 2023 거버넌스가 wind-down 결정.",
+      "확장이 흩어지면서 핵심 메커니즘은 OHM과 동일하게 무너졌습니다. 2023년 거버넌스가 wind-down을 결정했습니다.",
     ending:
-      "트레저리 잔여 자산을 토큰홀더에 redemption 형태로 분배 후 정식 종료. OHM 포크 중 드물게 ‘질서있는 종료’.",
-    signature: "메커니즘이 깨졌을 때 어떻게 마무리하는지의 모범 — 그래도 사용자 평균 진입가 회수는 못함.",
+      "트레저리 잔여 자산을 토큰홀더에 redemption 형태로 분배한 뒤 정식 종료했습니다. OHM 포크 중 드물게 질서있는 종료 사례입니다.",
+    signature:
+      "메커니즘이 깨졌을 때 어떻게 마무리하는지의 모범입니다. 그래도 사용자 평균 진입가의 회수에는 미치지 못했습니다.",
   },
   {
     id: "btrfly",
@@ -117,16 +125,19 @@ export const FORKS: Fork[] = [
     chain: "Ethereum",
     launched: "2021-12",
     peakDate: "2022-01",
-    peakPrice: "≈ $3,500",
-    drawdown: "−95%",
+    peakPrice: "약 $3,500",
+    drawdown: "정점 대비 약 95퍼센트 하락",
     status: "alive-pivoted",
-    hook: "OHM 포크에서 시작했지만 Curve/Convex 메타거버넌스 어그리게이터로 피벗.",
-    whyItGrew: "OHM 게임이론 + Curve Wars 시즌의 ‘bribe 어그리게이터’ 포지션.",
+    hook:
+      "OHM 포크에서 시작했지만 Curve와 Convex의 메타거버넌스 어그리게이터로 피벗했습니다.",
+    whyItGrew:
+      "OHM 게임이론에 Curve Wars 시즌의 bribe 어그리게이터 포지션이 결합되었습니다.",
     whyItBroke:
-      "OHM 메커니즘으로는 결국 같은 사이클. V1 토큰은 95% 폭락.",
+      "OHM 메커니즘으로는 결국 같은 사이클을 맞이했습니다. V1 토큰은 95퍼센트 하락했습니다.",
     ending:
-      "V2(rlBTRFLY)로 전환, OHM 게임이론 버리고 Convex/Curve 메타거버넌스 인프라로 카테고리 변경. 살아남음.",
-    signature: "‘OHM 포크였다’는 사실보다 ‘피벗에 성공한 OHM 포크’로 기억됨 — 거의 유일한 케이스.",
+      "V2(rlBTRFLY)로 전환하면서 OHM 게임이론을 버리고 Convex와 Curve의 메타거버넌스 인프라로 카테고리를 변경했습니다. 살아남았습니다.",
+    signature:
+      "OHM 포크였다는 사실보다 피벗에 성공한 OHM 포크로 기억됩니다. 거의 유일한 케이스입니다.",
   },
   {
     id: "snowbank",
@@ -135,14 +146,14 @@ export const FORKS: Fork[] = [
     chain: "Avalanche",
     launched: "2021-09",
     peakDate: "2021-11",
-    peakPrice: "≈ $1,500",
-    drawdown: "−99%+",
+    peakPrice: "약 $1,500",
+    drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "abandoned",
-    hook: "Avalanche 두 번째 메이저 OHM 포크.",
-    whyItGrew: "OHM 메커니즘 카피 + AVAX 시즌의 빠른 자금 유입.",
+    hook: "Avalanche의 두 번째 메이저 OHM 포크입니다.",
+    whyItGrew: "OHM 메커니즘 카피와 AVAX 시즌의 빠른 자금 유입이 결합되었습니다.",
     whyItBroke:
-      "차별점이 거의 없었음. 게임이론 셸링이 흔들리자 가장 먼저 무너짐.",
-    ending: "거버넌스 활동 정지, 사실상 방치.",
+      "차별점이 거의 없었습니다. 게임이론 셸링이 흔들리자 가장 먼저 무너졌습니다.",
+    ending: "거버넌스 활동이 정지되며 사실상 방치되었습니다.",
   },
   {
     id: "fhm",
@@ -151,17 +162,16 @@ export const FORKS: Fork[] = [
     chain: "Fantom",
     launched: "2021-09",
     peakDate: "2021-11",
-    peakPrice: "≈ $60",
-    drawdown: "−99%+",
+    peakPrice: "약 $60",
+    drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "abandoned",
-    hook: "Fantom의 카피캣 OHM 포크.",
-    whyItGrew: "Fantom 시즌 + OHM 메커니즘.",
-    whyItBroke: "차별점 부재, 메커니즘만 카피.",
-    ending: "사용자 이탈, 운영 정지.",
+    hook: "Fantom의 카피캣 OHM 포크입니다.",
+    whyItGrew: "Fantom 시즌과 OHM 메커니즘이 결합되었습니다.",
+    whyItBroke: "차별점이 없었고 메커니즘만 카피했습니다.",
+    ending: "사용자가 이탈했고 운영이 정지되었습니다.",
   },
 ];
 
-// 공통 실패 패턴
 export type Pattern = {
   code: string;
   title: string;
@@ -172,58 +182,64 @@ export type Pattern = {
 export const COMMON_PATTERNS: Pattern[] = [
   {
     code: "P1",
-    title: "(3,3) 게임이론 ponzi",
+    title: "(3,3) 게임이론 폰지 구조",
     detail:
-      "‘모두가 stake하면 모두 이긴다’는 셸링 포인트. 한 번의 큰 매도가 dilution 가속을 트리거하면 그 자체가 매도 트리거가 되어 데스 스파이럴.",
-    examples: ["OHM (-98%)", "TIME (-99%)", "SB (-99%)"],
+      "모두가 stake하면 모두 이긴다는 셸링 포인트입니다. 한 번의 큰 매도가 dilution 가속을 트리거하면 그 자체가 매도 트리거가 되어 데스 스파이럴이 시작됩니다.",
+    examples: ["OHM 약 98퍼센트 하락", "TIME 약 99퍼센트 하락", "SB 약 99퍼센트 하락"],
   },
   {
     code: "P2",
-    title: "백킹 무관 가격 폭주",
+    title: "백킹과 무관한 가격 폭주",
     detail:
-      "시장가가 backing 위 50–100배에서 시작해 결국 backing 부근까지 직행. 백킹은 받쳐줬지만 사용자 평균 진입가는 훨씬 위 → 사용자 입장에서 99% 손실.",
-    examples: ["OHM peak $1,330 vs RFV ~$50", "TIME peak $10,000"],
+      "시장가가 backing 위 50에서 100배에서 시작하여 결국 backing 부근까지 직행합니다. 백킹은 받쳐주었지만 사용자 평균 진입가는 훨씬 위에 있어 사용자 입장에서는 99퍼센트 손실로 끝납니다.",
+    examples: ["OHM 정점 $1,330 vs RFV 약 $50", "TIME 정점 $10,000"],
   },
   {
     code: "P3",
     title: "무한 rebase 인플레이션",
     detail:
-      "APY 7,000%+를 유지하려면 발행이 폭주. 가격이 인플레이션 속도를 못 따라가는 순간 실질 수익률 음수.",
-    examples: ["대부분 OHM 포크 — 셸링 깨지자 모든 stake가 매도 압력으로 전환"],
+      "APY 7,000퍼센트 이상을 유지하려면 발행이 폭주합니다. 가격이 인플레이션 속도를 따라가지 못하는 순간 실질 수익률이 음수로 전환됩니다.",
+    examples: [
+      "대부분의 OHM 포크가 셸링이 깨지자 모든 stake가 매도 압력으로 전환되었습니다",
+    ],
   },
   {
     code: "P4",
-    title: "토큰 = 자산 + 거버넌스 결합",
+    title: "토큰이 자산과 거버넌스를 겸하는 구조",
     detail:
-      "OHM 하나가 트레저리 자산이자 거버넌스 토큰. 신뢰 붕괴 시 둘 다 0이 되고, 거버넌스 결정으로 자산을 보호할 인센티브가 사라짐.",
-    examples: ["OHM, TIME, HEC 모두 토큰 1개에 결합"],
+      "OHM 하나가 트레저리 자산이자 거버넌스 토큰을 겸했습니다. 신뢰가 무너지면 둘 다 0이 되며, 거버넌스 결정으로 자산을 보호할 인센티브도 사라집니다.",
+    examples: ["OHM, TIME, HEC 모두 토큰 하나에 결합되어 있었습니다"],
   },
   {
     code: "P5",
     title: "변동성 큰 백킹 자산",
     detail:
-      "ETH/AVAX/MATIC/탄소크레딧 등 백킹 자산이 시장 사이클과 함께 폭락하면 backing 자체가 무너져 ‘하한선’이 되지 못함.",
-    examples: ["KLIMA (탄소크레딧 유동성 부족)", "HEC (FTM 사이클과 동행)"],
+      "ETH, AVAX, MATIC, 탄소 크레딧 같은 백킹 자산이 시장 사이클과 함께 폭락하면 backing 자체가 무너져 하한선이 되지 못합니다.",
+    examples: [
+      "KLIMA 의 탄소 크레딧 유동성 부족",
+      "HEC 가 FTM 사이클과 동행 폭락",
+    ],
   },
   {
     code: "P6",
-    title: "Inverse bond 늦었음",
+    title: "Inverse bond 도입이 늦었습니다",
     detail:
-      "백킹 아래에서 매수해 burn하는 메커니즘이 OHM에서는 사이클 후반에 수동으로 도입. 자동·실시간 작동이 없어 시장가 폭주를 막지 못함.",
-    examples: ["OHM의 inverse bond는 2022년 도입 — 이미 -90% 후"],
+      "백킹 아래에서 매수하여 burn하는 메커니즘이 OHM 에서는 사이클 후반에 수동으로 도입되었습니다. 자동, 실시간 작동이 없어 시장가 폭주를 막지 못했습니다.",
+    examples: [
+      "OHM 의 inverse bond 는 2022년에 도입되었고, 이미 90퍼센트 하락 후였습니다",
+    ],
   },
   {
     code: "P7",
     title: "사람 리스크",
     detail:
-      "익명 운영자의 신원 폭로, 핵심 인물 이탈, 자체 권력 집중. 메커니즘이 작동해도 운영 신뢰가 무너지면 끝.",
-    examples: ["TIME (0xSifu = M.Patryn)", "여러 포크의 익명 팀"],
+      "익명 운영자의 신원 폭로, 핵심 인물 이탈, 자체 권력 집중 같은 사람 측 리스크가 있었습니다. 메커니즘이 작동해도 운영 신뢰가 무너지면 끝입니다.",
+    examples: ["TIME 의 0xSifu = M.Patryn", "여러 포크의 익명 팀 이슈"],
   },
 ];
 
-// Blackhaven이 다르게 한 것
 export type Lesson = {
-  pattern: string; // 어떤 P를 차단하는지
+  pattern: string;
   blackhavenDoes: string;
   why: string;
 };
@@ -231,44 +247,44 @@ export type Lesson = {
 export const LESSONS: Lesson[] = [
   {
     pattern: "P1, P3 차단",
-    blackhavenDoes: "Locks의 분배 cap (governance-set, first-come)",
+    blackhavenDoes: "락업의 분배 cap (거버넌스가 정함, 선착순)",
     why:
-      "rebase의 ‘무한 발행’이 없음. 분배는 거버넌스가 정한 cap 안에서만, 도달 시 신규 락 정지. 데스 스파이럴의 연료(무한 dilution)가 차단됨.",
+      "rebase 식 무한 발행이 없습니다. 분배는 거버넌스가 정한 cap 안에서만 이루어지며, 도달 시 신규 락업이 정지됩니다. 데스 스파이럴의 연료인 무한 dilution이 차단됩니다.",
   },
   {
     pattern: "P2, P6 차단",
-    blackhavenDoes: "BAM — 자동·양방향·편차 비례·쿨다운",
+    blackhavenDoes: "BAM, 자동, 양방향, 편차 비례, 쿨다운",
     why:
-      "OHM이 손으로 했던 inverse bond를 자동 양방향으로. 시장가가 NAV 위로 폭주하면 즉시 매도→트레저리, 아래로 빠지면 매수→burn. 가격 폭주가 시작되기 전에 흡수.",
+      "OHM 이 수동으로 했던 inverse bond 를 자동, 양방향으로 확장했습니다. 시장가가 NAV 위로 폭주하면 즉시 매도하여 트레저리로 환류시키고, 아래로 빠지면 매수하여 소각합니다. 가격 폭주가 시작되기 전에 흡수합니다.",
   },
   {
     pattern: "P4 차단",
-    blackhavenDoes: "RBT(자산) ↔ HVN(거버넌스) 분리",
+    blackhavenDoes: "RBT(자산)와 HVN(거버넌스)의 분리",
     why:
-      "RBT는 트레저리 백킹 자산, HVN은 거버넌스 처분권. 거버넌스 신뢰가 흔들려도 RBT의 NAV 백킹은 영향 없음.",
+      "RBT 는 트레저리 백킹 자산이고, HVN 은 거버넌스 처분권입니다. 거버넌스 신뢰가 흔들려도 RBT 의 NAV 백킹은 영향을 받지 않습니다.",
   },
   {
     pattern: "P5 차단",
-    blackhavenDoes: "USDm(스테이블) 단일 백킹",
+    blackhavenDoes: "USDm 스테이블 단일 백킹",
     why:
-      "백킹 자산이 변동성 자산이 아닌 USDm 스테이블. ETH/AVAX 사이클로 backing이 동시에 무너지는 데스 스파이럴 회피.",
+      "백킹 자산이 변동성 자산이 아닌 USDm 스테이블입니다. ETH 나 AVAX 사이클로 backing 이 동시에 무너지는 데스 스파이럴을 회피합니다.",
   },
   {
     pattern: "P1, P2 보강",
-    blackhavenDoes: "본드 자본의 90% 트레저리 / 10% 운영 하드코딩",
+    blackhavenDoes: "본드 자본의 90퍼센트 트레저리, 10퍼센트 운영비 하드코딩",
     why:
-      "OHM 포크들이 DAO 운영비 명목으로 트레저리를 자의적으로 끌어 쓴 패턴 차단. 부트스트랩 단계에선 100% POL/ops로 명시적 분리.",
+      "OHM 포크들이 DAO 운영비 명목으로 트레저리를 자의적으로 끌어 쓴 패턴을 차단합니다. 부트스트랩 단계에서는 100퍼센트 POL과 운영으로 명시적으로 분리됩니다.",
   },
   {
     pattern: "P2 보강",
-    blackhavenDoes: "TOS에 redemption right 명시 부재",
+    blackhavenDoes: "TOS 에 redemption right 명시 부재",
     why:
-      "사용자가 RFV 직접 redemption을 기대하지 않게 함. OHM 포크들의 ‘백킹 = 환매가’ 환상을 사전에 제거.",
+      "사용자가 RFV 직접 redemption 을 기대하지 않게 합니다. OHM 포크들의 백킹과 환매가의 환상을 사전에 제거합니다.",
   },
   {
     pattern: "P7 보강",
-    blackhavenDoes: "Zellic 감사 + time-locked admin",
+    blackhavenDoes: "Zellic 감사와 time-locked admin",
     why:
-      "운영자 권한에 time-lock, 감사 공개. 익명 운영자가 일방적으로 결정할 수 있는 채널 축소.",
+      "운영자 권한에 time-lock 이 걸려 있고, 감사가 공개되어 있습니다. 익명 운영자가 일방적으로 결정할 수 있는 채널을 축소합니다.",
   },
 ];

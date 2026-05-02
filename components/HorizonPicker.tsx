@@ -9,9 +9,9 @@ export default function HorizonPicker({ active, onSelect }: Props) {
     <section id="pick" className="max-w-6xl mx-auto px-6 pb-6">
       <div className="mb-5">
         <div className="text-[11px] uppercase tracking-wider text-mist-400 font-mono">
-          Step 1 · Horizon
+          Step 1, Horizon
         </div>
-        <h2 className="mt-1 text-2xl font-semibold">언제 들어가지?</h2>
+        <h2 className="mt-1 text-2xl font-semibold">언제 들어갈까요</h2>
       </div>
 
       <div className="grid md:grid-cols-3 gap-3">
@@ -29,11 +29,8 @@ export default function HorizonPicker({ active, onSelect }: Props) {
               ].join(" ")}
             >
               <div className="flex items-start justify-between">
-                <div className="text-3xl">{s.emoji}</div>
-                <div className="text-right">
-                  <div className="font-mono text-[10px] text-mist-400">{s.code}</div>
-                  <div className="text-[11px] text-mist-400 font-mono">{s.windowKR}</div>
-                </div>
+                <div className="font-mono text-[11px] text-mist-400">{s.code}</div>
+                <div className="text-[11px] text-mist-400 font-mono">{s.windowKR}</div>
               </div>
               <div className="mt-5">
                 <div className="text-[20px] font-semibold tracking-tight text-white">
@@ -42,7 +39,6 @@ export default function HorizonPicker({ active, onSelect }: Props) {
                 <div className="text-[12px] text-mist-400 mt-0.5">{s.english}</div>
               </div>
               <p className="mt-4 text-[13px] text-mist-200 leading-relaxed">
-                <span className="text-mist-400">메타 → </span>
                 {s.ifPickThis}
               </p>
               {isActive && (
