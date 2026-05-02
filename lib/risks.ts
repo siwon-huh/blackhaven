@@ -18,7 +18,7 @@ export type AuditFinding = {
 export const AUDIT_FINDINGS: AuditFinding[] = [
   {
     id: "F1",
-    title: "Bond uses global vestingTerm instead of per-bond vesting",
+    title: "본드가 per-bond vesting 대신 전역 vestingTerm 을 사용",
     target: "Bond.sol",
     severity: "Medium",
     category: "Business Logic",
@@ -28,7 +28,7 @@ export const AUDIT_FINDINGS: AuditFinding[] = [
   },
   {
     id: "F2",
-    title: "Missing oracle staleness validation",
+    title: "Oracle staleness 검증 누락",
     target: "BackingCalculator.sol",
     severity: "Medium",
     category: "Business Logic",
@@ -42,7 +42,7 @@ export const AUDIT_FINDINGS: AuditFinding[] = [
   },
   {
     id: "F3",
-    title: "Oracle implementations must normalize to 1e18 decimals",
+    title: "Oracle 구현이 1e18 decimals 로 정규화되어야 함",
     target: "BackingCalculator.sol",
     severity: "Medium",
     category: "Business Logic",
@@ -254,8 +254,7 @@ export const USER_RISKS: UserRiskScenario[] = [
     title: "HVN 거버넌스 토큰 시드 손실",
     trigger:
       "HVN TGE 시드에 진입한 뒤 바이백 어젠다가 부결되거나 트레저리 우선순위가 다른 곳으로 가는 시나리오입니다.",
-    outcome:
-      "HVN 시장가가 진입가 아래로 떨어지고 거버넌스 영향력만 남습니다.",
+    outcome: "HVN 시장가가 진입가 아래로 떨어지고 거버넌스 영향력만 남습니다.",
     guard:
       "거버넌스 토큰은 자본의 20 퍼센트 상한을 두고, 바이백 라운드 시점이 지나면 비중을 정상화합니다.",
   },
