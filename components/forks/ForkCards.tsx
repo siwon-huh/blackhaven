@@ -45,7 +45,7 @@ const STATUS_ORDER = [
 ];
 
 export default function ForkCards() {
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>("ohm");
   const [sort, setSort] = useState<SortState>({ key: "peakDays", dir: "asc" });
 
   const rows: Row[] = useMemo(() => {
@@ -113,7 +113,8 @@ export default function ForkCards() {
           프로젝트별 케이스
         </h2>
         <p className="mt-2 text-[12.5px] text-ink-400">
-          헤더를 클릭해 정렬할 수 있고, row 를 클릭하면 정규화 곡선과 상세 분석을 펼쳐볼 수 있습니다.
+          헤더를 클릭해 정렬할 수 있고, row 를 클릭하면 정규화 곡선과 상세
+          분석을 펼쳐볼 수 있습니다.
         </p>
       </div>
 
@@ -344,10 +345,7 @@ function FragmentRow({
                   </div>
                   <div className="card-2 px-3 py-2">
                     <div className="text-ink-500">현재가</div>
-                    <div
-                      className="mt-0.5"
-                      style={{ color: tone.color }}
-                    >
+                    <div className="mt-0.5" style={{ color: tone.color }}>
                       {fmtPrice(f.recentPriceUSD)}
                     </div>
                     <div className="text-ink-500">{tone.label}</div>
@@ -388,7 +386,9 @@ function FragmentRow({
                   <div className="card-2 p-3 border-signal/20">
                     <div className="eyebrow text-signal">참고</div>
                     <p className="mt-1 text-[11.5px] text-ink-200 leading-relaxed">
-                      Alive 군은 정점 대비 {fmtPct(peakDrawdown)} 하락했지만 출시 가격 대비는 {fmtPct(launchChange)} 입니다. 사용자 평균 진입가는 두 값 사이 어딘가에 있습니다.
+                      Alive 군은 정점 대비 {fmtPct(peakDrawdown)} 하락했지만
+                      출시 가격 대비는 {fmtPct(launchChange)} 입니다. 사용자
+                      평균 진입가는 두 값 사이 어딘가에 있습니다.
                     </p>
                   </div>
                 )}
