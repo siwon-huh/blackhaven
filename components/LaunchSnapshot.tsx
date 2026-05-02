@@ -78,7 +78,7 @@ export default function LaunchSnapshot() {
               <span className="chip">{s.venue}</span>
             </div>
             <h2 className="mt-4 text-[26px] headline text-ink-50">
-              출시 직후 스냅샷
+              실시간 현황
             </h2>
             <p className="mt-1.5 text-[12px] text-ink-400 font-mono">
               마지막 갱신 {formatRelative(lastUpdated)}
