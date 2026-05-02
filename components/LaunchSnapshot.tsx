@@ -3,6 +3,8 @@
 import { LAUNCH_SNAPSHOT, VERDICT_TONE } from "@/lib/launch";
 import { computeFairValue, entryVerdict, LIVE_BONDS } from "@/lib/fairValue";
 import { formatRelative, useLiveMetrics } from "@/lib/useLiveMetrics";
+import { useBondMetrics } from "@/lib/useBondMetrics";
+import type { BondMetric } from "@/lib/bondMetrics";
 
 const SIGNAL_TONE = {
   warn: { color: "var(--warn)", label: "Warn" },
@@ -25,6 +27,7 @@ export default function LaunchSnapshot() {
   const s = LAUNCH_SNAPSHOT;
   const { remote, lastUpdated, loading, error, metrics } =
     useLiveMetrics(1_000);
+  const bondLive = useBondMetrics(5_000);
   const fv = computeFairValue(metrics, LIVE_BONDS);
   const verdict = entryVerdict(fv);
 
@@ -201,16 +204,36 @@ export default function LaunchSnapshot() {
           />
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-3 text-[11.5px]">
-          <SubMetric label="7d Bond" value={s.metrics.bond7d} />
-          <SubMetric label="14d Bond" value={s.metrics.bond14d} />
-          <SubMetric label="30d Bond" value={s.metrics.bond30d} />
+        {/* Bond TVL with live recommendations */}
+        <div className="mt-5">
+          <div className="flex items-baseline justify-between mb-2">
+            <div className="eyebrow">Bond pools</div>
+            <span className="text-[10px] font-mono text-ink-500">
+              {bondLive.snapshot.source === "static"
+                ? "static, manual sync"
+                : "onchain"}
+              {bondLive.lastUpdated &&
+                `, 갱신 ${formatRelative(bondLive.lastUpdated)}`}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {bondLive.snapshot.bonds.map((b) => (
+              <BondPoolCard key={b.days} bond={b} />
+            ))}
+          </div>
         </div>
 
         <div className="mt-3 grid grid-cols-3 gap-3 text-[11.5px]">
           <SubMetric label="Stake TVL" value={s.metrics.stakeTVL} />
           <SubMetric label="Commit 24w" value={s.metrics.commit24wReward} />
           <SubMetric label="TXNS 24h" value={txns} live />
+        </div>
+
+        <div className="mt-3 text-[11px] text-ink-400 leading-relaxed">
+          본드별 권장 max 는 풀 깊이 (TVL) 의 5퍼센트입니다. 그 이상이 들어가면
+          디스카운트가 빠르게 잠식되고, shallow 등급 (TVL ≤ $50K) 풀은 작은 자본
+          외에는 비효율입니다. 현재는 정적 fallback 이며 컨트랙트 주소 확보 시
+          자동 라이브로 전환됩니다.
         </div>
 
         {/* Signals + Live priority */}
@@ -308,6 +331,54 @@ function SubMetric({
       {sub && (
         <div className="text-[10.5px] text-ink-500 font-mono mt-0.5">{sub}</div>
       )}
+    </div>
+  );
+}
+
+function fmtCompact(n: number) {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
+  return `$${n.toFixed(0)}`;
+}
+
+const DEPTH_TONE: Record<
+  BondMetric["depthTier"],
+  { color: string; label: string }
+> = {
+  deep: { color: "var(--signal)", label: "deep" },
+  medium: { color: "#C9CDD4", label: "medium" },
+  shallow: { color: "var(--warn)", label: "shallow" },
+};
+
+function BondPoolCard({ bond }: { bond: BondMetric }) {
+  const tone = DEPTH_TONE[bond.depthTier];
+  return (
+    <div className="card-2 px-4 py-3">
+      <div className="flex items-baseline justify-between">
+        <div className="font-mono text-[12px] text-ink-50">
+          {bond.days}일 본드
+        </div>
+        <span
+          className="font-mono text-[10px] px-1.5 py-0.5 rounded"
+          style={{ color: tone.color, background: "rgba(255,255,255,0.04)" }}
+        >
+          {tone.label}
+        </span>
+      </div>
+      <div className="mt-1.5 flex items-baseline gap-2">
+        <span className="text-[18px] font-medium text-ink-50 mono-num">
+          {bond.discountPct}%
+        </span>
+        <span className="text-[11px] text-ink-400 font-mono">
+          TVL {fmtCompact(bond.tvlUSDm)}
+        </span>
+      </div>
+      <div className="mt-2 pt-2 border-t hairline text-[11px] font-mono text-ink-400">
+        권장 max{" "}
+        <span style={{ color: tone.color }}>
+          {fmtCompact(bond.recommendedMaxUSDm)}
+        </span>
+      </div>
     </div>
   );
 }

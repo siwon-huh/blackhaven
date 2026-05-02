@@ -31,30 +31,50 @@ export function priceChangeFromLaunch(fork: Fork): number {
   return (fork.recentPriceUSD - fork.launchPriceUSD) / fork.launchPriceUSD;
 }
 
-// 정점 100 으로 정규화한 단순 곡선
+// 정규화된 곡선. 출시(0d) → 정점 → 36개월 까지의 가격 궤적입니다.
+// 출시 (x = 0) 부터 정점 (x = peakDays) 까지를 정점까지의 일수에 맞춰 보간하고,
+// 그 이후 36개월 까지를 점진적 하락 곡선으로 보간합니다.
 export function normalizedCurve(
-  peakUSD: number,
+  peakDays: number,
   recentUSD: number,
+  peakUSD: number,
+  launchUSD: number,
 ): { x: number; y: number }[] {
   const recentY = Math.max(0.4, (recentUSD / peakUSD) * 100);
-  const a12 = Math.max(recentY, 8);
-  const a24 = Math.max(recentY, recentY * 1.4);
-  const x = [0, 0.5, 1, 2, 3, 6, 9, 12, 18, 24, 30, 36];
-  const y = [
-    100,
-    92,
-    78,
-    62,
-    44,
-    24,
-    14,
-    a12,
-    Math.max(recentY, a12 * 0.8),
-    a24 * 0.7 + recentY * 0.3,
-    recentY * 1.05,
-    recentY,
+  const launchY = Math.max(0.4, Math.min(100, (launchUSD / peakUSD) * 100));
+
+  // 출시 → 정점 구간을 곡선으로 보간 (가속 후 정점 도달).
+  // x 단위는 day. peakDays = 정점까지 일수.
+  // 정점 후 구간은 30일, 60일, 90일, 180일, 365일, 730일, 1095일 (3년) 까지.
+  const points: { x: number; y: number }[] = [];
+
+  // pre-peak: 0 부터 peakDays 까지 일정 간격
+  const preSamples = Math.max(6, Math.min(12, Math.ceil(peakDays / 7)));
+  for (let i = 0; i <= preSamples; i++) {
+    const t = i / preSamples;
+    const x = peakDays * t;
+    // 가속 곡선: y = launchY + (peak - launchY) * t^1.6
+    const y = launchY + (100 - launchY) * Math.pow(t, 1.6);
+    points.push({ x, y });
+  }
+
+  // post-peak: 30일 간격에 가까운 milestone
+  const postMilestones = [
+    { x: peakDays + 30, factor: 0.65 }, // 정점 후 1개월
+    { x: peakDays + 60, factor: 0.45 }, // 2개월
+    { x: peakDays + 90, factor: 0.32 }, // 3개월
+    { x: peakDays + 180, factor: 0.2 }, // 6개월
+    { x: peakDays + 365, factor: 0.12 }, // 1년
+    { x: peakDays + 730, factor: 0.06 }, // 2년
   ];
-  return x.map((xi, i) => ({ x: xi, y: y[i] }));
+  for (const m of postMilestones) {
+    const baselineY = Math.max(recentY, 100 * m.factor);
+    points.push({ x: m.x, y: baselineY });
+  }
+  // 마지막 점: 36개월 (대략) recentY
+  points.push({ x: 36 * 30, y: recentY });
+
+  return points;
 }
 
 export type Fork = {

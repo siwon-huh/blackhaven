@@ -1,6 +1,7 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import PlaybookHero from "@/components/playbook/PlaybookHero";
+import CapitalGuide from "@/components/playbook/CapitalGuide";
 import PlaybookSection from "@/components/about/PlaybookSection";
 
 export const metadata = {
@@ -13,6 +14,7 @@ export default function PlaybookPage() {
     <main>
       <SiteHeader />
       <PlaybookHero />
+      <CapitalGuide />
       <PlaybookSection />
       <SiteFooter />
     </main>

@@ -169,12 +169,14 @@ const SCENARIOS: ScenarioDefinition[] = [
       },
       {
         week: "D0",
-        action: "메인넷 출시 후 24시간 동안 디스카운트와 TVL 흐름을 모니터링합니다.",
+        action:
+          "메인넷 출시 후 24시간 동안 디스카운트와 TVL 흐름을 모니터링합니다.",
         tag: "지켜보기",
       },
       {
         week: "D0~1",
-        action: "디스카운트 평균 위에서 30일 본드에 진입합니다.",
+        action:
+          "본드별 TVL 깊이를 확인하고 자본 규모에 맞는 만기를 선택합니다. 디스카운트 평균 위에서 진입합니다.",
         tag: "본드",
       },
       {
@@ -197,6 +199,7 @@ const SCENARIOS: ScenarioDefinition[] = [
     ],
     stop: [
       "출시 첫 24시간 동안 디스카운트가 1퍼센트 아래로 정착하면 본드 시드 진입을 보류하고 다음 시간축까지 기다립니다.",
+      "본드 풀 TVL 이 자본의 20배 이하가 되면 (자본 진입 시 풀의 5퍼센트 초과) 다른 만기로 옮기거나 자본을 분산합니다.",
       "Commit 분배 곡선이 거버넌스로 축소되거나 신규 commit 이 정지되면 시드 자본을 본드 또는 현금으로 재배치합니다.",
       "RBT 시장가가 첫 주 내내 NAV 위 5퍼센트 이상에서 정착하면 시드 매수는 패스하고, 다음 시간축에서 BAM 정착 후 재평가합니다.",
     ],
@@ -300,14 +303,29 @@ const SCENARIOS: ScenarioDefinition[] = [
       {
         week: "M1~2",
         action:
+          "본드 풀 TVL 변화율을 매주 점검하고 회전 빈도와 만기 분산을 조정합니다.",
+        tag: "지켜보기",
+      },
+      {
+        week: "M1~2",
+        action:
           "Live verdict 가 저평가 또는 공정으로 떨어지면 시장가 매수, 본드 권장 위로 회복하면 1차 익절을 진행합니다.",
         tag: "트레이드",
       },
-      { week: "M2~3", action: "HVN TGE 자격을 점검하고 진입을 준비합니다.", tag: "지켜보기" },
-      { week: "TGE", action: "HVN 시드에 진입합니다. 풀 깊이가 얕을 때를 활용합니다.", tag: "트레이드" },
+      {
+        week: "M2~3",
+        action: "HVN TGE 자격을 점검하고 진입을 준비합니다.",
+        tag: "지켜보기",
+      },
+      {
+        week: "TGE",
+        action: "HVN 시드에 진입합니다. 풀 깊이가 얕을 때를 활용합니다.",
+        tag: "트레이드",
+      },
       {
         week: "M4",
-        action: "RBT lending 화이트리스트 등재 후 셀프 레버를 LTV 40퍼센트로 시작합니다.",
+        action:
+          "RBT lending 화이트리스트 등재 후 셀프 레버를 LTV 40퍼센트로 시작합니다.",
         tag: "트레이드",
       },
       {
@@ -316,7 +334,11 @@ const SCENARIOS: ScenarioDefinition[] = [
           "Commit 곡선의 거버넌스 표결을 추적합니다. 축소 방향이면 신규 commit 을 정지합니다.",
         tag: "지켜보기",
       },
-      { week: "M6", action: "두 번째 24주 Commit 롤과 다음 시간축 검토를 진행합니다.", tag: "Commit" },
+      {
+        week: "M6",
+        action: "두 번째 24주 Commit 롤과 다음 시간축 검토를 진행합니다.",
+        tag: "Commit",
+      },
     ],
     stop: [
       "본드 디스카운트가 6주 평균 1.5퍼센트 아래로 떨어지면 콤보만 유지하고 신규 회전을 중단합니다.",
@@ -391,10 +413,15 @@ const SCENARIOS: ScenarioDefinition[] = [
       { label: "현금 대기", share: 10, color: "#6B7589" },
     ],
     weekly: [
-      { week: "M6", action: "52주 Commit 으로 코어 포지션을 구축합니다.", tag: "Commit" },
+      {
+        week: "M6",
+        action: "52주 Commit 으로 코어 포지션을 구축합니다.",
+        tag: "Commit",
+      },
       {
         week: "M7",
-        action: "RBT 가 4 개 이상의 lending 에 통합됩니다. cross-deploy 를 시작합니다.",
+        action:
+          "RBT 가 4 개 이상의 lending 에 통합됩니다. cross-deploy 를 시작합니다.",
         tag: "트레이드",
       },
       {
