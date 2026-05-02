@@ -9,14 +9,15 @@ export type ForkStatus =
   | "abandoned"
   | "rugged";
 
-export const STATUS_TONE: Record<ForkStatus, { label: string; color: string }> = {
-  alive: { label: "Alive", color: "#3DDC97" },
-  "alive-pivoted": { label: "Alive, Pivoted", color: "#9C8CFF" },
-  moribund: { label: "Moribund", color: "#F4C756" },
-  "wound-down": { label: "Wound-down", color: "#6B7589" },
-  abandoned: { label: "Abandoned", color: "#FF6A1F" },
-  rugged: { label: "Rugged", color: "#FF6A1F" },
-};
+export const STATUS_TONE: Record<ForkStatus, { label: string; color: string }> =
+  {
+    alive: { label: "Alive", color: "#3DDC97" },
+    "alive-pivoted": { label: "Alive, Pivoted", color: "#C9CDD4" },
+    moribund: { label: "Moribund", color: "#F4C756" },
+    "wound-down": { label: "Wound-down", color: "#9AA0AB" },
+    abandoned: { label: "Abandoned", color: "#FF6A4A" },
+    rugged: { label: "Rugged", color: "#FF6A4A" },
+  };
 
 export type Fork = {
   id: string;
@@ -26,6 +27,8 @@ export type Fork = {
   launched: string;
   peakDate: string;
   peakPrice: string;
+  peakPriceUSD: number; // 정규화된 곡선 차트용
+  recentPriceUSD: number; // 2024 이후 근사 가격
   drawdown: string;
   status: ForkStatus;
   hook: string;
@@ -44,6 +47,8 @@ export const FORKS: Fork[] = [
     launched: "2021-03",
     peakDate: "2021-04",
     peakPrice: "약 $1,330",
+    peakPriceUSD: 1330,
+    recentPriceUSD: 25,
     drawdown: "정점 대비 약 98퍼센트 하락",
     status: "alive",
     hook: "본드와 (3,3) staking, DAO treasury 패러다임을 만든 원조 프로토콜입니다.",
@@ -64,10 +69,11 @@ export const FORKS: Fork[] = [
     launched: "2021-09",
     peakDate: "2021-11",
     peakPrice: "약 $10,000",
+    peakPriceUSD: 10000,
+    recentPriceUSD: 5,
     drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "rugged",
-    hook:
-      "Avalanche의 첫 OHM 포크입니다. Daniele Sestagalli의 후광으로 폭발적으로 성장했습니다.",
+    hook: "Avalanche의 첫 OHM 포크입니다. Daniele Sestagalli의 후광으로 폭발적으로 성장했습니다.",
     whyItGrew:
       "OHM 메커니즘에 AVAX 시즌과 카리스마 있는 리더십이 더해졌습니다. TVL이 $1.5B에 도달했고, 한때 가격 표면이 OHM보다 컸습니다.",
     whyItBroke:
@@ -85,6 +91,8 @@ export const FORKS: Fork[] = [
     launched: "2021-10",
     peakDate: "2021-10",
     peakPrice: "약 $3,700",
+    peakPriceUSD: 3700,
+    recentPriceUSD: 1.5,
     drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "moribund",
     hook: "탄소 크레딧(BCT, MCO2) 백킹을 채택하여 기후 보호 내러티브로 차별화했습니다.",
@@ -105,10 +113,11 @@ export const FORKS: Fork[] = [
     launched: "2021-09",
     peakDate: "2021-12",
     peakPrice: "약 $155",
+    peakPriceUSD: 155,
+    recentPriceUSD: 0.4,
     drawdown: "정점 대비 약 99퍼센트 하락",
     status: "wound-down",
-    hook:
-      "Fantom 생태계 통합과 derivatives, launchpad, 스테이블코인까지 시도한 확장형 포크입니다.",
+    hook: "Fantom 생태계 통합과 derivatives, launchpad, 스테이블코인까지 시도한 확장형 포크입니다.",
     whyItGrew:
       "Fantom 시즌의 주력 OHM 포크였습니다. 빠른 확장 시도로 한때 Fantom TVL 상위에 올랐습니다.",
     whyItBroke:
@@ -126,10 +135,11 @@ export const FORKS: Fork[] = [
     launched: "2021-12",
     peakDate: "2022-01",
     peakPrice: "약 $3,500",
+    peakPriceUSD: 3500,
+    recentPriceUSD: 180,
     drawdown: "정점 대비 약 95퍼센트 하락",
     status: "alive-pivoted",
-    hook:
-      "OHM 포크에서 시작했지만 Curve와 Convex의 메타거버넌스 어그리게이터로 피벗했습니다.",
+    hook: "OHM 포크에서 시작했지만 Curve와 Convex의 메타거버넌스 어그리게이터로 피벗했습니다.",
     whyItGrew:
       "OHM 게임이론에 Curve Wars 시즌의 bribe 어그리게이터 포지션이 결합되었습니다.",
     whyItBroke:
@@ -147,10 +157,13 @@ export const FORKS: Fork[] = [
     launched: "2021-09",
     peakDate: "2021-11",
     peakPrice: "약 $1,500",
+    peakPriceUSD: 1500,
+    recentPriceUSD: 1,
     drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "abandoned",
     hook: "Avalanche의 두 번째 메이저 OHM 포크입니다.",
-    whyItGrew: "OHM 메커니즘 카피와 AVAX 시즌의 빠른 자금 유입이 결합되었습니다.",
+    whyItGrew:
+      "OHM 메커니즘 카피와 AVAX 시즌의 빠른 자금 유입이 결합되었습니다.",
     whyItBroke:
       "차별점이 거의 없었습니다. 게임이론 셸링이 흔들리자 가장 먼저 무너졌습니다.",
     ending: "거버넌스 활동이 정지되며 사실상 방치되었습니다.",
@@ -163,6 +176,8 @@ export const FORKS: Fork[] = [
     launched: "2021-09",
     peakDate: "2021-11",
     peakPrice: "약 $60",
+    peakPriceUSD: 60,
+    recentPriceUSD: 0.05,
     drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "abandoned",
     hook: "Fantom의 카피캣 OHM 포크입니다.",
@@ -185,7 +200,11 @@ export const COMMON_PATTERNS: Pattern[] = [
     title: "(3,3) 게임이론 폰지 구조",
     detail:
       "모두가 stake하면 모두 이긴다는 셸링 포인트입니다. 한 번의 큰 매도가 dilution 가속을 트리거하면 그 자체가 매도 트리거가 되어 데스 스파이럴이 시작됩니다.",
-    examples: ["OHM 약 98퍼센트 하락", "TIME 약 99퍼센트 하락", "SB 약 99퍼센트 하락"],
+    examples: [
+      "OHM 약 98퍼센트 하락",
+      "TIME 약 99퍼센트 하락",
+      "SB 약 99퍼센트 하락",
+    ],
   },
   {
     code: "P2",
@@ -248,43 +267,36 @@ export const LESSONS: Lesson[] = [
   {
     pattern: "P1, P3 차단",
     blackhavenDoes: "락업의 분배 cap (거버넌스가 정함, 선착순)",
-    why:
-      "rebase 식 무한 발행이 없습니다. 분배는 거버넌스가 정한 cap 안에서만 이루어지며, 도달 시 신규 락업이 정지됩니다. 데스 스파이럴의 연료인 무한 dilution이 차단됩니다.",
+    why: "rebase 식 무한 발행이 없습니다. 분배는 거버넌스가 정한 cap 안에서만 이루어지며, 도달 시 신규 락업이 정지됩니다. 데스 스파이럴의 연료인 무한 dilution이 차단됩니다.",
   },
   {
     pattern: "P2, P6 차단",
     blackhavenDoes: "BAM, 자동, 양방향, 편차 비례, 쿨다운",
-    why:
-      "OHM 이 수동으로 했던 inverse bond 를 자동, 양방향으로 확장했습니다. 시장가가 NAV 위로 폭주하면 즉시 매도하여 트레저리로 환류시키고, 아래로 빠지면 매수하여 소각합니다. 가격 폭주가 시작되기 전에 흡수합니다.",
+    why: "OHM 이 수동으로 했던 inverse bond 를 자동, 양방향으로 확장했습니다. 시장가가 NAV 위로 폭주하면 즉시 매도하여 트레저리로 환류시키고, 아래로 빠지면 매수하여 소각합니다. 가격 폭주가 시작되기 전에 흡수합니다.",
   },
   {
     pattern: "P4 차단",
     blackhavenDoes: "RBT(자산)와 HVN(거버넌스)의 분리",
-    why:
-      "RBT 는 트레저리 백킹 자산이고, HVN 은 거버넌스 처분권입니다. 거버넌스 신뢰가 흔들려도 RBT 의 NAV 백킹은 영향을 받지 않습니다.",
+    why: "RBT 는 트레저리 백킹 자산이고, HVN 은 거버넌스 처분권입니다. 거버넌스 신뢰가 흔들려도 RBT 의 NAV 백킹은 영향을 받지 않습니다.",
   },
   {
     pattern: "P5 차단",
     blackhavenDoes: "USDm 스테이블 단일 백킹",
-    why:
-      "백킹 자산이 변동성 자산이 아닌 USDm 스테이블입니다. ETH 나 AVAX 사이클로 backing 이 동시에 무너지는 데스 스파이럴을 회피합니다.",
+    why: "백킹 자산이 변동성 자산이 아닌 USDm 스테이블입니다. ETH 나 AVAX 사이클로 backing 이 동시에 무너지는 데스 스파이럴을 회피합니다.",
   },
   {
     pattern: "P1, P2 보강",
     blackhavenDoes: "본드 자본의 90퍼센트 트레저리, 10퍼센트 운영비 하드코딩",
-    why:
-      "OHM 포크들이 DAO 운영비 명목으로 트레저리를 자의적으로 끌어 쓴 패턴을 차단합니다. 부트스트랩 단계에서는 100퍼센트 POL과 운영으로 명시적으로 분리됩니다.",
+    why: "OHM 포크들이 DAO 운영비 명목으로 트레저리를 자의적으로 끌어 쓴 패턴을 차단합니다. 부트스트랩 단계에서는 100퍼센트 POL과 운영으로 명시적으로 분리됩니다.",
   },
   {
     pattern: "P2 보강",
     blackhavenDoes: "TOS 에 redemption right 명시 부재",
-    why:
-      "사용자가 RFV 직접 redemption 을 기대하지 않게 합니다. OHM 포크들의 백킹과 환매가의 환상을 사전에 제거합니다.",
+    why: "사용자가 RFV 직접 redemption 을 기대하지 않게 합니다. OHM 포크들의 백킹과 환매가의 환상을 사전에 제거합니다.",
   },
   {
     pattern: "P7 보강",
     blackhavenDoes: "Zellic 감사와 time-locked admin",
-    why:
-      "운영자 권한에 time-lock 이 걸려 있고, 감사가 공개되어 있습니다. 익명 운영자가 일방적으로 결정할 수 있는 채널을 축소합니다.",
+    why: "운영자 권한에 time-lock 이 걸려 있고, 감사가 공개되어 있습니다. 익명 운영자가 일방적으로 결정할 수 있는 채널을 축소합니다.",
   },
 ];

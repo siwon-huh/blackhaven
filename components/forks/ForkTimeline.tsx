@@ -12,7 +12,10 @@ const monthsBetween = (a: string, b: string) => {
 const TOTAL_MONTHS = monthsBetween(TIMELINE_START, TIMELINE_END);
 
 const monthsToPct = (date: string) =>
-  Math.max(0, Math.min(100, (monthsBetween(TIMELINE_START, date) / TOTAL_MONTHS) * 100));
+  Math.max(
+    0,
+    Math.min(100, (monthsBetween(TIMELINE_START, date) / TOTAL_MONTHS) * 100),
+  );
 
 const ESTIMATED_END: Record<string, string> = {
   rugged: "2022-02",
@@ -25,43 +28,48 @@ const ESTIMATED_END: Record<string, string> = {
 
 export default function ForkTimeline() {
   return (
-    <section className="max-w-6xl mx-auto px-6 pb-12">
-      <div className="mb-5">
-        <div className="text-[11px] uppercase tracking-wider text-mist-400 font-mono">
-          Timeline
-        </div>
-        <h2 className="mt-1 text-2xl font-semibold">출시부터 결말까지</h2>
-        <p className="mt-1 text-[13px] text-mist-400">
-          2021년 출시 후 2022년 1분기에 거의 모든 포크가 무너지는 패턴이 공통적으로 나타났습니다. 살아남은 사례는 메커니즘이 아니라 피벗에 가깝습니다.
+    <section className="max-w-6xl mx-auto px-6 pb-16">
+      <div className="mb-6">
+        <div className="eyebrow">Timeline</div>
+        <h2 className="mt-2 text-[28px] headline text-ink-50">출시부터 결말까지</h2>
+        <p className="mt-2 subhead text-[13px] max-w-2xl">
+          2021 년 출시 후 2022 년 1 분기에 거의 모든 포크가 무너지는 패턴이 공통적으로 나타났습니다. 살아남은 사례는 메커니즘이 아니라 피벗에 가깝습니다.
         </p>
       </div>
 
-      <div className="card p-5">
-        <div className="space-y-2.5">
+      <div className="card p-6 md:p-8">
+        <div className="space-y-3">
           {FORKS.map((f) => {
             const startPct = monthsToPct(f.launched);
             const endPct = monthsToPct(ESTIMATED_END[f.status]);
             const peakPct = monthsToPct(f.peakDate);
             const tone = STATUS_TONE[f.status];
             return (
-              <div key={f.id} className="grid grid-cols-[88px_1fr_140px] items-center gap-3">
-                <div className="font-mono text-[12px] text-white">
-                  {f.ticker}
-                  <span className="ml-1 text-mist-400">{f.chain.slice(0, 3)}</span>
+              <div
+                key={f.id}
+                className="grid grid-cols-[120px_1fr_140px] items-center gap-4"
+              >
+                <div className="flex flex-col">
+                  <span className="font-mono text-[12.5px] text-ink-50">
+                    {f.ticker}
+                  </span>
+                  <span className="font-mono text-[10.5px] text-ink-500">
+                    {f.chain}
+                  </span>
                 </div>
-                <div className="relative h-6 rounded-md bg-ink-700/40 overflow-hidden">
+                <div className="relative h-7 rounded-md bg-ink-800 overflow-hidden">
                   <div
-                    className="absolute top-0 bottom-0 rounded-md"
+                    className="absolute top-0 bottom-0"
                     style={{
                       left: `${startPct}%`,
                       width: `${Math.max(2, endPct - startPct)}%`,
-                      background: `linear-gradient(90deg, ${tone.color}80, ${tone.color}30)`,
+                      background: `linear-gradient(90deg, ${tone.color}55, ${tone.color}10)`,
+                      borderLeft: `1.5px solid ${tone.color}`,
                     }}
-                    title={`${f.name} ${f.launched} 부터 ${ESTIMATED_END[f.status]}`}
                   />
                   <div
-                    className="absolute top-1/2 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full ring-2 ring-ink-900"
-                    style={{ left: `${peakPct}%`, background: "#F4C756" }}
+                    className="absolute top-1/2 h-2 w-2 -translate-y-1/2 -translate-x-1/2 rotate-45 bg-warn"
+                    style={{ left: `${peakPct}%` }}
                     title={`Peak ${f.peakDate} ${f.peakPrice}`}
                   />
                 </div>
@@ -78,7 +86,7 @@ export default function ForkTimeline() {
           })}
         </div>
 
-        <div className="mt-5 pt-4 border-t hairline grid grid-cols-4 text-[10px] font-mono text-mist-400">
+        <div className="mt-5 pt-4 border-t hairline grid grid-cols-4 text-[10px] font-mono text-ink-500">
           <span>2021</span>
           <span>2022</span>
           <span>2023</span>
@@ -86,13 +94,19 @@ export default function ForkTimeline() {
         </div>
 
         <div className="mt-4 pt-3 border-t hairline flex flex-wrap gap-3 text-[11px]">
-          <span className="inline-flex items-center gap-1.5 text-mist-300">
-            <span className="h-2 w-2 rounded-full bg-amber-400" />
+          <span className="inline-flex items-center gap-1.5 text-ink-300">
+            <span className="h-2 w-2 rounded-sm rotate-45 bg-warn" />
             정점
           </span>
           {Object.entries(STATUS_TONE).map(([k, v]) => (
-            <span key={k} className="inline-flex items-center gap-1.5 text-mist-300">
-              <span className="h-1.5 w-3 rounded-sm" style={{ background: v.color }} />
+            <span
+              key={k}
+              className="inline-flex items-center gap-1.5 text-ink-300"
+            >
+              <span
+                className="h-1.5 w-3 rounded-sm"
+                style={{ background: v.color }}
+              />
               {v.label}
             </span>
           ))}
