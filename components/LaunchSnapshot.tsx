@@ -11,13 +11,139 @@ import { formatRelative, useLiveMetrics } from "@/lib/useLiveMetrics";
 import { useBondMetrics } from "@/lib/useBondMetrics";
 import { useCommitMetrics } from "@/lib/useCommitMetrics";
 import type { BondMetric } from "@/lib/bondMetrics";
-import { lc } from "@/lib/i18n";
+import { lc, type Locale } from "@/lib/i18n";
 import { useLocale, useT } from "@/lib/locale-context";
 
 const SIGNAL_TONE = {
   warn: { color: "var(--warn)", label: "Warn" },
   ok: { color: "var(--signal)", label: "OK" },
 };
+
+type LiveSignal = {
+  tone: "warn" | "ok";
+  label: string;
+  detail: string;
+};
+
+const fmtCompactUsdK = (n: number) => {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
+  return `$${n.toFixed(0)}`;
+};
+
+function computeLiveSignals(opts: {
+  locale: Locale;
+  market: number;
+  nav: number;
+  navIsLive: boolean;
+  reservesUSDm: number | undefined;
+  totalSupplyRBT: number | undefined;
+  bonds: { days: number; tvlUSDm: number; discountPct: number }[];
+  totalBondTVLUSDm: number;
+}): LiveSignal[] {
+  const {
+    locale,
+    market,
+    nav,
+    navIsLive,
+    reservesUSDm,
+    totalSupplyRBT,
+    bonds,
+    totalBondTVLUSDm,
+  } = opts;
+  const isEN = locale === "en";
+  const out: LiveSignal[] = [];
+
+  // 1) Premium regime
+  if (nav > 0 && market > 0) {
+    const premium = market / nav;
+    if (premium >= 2.5) {
+      out.push({
+        tone: "warn",
+        label: isEN
+          ? "OHM-fork pattern P2 active"
+          : "OHM 포크 패턴 P2 신호 발생",
+        detail: isEN
+          ? `Market ${market.toFixed(2)} vs NAV ${nav.toFixed(2)}, premium ${premium.toFixed(2)}x. Same shape as the post-launch pattern of 2021 OHM forks. Over time, BAM and bond sales likely pull price down toward NAV.`
+          : `시장가 ${market.toFixed(2)} 대비 NAV ${nav.toFixed(2)}, premium ${premium.toFixed(2)}x. 2021 년 OHM 포크 출시 직후 패턴과 같습니다. 시간이 지날수록 BAM 과 본드 매도가 가격을 NAV 로 끌어내릴 가능성이 큽니다.`,
+      });
+    } else if (premium >= 1.3) {
+      out.push({
+        tone: "warn",
+        label: isEN ? "Premium converging toward NAV" : "BAM 수렴 진행 중",
+        detail: isEN
+          ? `Market ${market.toFixed(2)} vs NAV ${nav.toFixed(2)}, premium ${premium.toFixed(2)}x. BAM is pulling price toward NAV from the upside, premium has compressed but is not yet at fair.`
+          : `시장가 ${market.toFixed(2)} 대비 NAV ${nav.toFixed(2)}, premium ${premium.toFixed(2)}x. BAM 이 시장가를 위쪽에서 NAV 로 끌어내리는 중이며, 프리미엄이 압축되었지만 아직 공정가에는 닿지 않았습니다.`,
+      });
+    } else if (premium >= 1.0) {
+      out.push({
+        tone: "ok",
+        label: isEN ? "Near fair value" : "공정가 부근",
+        detail: isEN
+          ? `Market ${market.toFixed(2)} is ${premium.toFixed(2)}x NAV. Premium has compressed to a reasonable band; spot entry is no longer obviously expensive.`
+          : `시장가 ${market.toFixed(2)} 가 NAV 의 ${premium.toFixed(2)} 배입니다. 프리미엄이 합리 범위로 압축되어 시장가 진입이 더 이상 명백하게 비싸지 않습니다.`,
+      });
+    } else {
+      out.push({
+        tone: "ok",
+        label: isEN ? "BAM buy window open" : "BAM 매수 윈도우 열림",
+        detail: isEN
+          ? `Market ${market.toFixed(2)} is below NAV ${nav.toFixed(2)} (${((premium - 1) * 100).toFixed(1)}%). Asymmetric entry zone where BAM buys RBT and burns.`
+          : `시장가 ${market.toFixed(2)} 가 NAV ${nav.toFixed(2)} 아래입니다 (${((premium - 1) * 100).toFixed(1)} 퍼센트). BAM 이 RBT 를 매수해 burn 하는 비대칭 진입 구간입니다.`,
+      });
+    }
+  }
+
+  // 2) Genesis Phase 1 fee, 항상 표시되는 정적 경고
+  out.push({
+    tone: "warn",
+    label: isEN
+      ? "Bond backing is not 1-to-1"
+      : "본드 백킹은 1대 1 이 아닙니다",
+    detail: isEN
+      ? "Genesis Phase 1 charges a 10% protocol fee at bond commit. The RBT users receive is backed at less than 1-to-1. Documented under docs Risks."
+      : "Genesis Phase 1 에서는 본드 약정 시 10 퍼센트 protocol fee 가 발생합니다. 사용자가 받는 RBT 의 백킹은 1 대 1 보다 낮습니다. docs Risks 에 명시되어 있습니다.",
+  });
+
+  // 3) 본드 풀 분포: 라이브 TVL 기준 가장 두꺼운 만기 표시
+  if (bonds.length > 0) {
+    const deepest = bonds.reduce(
+      (a, b) => (b.tvlUSDm > a.tvlUSDm ? b : a),
+      bonds[0],
+    );
+    const tenorList = bonds.map((b) => `${b.days}`).join("/");
+    out.push({
+      tone: "ok",
+      label: isEN
+        ? `${deepest.days}-day bond is the deepest pool`
+        : `${deepest.days} 일 본드 풀이 가장 두껍습니다`,
+      detail: isEN
+        ? `${deepest.days}-day bond TVL ${fmtCompactUsdK(deepest.tvlUSDm)}, the largest of ${tenorList}-day. Total bond pool ${fmtCompactUsdK(totalBondTVLUSDm)}. Demand is tilting toward this tenor, which means the market is leaning toward holders willing to lock for longer.`
+        : `${deepest.days} 일 본드 TVL 이 ${fmtCompactUsdK(deepest.tvlUSDm)} 로 ${tenorList} 일 중 가장 큽니다. 본드 풀 합계는 ${fmtCompactUsdK(totalBondTVLUSDm)} 입니다. 이 만기로 수요가 기울어 있다는 것은 시장이 더 오래 잠그는 보유자 쪽으로 기울고 있음을 의미합니다.`,
+    });
+  }
+
+  // 4) Treasury 라이브 잔고
+  if (
+    navIsLive &&
+    reservesUSDm !== undefined &&
+    reservesUSDm > 0 &&
+    totalSupplyRBT !== undefined &&
+    totalSupplyRBT > 0
+  ) {
+    out.push({
+      tone: "ok",
+      label: isEN
+        ? "Treasury reserves are live"
+        : "Treasury 잔고가 라이브로 잡힙니다",
+      detail: isEN
+        ? `Treasury holds ${fmtCompactUsdK(reservesUSDm)} USDm against ${totalSupplyRBT.toFixed(0)} RBT in circulation, NAV ${nav.toFixed(2)} USDm per RBT, all read on-chain via BackingCalculator. As bonds keep flowing 90% of USDm into reserves, NAV trends up over time.`
+        : `Treasury 가 ${fmtCompactUsdK(reservesUSDm)} USDm 을 보유하고 있고, 유통 ${totalSupplyRBT.toFixed(0)} RBT 에 대해 NAV 는 RBT 1 개당 ${nav.toFixed(2)} USDm 입니다. 모두 BackingCalculator 로 온체인에서 직접 읽은 값이며, 본드가 USDm 의 90 퍼센트를 reserves 로 계속 흘려보내므로 NAV 는 시간이 갈수록 우상향합니다.`,
+    });
+  }
+
+  return out;
+}
 
 const VERDICT_KEY: Record<EntryZone, { label: string; detail: string }> = {
   undervalued: {
@@ -102,6 +228,21 @@ export default function LaunchSnapshot() {
   const premiumNum = (livePriceUSDm - navNumber) / navNumber;
   const premiumLabel = `${(premiumNum * 100).toFixed(1)}%`;
   const navTreasuryFallback = lc(s.metrics.navTreasury, locale);
+
+  const liveSignals = computeLiveSignals({
+    locale,
+    market: livePriceUSDm,
+    nav: navNumber,
+    navIsLive,
+    reservesUSDm,
+    totalSupplyRBT,
+    bonds: bondLive.snapshot.bonds.map((b) => ({
+      days: b.days,
+      tvlUSDm: b.tvlUSDm,
+      discountPct: b.discountPct,
+    })),
+    totalBondTVLUSDm: bondLive.snapshot.totalTVLUSDm,
+  });
 
   return (
     <section id="live" className="max-w-6xl mx-auto px-6 pb-14">
@@ -369,7 +510,7 @@ export default function LaunchSnapshot() {
         <div className="mt-7 grid lg:grid-cols-2 gap-3">
           <div className="space-y-2">
             <div className="eyebrow mb-1">{t("live.signals")}</div>
-            {s.signals.map((sig, i) => {
+            {liveSignals.map((sig, i) => {
               const tone = SIGNAL_TONE[sig.tone];
               return (
                 <div
@@ -391,11 +532,11 @@ export default function LaunchSnapshot() {
                       {tone.label}
                     </span>
                     <span className="text-[12.5px] font-medium text-ink-50">
-                      {lc(sig.label, locale)}
+                      {sig.label}
                     </span>
                   </div>
                   <p className="mt-1.5 text-[11.5px] text-ink-300 leading-relaxed">
-                    {lc(sig.detail, locale)}
+                    {sig.detail}
                   </p>
                 </div>
               );
