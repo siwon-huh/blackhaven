@@ -5,7 +5,7 @@ export default function PlaybookHero() {
         <span className="chip">Playbook</span>
       </div>
       <h1 className="text-[48px] md:text-[64px] headline text-ink-50">
-        사용자 플레이
+        플레이북
       </h1>
       <p className="mt-5 text-[15px] text-ink-300 max-w-xl">
         시간축별 메인 플레이와 자본 배분, 액션 시퀀스.

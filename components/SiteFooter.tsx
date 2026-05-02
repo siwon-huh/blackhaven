@@ -40,32 +40,28 @@ export default function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t hairline flex flex-wrap items-center justify-between gap-3 text-[11.5px] text-ink-400">
+        <div className="mt-8 pt-6 border-t hairline flex flex-wrap items-center justify-between gap-3 text-[11.5px] text-ink-500">
           <span>
-            Built by{" "}
+            built by{" "}
             <a
               href="https://x.com/c4lvin"
               target="_blank"
               rel="noreferrer"
-              className="text-ink-50 underline underline-offset-4 decoration-ink-600 hover:decoration-ink-100"
+              className="text-ink-200 underline underline-offset-4 decoration-ink-700 hover:decoration-ink-200"
             >
-              c4lvin
+              @c4lvin
             </a>
             , researcher at{" "}
             <a
               href="https://4pillars.io"
               target="_blank"
               rel="noreferrer"
-              className="text-ink-50 hover:underline underline-offset-4"
+              className="text-ink-200 hover:underline underline-offset-4"
             >
               Four Pillars
             </a>
-            .
           </span>
-          <span className="text-ink-500">
-            <span className="font-mono mr-2">unofficial</span>
-            <span className="font-mono">© Adventale (protocol)</span>
-          </span>
+          <span className="font-mono">unofficial dashboard, © Adventale (protocol)</span>
         </div>
       </div>
     </footer>
