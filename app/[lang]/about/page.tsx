@@ -6,7 +6,7 @@ import MechanicsCards from "@/components/about/MechanicsCards";
 import Contracts from "@/components/about/Contracts";
 
 export const metadata = {
-  title: "About · Blackhaven",
+  title: "About, Blackhaven",
   description: "Blackhaven 프로토콜 설명과 자금 흐름 다이어그램.",
 };
 

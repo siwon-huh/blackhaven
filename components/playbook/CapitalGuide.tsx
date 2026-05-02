@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { CAPITAL_TIERS, recommendBond } from "@/lib/bondMetrics";
 import { useBondMetrics } from "@/lib/useBondMetrics";
 import { formatRelative } from "@/lib/useLiveMetrics";
+import { lc } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/locale-context";
 
 const QUICK_AMOUNTS = [500, 2_500, 10_000, 50_000];
 
@@ -16,6 +18,8 @@ const fmtUsd = (n: number) =>
 
 export default function CapitalGuide() {
   const live = useBondMetrics(1_000);
+  const locale = useLocale();
+  const t = useT();
   const [capital, setCapital] = useState<number>(2_500);
 
   const recommendation = useMemo(
@@ -23,28 +27,42 @@ export default function CapitalGuide() {
     [capital, live.snapshot.bonds],
   );
 
+  const recommendationReason = (() => {
+    const { reasonKey, reasonParams } = recommendation;
+    const tvl = fmtUsd(reasonParams.tvlUSDm);
+    if (reasonKey === "fits") {
+      return t("cap.recommendation.fits")
+        .replace("{days}", String(reasonParams.days))
+        .replace("{tvl}", tvl)
+        .replace("{pct}", String(reasonParams.discountPct));
+    }
+    return t("cap.recommendation.over").replace(
+      "{days}",
+      String(reasonParams.days),
+    );
+  })();
+
   return (
     <section className="max-w-6xl mx-auto px-6 pb-12">
       <div className="mb-5">
-        <div className="eyebrow">Capital sizing</div>
+        <div className="eyebrow">{t("cap.eyebrow")}</div>
         <h2 className="mt-2 text-[26px] headline text-ink-50">
-          자본 규모와 본드 풀 깊이 매칭
+          {t("cap.heading")}
         </h2>
         <p className="mt-2 text-[13px] text-ink-300 max-w-2xl leading-relaxed">
-          본드 풀 깊이 (TVL) 의 5퍼센트를 권장 max 로 봅니다. 그 이상이 들어가면
-          디스카운트가 빠르게 잠식됩니다. 자본 규모를 입력하면 라이브 본드
-          데이터로 권장 만기를 골라줍니다.
+          {t("cap.intro")}
         </p>
       </div>
 
       <div className="card p-6 md:p-8">
         <div className="flex items-baseline justify-between flex-wrap gap-2">
-          <div className="eyebrow">진입 자본</div>
+          <div className="eyebrow">{t("cap.input")}</div>
           <span className="text-[10px] font-mono text-ink-500">
             {live.snapshot.source === "static"
-              ? "static, manual sync"
-              : "onchain"}
-            {live.lastUpdated && `, 갱신 ${formatRelative(live.lastUpdated)}`}
+              ? t("live.source.staticManual")
+              : t("live.source.onchain")}
+            {live.lastUpdated &&
+              `, ${t("common.updated")} ${formatRelative(live.lastUpdated)}`}
           </span>
         </div>
 
@@ -87,7 +105,11 @@ export default function CapitalGuide() {
               : ratio < 2
                 ? "var(--warn)"
                 : "var(--critical)";
-            const fitLabel = fits ? "fits" : ratio < 2 ? "tight" : "over";
+            const fitLabel = fits
+              ? t("cap.fits")
+              : ratio < 2
+                ? t("cap.tight")
+                : t("cap.over");
             return (
               <div
                 key={b.days}
@@ -99,7 +121,7 @@ export default function CapitalGuide() {
               >
                 <div className="flex items-baseline justify-between">
                   <div className="font-mono text-[12px] text-ink-50">
-                    {b.days}일 본드
+                    {t("cap.bondLabel").replace("{n}", String(b.days))}
                   </div>
                   <span
                     className="font-mono text-[9.5px] px-1.5 py-0.5 rounded"
@@ -129,12 +151,12 @@ export default function CapitalGuide() {
                   />
                 </div>
                 <div className="mt-1.5 text-[10.5px] text-ink-500 font-mono">
-                  {fmtUsd(capital)} / 권장 {fmtUsd(b.recommendedMaxUSDm)} ={" "}
-                  {(ratio * 100).toFixed(0)}%
+                  {fmtUsd(capital)} / {t("cap.recommended")}{" "}
+                  {fmtUsd(b.recommendedMaxUSDm)} = {(ratio * 100).toFixed(0)}%
                 </div>
                 {isPicked && (
                   <div className="mt-2 text-[10.5px] font-mono text-signal">
-                    ✓ 추천 만기
+                    ✓ {t("cap.recommendedPick")}
                   </div>
                 )}
               </div>
@@ -143,27 +165,30 @@ export default function CapitalGuide() {
         </div>
 
         <div className="mt-4 card-2 p-4 border-signal/20">
-          <div className="eyebrow text-signal">권장</div>
+          <div className="eyebrow text-signal">{t("cap.recommended")}</div>
           <p className="mt-1.5 text-[13px] text-ink-100 leading-relaxed">
             <span className="text-ink-50 font-medium">
-              {recommendation.picked.days}일 본드 (디스카운트{" "}
-              {recommendation.picked.discountPct}%)
+              {t("cap.bondLabel").replace(
+                "{n}",
+                String(recommendation.picked.days),
+              )}{" "}
+              ({recommendation.picked.discountPct}%)
             </span>
             {". "}
-            {recommendation.reason}
+            {recommendationReason}
           </p>
         </div>
       </div>
 
       <div className="mt-5 grid md:grid-cols-3 gap-3">
-        {CAPITAL_TIERS.map((t) => (
-          <div key={t.tier} className="card-2 p-5">
-            <div className="eyebrow">{t.label}</div>
+        {CAPITAL_TIERS.map((tier) => (
+          <div key={tier.tier} className="card-2 p-5">
+            <div className="eyebrow">{lc(tier.label, locale)}</div>
             <div className="mt-1 text-[14px] font-medium text-ink-50">
-              {t.range}
+              {lc(tier.range, locale)}
             </div>
             <p className="mt-2 text-[12.5px] text-ink-300 leading-relaxed">
-              {t.guidance}
+              {lc(tier.guidance, locale)}
             </p>
           </div>
         ))}

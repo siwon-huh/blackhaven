@@ -24,9 +24,18 @@ export default function ForksHero() {
       </p>
       <div className="mt-9 grid md:grid-cols-3 gap-px bg-white/5 rounded-xl overflow-hidden">
         {[
-          { k: "샘플", v: "메이저 7 개" },
-          { k: "살아남은 비율", v: "2 / 7" },
-          { k: "평균 드로우다운", v: "약 −98%" },
+          {
+            k: t("forks.hero.stat.sample.label"),
+            v: t("forks.hero.stat.sample.value"),
+          },
+          {
+            k: t("forks.hero.stat.survived.label"),
+            v: t("forks.hero.stat.survived.value"),
+          },
+          {
+            k: t("forks.hero.stat.drawdown.label"),
+            v: t("forks.hero.stat.drawdown.value"),
+          },
         ].map((m) => (
           <div
             key={m.k}

@@ -1,4 +1,8 @@
+"use client";
+
 import { FORKS, STATUS_TONE } from "@/lib/forks";
+import { lc } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/locale-context";
 
 const TIMELINE_START = "2021-01";
 const TIMELINE_END = "2024-12";
@@ -27,13 +31,17 @@ const ESTIMATED_END: Record<string, string> = {
 };
 
 export default function ForkTimeline() {
+  const t = useT();
+  const locale = useLocale();
   return (
     <section className="max-w-6xl mx-auto px-6 pb-16">
       <div className="mb-6">
-        <div className="eyebrow">Timeline</div>
-        <h2 className="mt-2 text-[28px] headline text-ink-50">출시부터 결말까지</h2>
+        <div className="eyebrow">{t("forks.timeline.eyebrow")}</div>
+        <h2 className="mt-2 text-[28px] headline text-ink-50">
+          {t("forks.timeline.heading")}
+        </h2>
         <p className="mt-2 subhead text-[13px] max-w-2xl">
-          2021 년 출시 후 2022 년 1 분기에 거의 모든 포크가 무너지는 패턴이 공통적으로 나타났습니다. 살아남은 사례는 메커니즘이 아니라 피벗에 가깝습니다.
+          {t("forks.timeline.intro")}
         </p>
       </div>
 
@@ -70,7 +78,7 @@ export default function ForkTimeline() {
                   <div
                     className="absolute top-1/2 h-2 w-2 -translate-y-1/2 -translate-x-1/2 rotate-45 bg-warn"
                     style={{ left: `${peakPct}%` }}
-                    title={`Peak ${f.peakDate} ${f.peakPrice}`}
+                    title={`Peak ${f.peakDate} ${lc(f.peakPrice, locale)}`}
                   />
                 </div>
                 <div className="text-right">
@@ -90,13 +98,13 @@ export default function ForkTimeline() {
           <span>2021</span>
           <span>2022</span>
           <span>2023</span>
-          <span className="text-right">2024 이후</span>
+          <span className="text-right">{t("forks.timeline.afterFinal")}</span>
         </div>
 
         <div className="mt-4 pt-3 border-t hairline flex flex-wrap gap-3 text-[11px]">
           <span className="inline-flex items-center gap-1.5 text-ink-300">
             <span className="h-2 w-2 rounded-sm rotate-45 bg-warn" />
-            정점
+            {t("forks.timeline.peak")}
           </span>
           {Object.entries(STATUS_TONE).map(([k, v]) => (
             <span

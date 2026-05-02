@@ -2,32 +2,35 @@
 
 // 자금 흐름 SVG. 사용자 USDm 이 본드를 거쳐 트레저리/POL 로 가고,
 // 트레저리에서 BAM 매수 burn, RBT 분배가 다시 사용자에게 흐른다.
-// dasharray 애니메이션으로 흐름을 시각화.
+// 그리드 정렬된 직각 라인으로 텍스트가 box 밖으로 벗어나지 않게 구성.
+
+import { useT } from "@/lib/locale-context";
 
 export default function FlowDiagram() {
+  const t = useT();
   return (
     <section className="max-w-6xl mx-auto px-6 pb-20">
       <div className="mb-6">
-        <div className="eyebrow">Flow</div>
+        <div className="eyebrow">{t("about.flow.eyebrow")}</div>
         <h2 className="mt-2 text-[28px] headline text-ink-50">
-          자금이 어떻게 흐르는가
+          {t("about.flow.heading")}
         </h2>
         <p className="mt-2 subhead text-[13px] max-w-2xl">
-          본드, 락업, BAM, POL 이 트레저리 안에서 어떻게 맞물려 작동하는지
-          정리한 다이어그램입니다. 화살표는 USDm 이나 RBT 의 이동 방향을
-          나타냅니다.
+          {t("about.flow.intro")}
         </p>
       </div>
 
       <div className="card p-6 md:p-10">
         <svg
-          viewBox="0 0 1100 460"
+          viewBox="0 0 1200 480"
           className="w-full h-auto"
           xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="Blackhaven fund flow"
         >
           <defs>
             <marker
-              id="arrow"
+              id="fdArrow"
               viewBox="0 0 10 10"
               refX="9"
               refY="5"
@@ -35,10 +38,10 @@ export default function FlowDiagram() {
               markerHeight="6"
               orient="auto-start-reverse"
             >
-              <path d="M0,0 L10,5 L0,10 Z" fill="#9AA0AB" />
+              <path d="M0,0 L10,5 L0,10 Z" className="arrowFill" />
             </marker>
             <marker
-              id="arrow-signal"
+              id="fdArrowSignal"
               viewBox="0 0 10 10"
               refX="9"
               refY="5"
@@ -46,36 +49,94 @@ export default function FlowDiagram() {
               markerHeight="6"
               orient="auto-start-reverse"
             >
-              <path d="M0,0 L10,5 L0,10 Z" fill="#3DDC97" />
+              <path d="M0,0 L10,5 L0,10 Z" className="arrowFillSignal" />
             </marker>
           </defs>
 
           <style>{`
-            .nodeLabel { fill: #F4F5F7; font-family: Inter, sans-serif; font-size: 14px; font-weight: 500; }
-            .nodeSub { fill: #9AA0AB; font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
-            .nodeBox { fill: #15171C; stroke: rgba(255,255,255,0.1); stroke-width: 1; }
-            .nodeAccent { fill: #15171C; stroke: rgba(61,220,151,0.4); stroke-width: 1; }
-            .flow { stroke: #4D525B; stroke-width: 1.5; fill: none; }
-            .flow-signal { stroke: #3DDC97; stroke-width: 1.5; fill: none; }
-            .flow-anim { stroke-dasharray: 4 4; animation: dashFlow 2s linear infinite; }
+            .nodeBox {
+              fill: var(--surface-2);
+              stroke: var(--line-strong);
+              stroke-width: 1;
+            }
+            .nodeAccent {
+              fill: var(--surface-2);
+              stroke: rgb(var(--signal-rgb) / 0.45);
+              stroke-width: 1;
+            }
+            .nodeLabel {
+              fill: var(--text-1);
+              font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+              font-size: 14px;
+              font-weight: 500;
+            }
+            .nodeSub {
+              fill: var(--text-4);
+              font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+              font-size: 10px;
+              letter-spacing: 0.14em;
+              text-transform: uppercase;
+            }
+            .nodeSubSignal {
+              fill: var(--signal);
+              font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+              font-size: 10px;
+              letter-spacing: 0.14em;
+              text-transform: uppercase;
+            }
+            .nodeDesc {
+              fill: var(--text-3);
+              font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+              font-size: 10px;
+              letter-spacing: 0.02em;
+            }
+            .flow {
+              stroke: var(--text-4);
+              stroke-width: 1.25;
+              fill: none;
+              opacity: 0.7;
+            }
+            .flowSignal {
+              stroke: var(--signal);
+              stroke-width: 1.4;
+              fill: none;
+            }
+            .flowAnim {
+              stroke-dasharray: 4 4;
+              animation: dashFlow 2.4s linear infinite;
+            }
             @keyframes dashFlow { to { stroke-dashoffset: -16; } }
-            .flowCaption { fill: #6E7480; font-family: ui-monospace, monospace; font-size: 10px; }
+            .flowCaption {
+              fill: var(--text-3);
+              font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+              font-size: 10.5px;
+              letter-spacing: 0.04em;
+            }
+            .flowCaptionSignal {
+              fill: var(--signal);
+              font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+              font-size: 10.5px;
+              letter-spacing: 0.04em;
+            }
+            .arrowFill { fill: var(--text-4); }
+            .arrowFillSignal { fill: var(--signal); }
+            .gridLine { stroke: var(--line); stroke-width: 1; opacity: 0.5; }
           `}</style>
 
           {/* User */}
           <g>
             <rect
               className="nodeBox"
-              x="40"
-              y="180"
-              width="170"
+              x="20"
+              y="200"
+              width="180"
               height="80"
-              rx="10"
+              rx="12"
             />
-            <text className="nodeSub" x="125" y="208" textAnchor="middle">
+            <text className="nodeSub" x="110" y="228" textAnchor="middle">
               User
             </text>
-            <text className="nodeLabel" x="125" y="234" textAnchor="middle">
+            <text className="nodeLabel" x="110" y="254" textAnchor="middle">
               USDm Holder
             </text>
           </g>
@@ -84,95 +145,20 @@ export default function FlowDiagram() {
           <g>
             <rect
               className="nodeBox"
-              x="290"
-              y="60"
-              width="180"
+              x="270"
+              y="50"
+              width="200"
               height="80"
-              rx="10"
+              rx="12"
             />
-            <text className="nodeSub" x="380" y="88" textAnchor="middle">
+            <text className="nodeSub" x="370" y="78" textAnchor="middle">
               Bond
             </text>
-            <text className="nodeLabel" x="380" y="114" textAnchor="middle">
+            <text className="nodeLabel" x="370" y="104" textAnchor="middle">
               7d / 14d / 30d
             </text>
-            <text className="flowCaption" x="380" y="130" textAnchor="middle">
+            <text className="nodeDesc" x="370" y="120" textAnchor="middle">
               linear vest, discount
-            </text>
-          </g>
-
-          {/* Treasury */}
-          <g>
-            <rect
-              className="nodeAccent"
-              x="560"
-              y="60"
-              width="180"
-              height="80"
-              rx="10"
-            />
-            <text
-              className="nodeSub"
-              x="650"
-              y="88"
-              textAnchor="middle"
-              style={{ fill: "#3DDC97" }}
-            >
-              Treasury
-            </text>
-            <text className="nodeLabel" x="650" y="114" textAnchor="middle">
-              USDm Reserves
-            </text>
-            <text className="flowCaption" x="650" y="130" textAnchor="middle">
-              90% of bond
-            </text>
-          </g>
-
-          {/* POL */}
-          <g>
-            <rect
-              className="nodeBox"
-              x="830"
-              y="60"
-              width="220"
-              height="80"
-              rx="10"
-            />
-            <text className="nodeSub" x="940" y="88" textAnchor="middle">
-              POL
-            </text>
-            <text className="nodeLabel" x="940" y="114" textAnchor="middle">
-              Liquidity Manager (V3)
-            </text>
-            <text className="flowCaption" x="940" y="130" textAnchor="middle">
-              fees redirected to treasury
-            </text>
-          </g>
-
-          {/* BAM */}
-          <g>
-            <rect
-              className="nodeAccent"
-              x="560"
-              y="200"
-              width="180"
-              height="80"
-              rx="10"
-            />
-            <text
-              className="nodeSub"
-              x="650"
-              y="228"
-              textAnchor="middle"
-              style={{ fill: "#3DDC97" }}
-            >
-              BAM
-            </text>
-            <text className="nodeLabel" x="650" y="254" textAnchor="middle">
-              Auto two-way arb
-            </text>
-            <text className="flowCaption" x="650" y="270" textAnchor="middle">
-              above NAV: sell, below: burn
             </text>
           </g>
 
@@ -180,19 +166,19 @@ export default function FlowDiagram() {
           <g>
             <rect
               className="nodeBox"
-              x="290"
+              x="270"
               y="200"
-              width="180"
+              width="200"
               height="80"
-              rx="10"
+              rx="12"
             />
-            <text className="nodeSub" x="380" y="228" textAnchor="middle">
+            <text className="nodeSub" x="370" y="228" textAnchor="middle">
               RBT
             </text>
-            <text className="nodeLabel" x="380" y="254" textAnchor="middle">
+            <text className="nodeLabel" x="370" y="254" textAnchor="middle">
               Reserve-Backed Token
             </text>
-            <text className="flowCaption" x="380" y="270" textAnchor="middle">
+            <text className="nodeDesc" x="370" y="270" textAnchor="middle">
               backing = reserves / supply
             </text>
           </g>
@@ -201,196 +187,254 @@ export default function FlowDiagram() {
           <g>
             <rect
               className="nodeBox"
-              x="290"
-              y="340"
-              width="180"
+              x="270"
+              y="350"
+              width="200"
               height="80"
-              rx="10"
+              rx="12"
             />
-            <text className="nodeSub" x="380" y="368" textAnchor="middle">
+            <text className="nodeSub" x="370" y="378" textAnchor="middle">
               Lock
             </text>
-            <text className="nodeLabel" x="380" y="394" textAnchor="middle">
+            <text className="nodeLabel" x="370" y="404" textAnchor="middle">
               Time-locked NFT
             </text>
-            <text className="flowCaption" x="380" y="410" textAnchor="middle">
+            <text className="nodeDesc" x="370" y="420" textAnchor="middle">
               extra RBT distribution
             </text>
           </g>
 
-          {/* Market (DEX) */}
+          {/* Treasury (accent) */}
+          <g>
+            <rect
+              className="nodeAccent"
+              x="540"
+              y="50"
+              width="200"
+              height="80"
+              rx="12"
+            />
+            <text className="nodeSubSignal" x="640" y="78" textAnchor="middle">
+              Treasury
+            </text>
+            <text className="nodeLabel" x="640" y="104" textAnchor="middle">
+              USDm Reserves
+            </text>
+            <text className="nodeDesc" x="640" y="120" textAnchor="middle">
+              90% of bond
+            </text>
+          </g>
+
+          {/* BAM (accent) */}
+          <g>
+            <rect
+              className="nodeAccent"
+              x="540"
+              y="200"
+              width="200"
+              height="80"
+              rx="12"
+            />
+            <text className="nodeSubSignal" x="640" y="228" textAnchor="middle">
+              BAM
+            </text>
+            <text className="nodeLabel" x="640" y="254" textAnchor="middle">
+              Auto two-way arb
+            </text>
+            <text className="nodeDesc" x="640" y="270" textAnchor="middle">
+              above NAV sell, below burn
+            </text>
+          </g>
+
+          {/* POL */}
           <g>
             <rect
               className="nodeBox"
-              x="830"
+              x="880"
+              y="50"
+              width="220"
+              height="80"
+              rx="12"
+            />
+            <text className="nodeSub" x="990" y="78" textAnchor="middle">
+              POL
+            </text>
+            <text className="nodeLabel" x="990" y="104" textAnchor="middle">
+              Liquidity Manager (V3)
+            </text>
+            <text className="nodeDesc" x="990" y="120" textAnchor="middle">
+              fees redirected to treasury
+            </text>
+          </g>
+
+          {/* Market */}
+          <g>
+            <rect
+              className="nodeBox"
+              x="880"
               y="200"
               width="220"
               height="80"
-              rx="10"
+              rx="12"
             />
-            <text className="nodeSub" x="940" y="228" textAnchor="middle">
+            <text className="nodeSub" x="990" y="228" textAnchor="middle">
               Market
             </text>
-            <text className="nodeLabel" x="940" y="254" textAnchor="middle">
-              RBT/USDm Pool
+            <text className="nodeLabel" x="990" y="254" textAnchor="middle">
+              RBT / USDm Pool
             </text>
-            <text className="flowCaption" x="940" y="270" textAnchor="middle">
+            <text className="nodeDesc" x="990" y="270" textAnchor="middle">
               Kumbaya, MegaETH
             </text>
           </g>
 
-          {/* Flows */}
-          {/* User -> Bond (USDm) */}
+          {/* === Flows === */}
+
+          {/* User → Bond (USDm) */}
           <path
-            className="flow flow-anim"
-            d="M210 200 C 240 200 250 100 290 100"
-            markerEnd="url(#arrow)"
+            className="flow flowAnim"
+            d="M 200 220 H 235 V 90 H 270"
+            markerEnd="url(#fdArrow)"
           />
-          <text className="flowCaption" x="240" y="155">
+          <text className="flowCaption" x="244" y="155" textAnchor="middle">
             USDm
           </text>
 
-          {/* Bond -> Treasury */}
+          {/* Bond → Treasury (USDm 90%) */}
           <path
-            className="flow-signal flow-anim"
-            d="M470 100 L 560 100"
-            markerEnd="url(#arrow-signal)"
+            className="flowSignal flowAnim"
+            d="M 470 90 H 540"
+            markerEnd="url(#fdArrowSignal)"
           />
           <text
-            className="flowCaption"
-            x="495"
-            y="92"
-            style={{ fill: "#3DDC97" }}
+            className="flowCaptionSignal"
+            x="505"
+            y="82"
+            textAnchor="middle"
           >
             USDm 90%
           </text>
 
-          {/* Treasury -> POL (seed) */}
+          {/* Treasury → POL (seed) */}
           <path
-            className="flow flow-anim"
-            d="M740 100 L 830 100"
-            markerEnd="url(#arrow)"
+            className="flow flowAnim"
+            d="M 740 84 H 880"
+            markerEnd="url(#fdArrow)"
           />
-          <text className="flowCaption" x="760" y="92">
+          <text className="flowCaption" x="810" y="76" textAnchor="middle">
             seed
           </text>
 
-          {/* POL -> Treasury (fees) */}
+          {/* POL → Treasury (fees) */}
           <path
-            className="flow flow-anim"
-            d="M830 120 C 800 150 770 150 740 120"
-            markerEnd="url(#arrow)"
+            className="flow flowAnim"
+            d="M 880 110 Q 810 142 740 110"
+            markerEnd="url(#fdArrow)"
           />
-          <text className="flowCaption" x="775" y="155">
+          <text className="flowCaption" x="810" y="144" textAnchor="middle">
             fees
           </text>
 
-          {/* Bond -> RBT (vest) */}
+          {/* Bond → RBT (vest) */}
           <path
-            className="flow flow-anim"
-            d="M380 140 L 380 200"
-            markerEnd="url(#arrow)"
+            className="flow flowAnim"
+            d="M 370 130 V 200"
+            markerEnd="url(#fdArrow)"
           />
-          <text className="flowCaption" x="390" y="172">
+          <text className="flowCaption" x="382" y="170">
             RBT vest
           </text>
 
-          {/* RBT -> User (claim) */}
+          {/* RBT → User (claim) */}
           <path
-            className="flow flow-anim"
-            d="M290 240 L 210 240"
-            markerEnd="url(#arrow)"
+            className="flow flowAnim"
+            d="M 270 240 H 200"
+            markerEnd="url(#fdArrow)"
           />
-          <text className="flowCaption" x="225" y="232">
+          <text className="flowCaption" x="235" y="232" textAnchor="middle">
             claim
           </text>
 
-          {/* RBT -> Lock */}
+          {/* RBT → Lock (stake / lock) */}
           <path
-            className="flow flow-anim"
-            d="M380 280 L 380 340"
-            markerEnd="url(#arrow)"
+            className="flow flowAnim"
+            d="M 370 280 V 350"
+            markerEnd="url(#fdArrow)"
           />
-          <text className="flowCaption" x="390" y="312">
+          <text className="flowCaption" x="382" y="320">
             stake / lock
           </text>
 
-          {/* Lock -> User (extra RBT) */}
+          {/* Lock → User (extra RBT, orthogonal under User) */}
           <path
-            className="flow flow-anim"
-            d="M290 380 C 200 380 100 320 125 260"
-            markerEnd="url(#arrow)"
+            className="flow flowAnim"
+            d="M 270 390 H 110 V 280"
+            markerEnd="url(#fdArrow)"
           />
-          <text className="flowCaption" x="155" y="345">
+          <text className="flowCaption" x="190" y="382" textAnchor="middle">
             extra RBT
           </text>
 
-          {/* Treasury -> BAM */}
+          {/* Treasury → BAM (BAM funds) */}
           <path
-            className="flow-signal"
-            d="M650 140 L 650 200"
-            markerEnd="url(#arrow-signal)"
+            className="flowSignal"
+            d="M 640 130 V 200"
+            markerEnd="url(#fdArrowSignal)"
           />
-          <text
-            className="flowCaption"
-            x="660"
-            y="172"
-            style={{ fill: "#3DDC97" }}
-          >
+          <text className="flowCaptionSignal" x="652" y="170">
             BAM funds
           </text>
 
-          {/* BAM -> Market (sell above NAV) */}
+          {/* BAM → Market (sell &gt; NAV) */}
           <path
-            className="flow-signal flow-anim"
-            d="M740 230 L 830 230"
-            markerEnd="url(#arrow-signal)"
+            className="flowSignal flowAnim"
+            d="M 740 230 H 880"
+            markerEnd="url(#fdArrowSignal)"
           />
           <text
-            className="flowCaption"
-            x="755"
+            className="flowCaptionSignal"
+            x="810"
             y="222"
-            style={{ fill: "#3DDC97" }}
+            textAnchor="middle"
           >
             sell &gt; NAV
           </text>
 
-          {/* Market -> BAM (buy below NAV) */}
+          {/* Market → BAM (buy &lt; NAV → burn) */}
           <path
-            className="flow-signal flow-anim"
-            d="M830 250 L 740 250"
-            markerEnd="url(#arrow-signal)"
+            className="flowSignal flowAnim"
+            d="M 880 260 H 740"
+            markerEnd="url(#fdArrowSignal)"
           />
           <text
-            className="flowCaption"
-            x="755"
-            y="265"
-            style={{ fill: "#3DDC97" }}
+            className="flowCaptionSignal"
+            x="810"
+            y="276"
+            textAnchor="middle"
           >
-            buy &lt; NAV burn
+            buy &lt; NAV, burn
           </text>
         </svg>
 
-        <div className="mt-6 grid md:grid-cols-3 gap-3 text-[12px] text-ink-300">
-          <div className="card-2 p-3">
-            <span className="eyebrow">USDm 유입</span>
+        <div className="mt-8 grid md:grid-cols-3 gap-3 text-[12px] text-ink-300">
+          <div className="card-2 p-4">
+            <span className="eyebrow">{t("about.flow.usdmIn.eyebrow")}</span>
             <p className="mt-1.5 text-ink-200 leading-relaxed">
-              사용자의 USDm 이 본드를 거쳐 트레저리와 POL 에 영구적으로
-              쌓입니다. 90퍼센트는 트레저리, 10퍼센트는 운영자금입니다.
+              {t("about.flow.usdmIn.body")}
             </p>
           </div>
-          <div className="card-2 p-3">
-            <span className="eyebrow">RBT 분배</span>
+          <div className="card-2 p-4">
+            <span className="eyebrow">{t("about.flow.rbtDist.eyebrow")}</span>
             <p className="mt-1.5 text-ink-200 leading-relaxed">
-              본드는 만기까지 RBT 를 선형으로 분배합니다. 락업한 RBT 는 만기에
-              추가 RBT 분배를 받습니다.
+              {t("about.flow.rbtDist.body")}
             </p>
           </div>
-          <div className="card-2 p-3">
-            <span className="eyebrow text-signal">BAM 가격 보정</span>
+          <div className="card-2 p-4">
+            <span className="eyebrow text-signal">
+              {t("about.flow.bam.eyebrow")}
+            </span>
             <p className="mt-1.5 text-ink-200 leading-relaxed">
-              시장가가 NAV 위면 트레저리가 RBT 를 매도해 USDm 을 회수하고,
-              아래면 USDm 으로 RBT 를 사서 소각합니다.
+              {t("about.flow.bam.body")}
             </p>
           </div>
         </div>

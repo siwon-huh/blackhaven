@@ -2,6 +2,8 @@
 // 4-layer 모델: Floor(NAV) / Yield-adjusted Fair / Bond Effective / Market.
 // 사용자가 metric을 직접 입력하면 즉시 재계산. 메가에쓰 RPC 직접 호출 가능 hook은 후속 작업.
 
+import type { LocaleString } from "@/lib/i18n";
+
 export type LiveMetrics = {
   reservesPerRBT: number; // USDm per RBT (앱 Metrics 페이지의 'Reserves per RBT')
   circulatingRBT: number; // RBT
@@ -45,46 +47,26 @@ export type EntryZone = "undervalued" | "fair" | "bond-only" | "overvalued";
 
 export type EntryVerdict = {
   zone: EntryZone;
-  label: string;
-  detail: string;
   color: string;
 };
 
+export const ENTRY_VERDICT_COLOR: Record<EntryZone, string> = {
+  undervalued: "#3DDC97",
+  fair: "#3DDC97",
+  "bond-only": "#F4C756",
+  overvalued: "#FF6A4A",
+};
+
+export function entryZone(fv: FairValueModel): EntryZone {
+  if (fv.market <= fv.floor) return "undervalued";
+  if (fv.market <= fv.yieldFair) return "fair";
+  if (fv.market <= fv.bondEffective) return "bond-only";
+  return "overvalued";
+}
+
 export function entryVerdict(fv: FairValueModel): EntryVerdict {
-  if (fv.market <= fv.floor) {
-    return {
-      zone: "undervalued",
-      label: "저평가",
-      detail:
-        "시장가가 NAV 이하입니다. BAM 매수 윈도우가 열린 비대칭 진입 구간입니다.",
-      color: "#3DDC97",
-    };
-  }
-  if (fv.market <= fv.yieldFair) {
-    return {
-      zone: "fair",
-      label: "공정",
-      detail:
-        "Yield-adjusted Fair 이하입니다. 본드를 거치지 않고 스팟 매수가 합리적인 구간입니다.",
-      color: "#3DDC97",
-    };
-  }
-  if (fv.market <= fv.bondEffective) {
-    return {
-      zone: "bond-only",
-      label: "본드 권장",
-      detail:
-        "Bond Effective 이하입니다. 시장가 직매수보다 본드를 통한 진입이 효율적입니다.",
-      color: "#F4C756",
-    };
-  }
-  return {
-    zone: "overvalued",
-    label: "고평가",
-    detail:
-      "Bond Effective 위입니다. 본드도 비효율이며 다음 라운드를 기다리는 구간입니다.",
-    color: "#FF6A4A",
-  };
+  const zone = entryZone(fv);
+  return { zone, color: ENTRY_VERDICT_COLOR[zone] };
 }
 
 // 기본 가정 — 거버넌스나 데이터에 따라 갱신
@@ -98,25 +80,31 @@ export type ReflexivityMode = "none" | "soft" | "hard";
 
 export const REFLEXIVITY_DISCOUNT: Record<
   ReflexivityMode,
-  { factor: number; label: string; detail: string }
+  { factor: number; label: string; detail: LocaleString }
 > = {
   none: {
     factor: 0,
     label: "None",
-    detail:
-      "메커니즘이 설계대로 작동하고 사용자 행동이 합리적이라고 가정합니다. forward yield 가 그대로 반영됩니다.",
+    detail: {
+      ko: "메커니즘이 설계대로 작동하고 사용자 행동이 합리적이라고 가정합니다. forward yield 가 그대로 반영됩니다.",
+      en: "Assumes the mechanism works as designed and user behavior stays rational. Forward yield is applied in full.",
+    },
   },
   soft: {
     factor: 0.25,
     label: "Soft",
-    detail:
-      "신규 자본 유입이 둔화되거나 (3,3) 셸링이 약화되는 시나리오입니다. forward yield 의 25퍼센트를 디스카운트로 차감합니다.",
+    detail: {
+      ko: "신규 자본 유입이 둔화되거나 (3,3) 셸링이 약화되는 시나리오입니다. forward yield 의 25퍼센트를 디스카운트로 차감합니다.",
+      en: "Scenario where new capital inflow slows or (3,3) Schelling weakens. Cuts 25% off forward yield as a discount.",
+    },
   },
   hard: {
     factor: 0.55,
     label: "Hard",
-    detail:
-      "OHM 류 시즌 패턴이 재현되는 시나리오입니다. forward yield 의 55퍼센트를 디스카운트로 차감합니다.",
+    detail: {
+      ko: "OHM 류 시즌 패턴이 재현되는 시나리오입니다. forward yield 의 55퍼센트를 디스카운트로 차감합니다.",
+      en: "Scenario where the OHM-style season pattern repeats. Cuts 55% off forward yield as a discount.",
+    },
   },
 };
 
@@ -196,7 +184,7 @@ export const LIVE_METRICS: LiveMetrics = {
   liquidityUSD: 320_000,
   poolRBT: 8_460,
   poolUSDm: 162_590,
-  capturedAt: "2026-05-02 ~05:00 KST (Metrics) · ~14:43 (Pool)",
+  capturedAt: "2026-05-02 ~05:00 KST (Metrics), ~14:43 (Pool)",
   source: "Blackhaven Metrics + Kumbaya pool",
 };
 

@@ -9,6 +9,8 @@ import {
   STATUS_TONE,
 } from "@/lib/forks";
 import MiniCurve from "@/components/forks/MiniCurve";
+import { lc } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/locale-context";
 
 const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${(n * 100).toFixed(1)}%`;
 const fmtPrice = (n: number) =>
@@ -35,16 +37,8 @@ type Row = Fork & {
   drawdownFromPeak: number;
 };
 
-const STATUS_ORDER = [
-  "alive",
-  "alive-pivoted",
-  "moribund",
-  "wound-down",
-  "abandoned",
-  "rugged",
-];
-
 export default function ForkCards() {
+  const t = useT();
   const [openId, setOpenId] = useState<string | null>("ohm");
   const [sort, setSort] = useState<SortState>({ key: "peakDays", dir: "asc" });
 
@@ -108,13 +102,12 @@ export default function ForkCards() {
   return (
     <section className="max-w-6xl mx-auto px-6 pb-16">
       <div className="mb-6">
-        <div className="eyebrow">Project files</div>
+        <div className="eyebrow">{t("forks.cards.eyebrow")}</div>
         <h2 className="mt-2 text-[28px] headline text-ink-50">
-          프로젝트별 케이스
+          {t("forks.cards.heading")}
         </h2>
         <p className="mt-2 text-[12.5px] text-ink-400">
-          헤더를 클릭해 정렬할 수 있고, row 를 클릭하면 정규화된 곡선과 상세
-          분석을 펼쳐볼 수 있습니다.
+          {t("forks.cards.intro")}
         </p>
       </div>
 
@@ -129,13 +122,13 @@ export default function ForkCards() {
                   onClick={handleSort}
                   className="pl-5 w-[12%]"
                 >
-                  Ticker
+                  {t("forks.cards.col.ticker")}
                 </Th>
                 <Th k={null} className="w-[10%]">
-                  Chain
+                  {t("forks.cards.col.chain")}
                 </Th>
                 <Th k={null} className="w-[14%]">
-                  Status
+                  {t("forks.cards.col.status")}
                 </Th>
                 <Th
                   k="launched"
@@ -143,7 +136,7 @@ export default function ForkCards() {
                   onClick={handleSort}
                   className="w-[10%]"
                 >
-                  Launch
+                  {t("forks.cards.col.launch")}
                 </Th>
                 <Th
                   k="peakDays"
@@ -152,7 +145,7 @@ export default function ForkCards() {
                   className="w-[10%]"
                   align="right"
                 >
-                  to Peak
+                  {t("forks.cards.col.toPeak")}
                 </Th>
                 <Th
                   k="peakPriceUSD"
@@ -161,7 +154,7 @@ export default function ForkCards() {
                   className="w-[10%]"
                   align="right"
                 >
-                  Peak
+                  {t("forks.cards.col.peak")}
                 </Th>
                 <Th
                   k="recentPriceUSD"
@@ -170,7 +163,7 @@ export default function ForkCards() {
                   className="w-[10%]"
                   align="right"
                 >
-                  Recent
+                  {t("forks.cards.col.recent")}
                 </Th>
                 <Th
                   k="vsLaunch"
@@ -179,7 +172,7 @@ export default function ForkCards() {
                   className="w-[12%]"
                   align="right"
                 >
-                  vs Launch
+                  {t("forks.cards.col.vsLaunch")}
                 </Th>
                 <Th
                   k="drawdownFromPeak"
@@ -188,7 +181,7 @@ export default function ForkCards() {
                   className="w-[12%] pr-5"
                   align="right"
                 >
-                  vs Peak
+                  {t("forks.cards.col.vsPeak")}
                 </Th>
               </tr>
             </thead>
@@ -246,7 +239,7 @@ function Th({
         {children}
         {sortable && (
           <span className="text-[8px] text-ink-500">
-            {dir === "asc" ? "▲" : dir === "desc" ? "▼" : "·"}
+            {dir === "asc" ? "▲" : dir === "desc" ? "▼" : "◇"}
           </span>
         )}
       </span>
@@ -265,6 +258,8 @@ function FragmentRow({
   onToggle: () => void;
   tone: { label: string; color: string };
 }) {
+  const t = useT();
+  const locale = useLocale();
   const isAlive = f.status === "alive" || f.status === "alive-pivoted";
   const launchChange = f.vsLaunch;
   const peakDrawdown = f.drawdownFromPeak;
@@ -324,27 +319,35 @@ function FragmentRow({
           <td colSpan={9} className="px-5 py-6">
             <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 animate-revealUp">
               <div>
-                <div className="eyebrow mb-2">Normalized price curve</div>
+                <div className="eyebrow mb-2">{t("forks.cards.curve")}</div>
                 <MiniCurve fork={f} />
                 <div className="mt-3 grid grid-cols-3 gap-3 text-[11px] font-mono">
                   <div className="card-2 px-3 py-2">
-                    <div className="text-ink-500">출시가</div>
+                    <div className="text-ink-500">
+                      {t("forks.cards.launchPrice")}
+                    </div>
                     <div className="mt-0.5 text-ink-50">
                       {fmtPrice(f.launchPriceUSD)}
                     </div>
                     <div className="text-ink-500">{f.launched}</div>
                   </div>
                   <div className="card-2 px-3 py-2">
-                    <div className="text-ink-500">정점가</div>
+                    <div className="text-ink-500">
+                      {t("forks.cards.peakPrice")}
+                    </div>
                     <div className="mt-0.5 text-warn">
                       {fmtPrice(f.peakPriceUSD)}
                     </div>
                     <div className="text-ink-500">
-                      {f.peakDate}, {f.peakDays}일
+                      {t("forks.cards.peakAtDays")
+                        .replace("{date}", f.peakDate)
+                        .replace("{n}", String(f.peakDays))}
                     </div>
                   </div>
                   <div className="card-2 px-3 py-2">
-                    <div className="text-ink-500">현재가</div>
+                    <div className="text-ink-500">
+                      {t("forks.cards.recentPrice")}
+                    </div>
                     <div className="mt-0.5" style={{ color: tone.color }}>
                       {fmtPrice(f.recentPriceUSD)}
                     </div>
@@ -354,41 +357,47 @@ function FragmentRow({
               </div>
               <div className="space-y-3">
                 <div>
-                  <div className="eyebrow">차별점</div>
+                  <div className="eyebrow">{t("forks.cards.hook")}</div>
                   <p className="mt-1 text-[12.5px] text-ink-100 leading-relaxed">
-                    {f.hook}
+                    {lc(f.hook, locale)}
                   </p>
                 </div>
                 <div>
-                  <div className="eyebrow text-signal">잘 됐던 이유</div>
+                  <div className="eyebrow text-signal">
+                    {t("forks.cards.whyItGrew")}
+                  </div>
                   <p className="mt-1 text-[12.5px] text-ink-200 leading-relaxed">
-                    {f.whyItGrew}
+                    {lc(f.whyItGrew, locale)}
                   </p>
                 </div>
                 <div>
-                  <div className="eyebrow text-warn">깨진 이유</div>
+                  <div className="eyebrow text-warn">
+                    {t("forks.cards.whyItBroke")}
+                  </div>
                   <p className="mt-1 text-[12.5px] text-ink-200 leading-relaxed">
-                    {f.whyItBroke}
+                    {lc(f.whyItBroke, locale)}
                   </p>
                 </div>
                 <div>
-                  <div className="eyebrow">결말</div>
+                  <div className="eyebrow">{t("forks.cards.ending")}</div>
                   <p className="mt-1 text-[12.5px] text-ink-100 leading-relaxed">
-                    {f.ending}
+                    {lc(f.ending, locale)}
                   </p>
                 </div>
                 {f.signature && (
                   <p className="pt-2 border-t hairline text-[11.5px] text-ink-400 italic leading-relaxed">
-                    {f.signature}
+                    {lc(f.signature, locale)}
                   </p>
                 )}
                 {isAlive && (
                   <div className="card-2 p-3 border-signal/20">
-                    <div className="eyebrow text-signal">참고</div>
+                    <div className="eyebrow text-signal">
+                      {t("forks.cards.aliveNote")}
+                    </div>
                     <p className="mt-1 text-[11.5px] text-ink-200 leading-relaxed">
-                      Alive 군은 정점 대비 {fmtPct(peakDrawdown)} 하락했지만
-                      출시 가격 대비는 {fmtPct(launchChange)} 입니다. 사용자
-                      평균 진입가는 두 값 사이 어딘가에 있습니다.
+                      {t("forks.cards.aliveBody")
+                        .replace("{peak}", fmtPct(peakDrawdown))
+                        .replace("{launch}", fmtPct(launchChange))}
                     </p>
                   </div>
                 )}

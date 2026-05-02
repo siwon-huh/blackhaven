@@ -5,10 +5,7 @@ import { useT } from "@/lib/locale-context";
 export default function SiteFooter() {
   const t = useT();
   return (
-    <footer
-      className="border-t mt-24"
-      style={{ borderColor: "var(--line)" }}
-    >
+    <footer className="border-t mt-24" style={{ borderColor: "var(--line)" }}>
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div
           className="grid md:grid-cols-2 gap-6 text-[12px]"
@@ -22,7 +19,7 @@ export default function SiteFooter() {
               Blackhaven
             </div>
             <p className="mt-2" style={{ color: "var(--text-2)" }}>
-              MegaETH 위에 자리잡은 reserve-backed treasury 입니다. 본드, 락업, BAM, POL 의 결합으로 동작합니다.
+              {t("footer.about")}
             </p>
             <p className="mt-3" style={{ color: "var(--text-3)" }}>
               {t("footer.notice")}

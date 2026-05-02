@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { AUDIT_FINDINGS, AuditFinding, Severity } from "@/lib/risks";
+import { lc } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/locale-context";
 
 const SEVERITY_TONE: Record<Severity, { color: string; rank: number }> = {
   Medium: { color: "var(--warn)", rank: 1 },
@@ -13,6 +15,7 @@ export default function AuditFindings() {
   const [openId, setOpenId] = useState<string | null>(
     AUDIT_FINDINGS[0]?.id ?? null,
   );
+  const t = useT();
   const sorted = [...AUDIT_FINDINGS].sort(
     (a, b) => SEVERITY_TONE[a.severity].rank - SEVERITY_TONE[b.severity].rank,
   );
@@ -20,15 +23,12 @@ export default function AuditFindings() {
   return (
     <section className="max-w-6xl mx-auto px-6 pb-16">
       <div className="mb-6">
-        <div className="eyebrow">Audit, Zellic 2026-01</div>
+        <div className="eyebrow">{t("risks.audit.eyebrow")}</div>
         <h2 className="mt-2 text-[28px] headline text-ink-50">
-          외부 감사 finding 11 건
+          {t("risks.audit.heading")}
         </h2>
         <p className="mt-2 subhead text-[13px] max-w-2xl">
-          Zellic 의 보고서 (2026 년 1 월 19 일) 가 명시한 모든 finding 입니다.
-          Critical 또는 High 등급 영향은 없었으며, Medium 3 건과 Low 2 건,
-          Informational 6 건이 발견되었습니다. 헤더를 클릭하면 상세가
-          펼쳐집니다.
+          {t("risks.audit.intro")}
         </p>
       </div>
 
@@ -55,10 +55,12 @@ function FindingRow({
   open: boolean;
   onToggle: () => void;
 }) {
+  const locale = useLocale();
+  const t = useT();
   const tone = SEVERITY_TONE[finding.severity];
   const isFixed = finding.remediation.status === "fixed";
   const statusColor = isFixed ? "var(--signal)" : "var(--warn)";
-  const statusLabel = isFixed ? "fixed" : "ack";
+  const statusLabel = isFixed ? t("common.fixed") : t("common.acknowledged");
   return (
     <div>
       <button
@@ -83,7 +85,7 @@ function FindingRow({
             {finding.target}
           </span>
           <span className="text-[13px] text-ink-100 font-medium leading-snug">
-            {finding.title}
+            {lc(finding.title, locale)}
           </span>
           <span
             className="font-mono text-[10.5px] px-2 py-0.5 rounded text-center"
@@ -103,14 +105,14 @@ function FindingRow({
         <div className="px-5 pb-5 animate-revealUp">
           <div className="grid md:grid-cols-[1fr_280px] gap-5">
             <div>
-              <div className="eyebrow mb-1.5">설명</div>
+              <div className="eyebrow mb-1.5">{t("risks.audit.summary")}</div>
               <p className="text-[13px] text-ink-200 leading-relaxed">
-                {finding.summary}
+                {lc(finding.summary, locale)}
               </p>
             </div>
             <div className="space-y-2">
               <div className="card-2 p-3">
-                <div className="eyebrow">상태</div>
+                <div className="eyebrow">{t("risks.audit.statusLabel")}</div>
                 <div
                   className="mt-1 text-[13px] font-medium"
                   style={{
@@ -121,24 +123,24 @@ function FindingRow({
                   }}
                 >
                   {finding.remediation.status === "fixed"
-                    ? "수정 완료"
-                    : "Acknowledged"}
+                    ? t("risks.audit.status.fixed")
+                    : t("risks.audit.status.acknowledged")}
                 </div>
                 {finding.remediation.commit && (
                   <div className="mt-1 text-[10.5px] font-mono text-ink-500">
-                    commit {finding.remediation.commit}
+                    {t("risks.audit.commit")} {finding.remediation.commit}
                   </div>
                 )}
                 {finding.remediation.note && (
                   <div className="mt-2 text-[11.5px] text-ink-300 leading-relaxed">
-                    {finding.remediation.note}
+                    {lc(finding.remediation.note, locale)}
                   </div>
                 )}
               </div>
               <div className="card-2 p-3">
-                <div className="eyebrow">분류</div>
+                <div className="eyebrow">{t("risks.audit.category")}</div>
                 <div className="mt-1 text-[12.5px] text-ink-100">
-                  {finding.category}
+                  {lc(finding.category, locale)}
                 </div>
                 <div className="text-[11px] text-ink-500 font-mono mt-0.5">
                   {finding.id}

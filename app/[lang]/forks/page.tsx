@@ -9,7 +9,7 @@ import LessonsBlock from "@/components/forks/LessonsBlock";
 import CrossLink from "@/components/forks/CrossLink";
 
 export const metadata = {
-  title: "OHM Forks Postmortem · Blackhaven",
+  title: "OHM Forks Postmortem, Blackhaven",
   description:
     "OlympusDAO 와 그 포크들의 흥망성쇠, 공통 실패 패턴, Blackhaven 의 차이.",
 };

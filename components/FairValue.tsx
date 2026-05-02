@@ -13,6 +13,8 @@ import {
   type ReflexivityMode,
 } from "@/lib/fairValue";
 import { formatRelative, useLiveMetrics } from "@/lib/useLiveMetrics";
+import { lc } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/locale-context";
 
 const fmt = (n: number, digits = 2) =>
   n.toLocaleString("en-US", {
@@ -26,7 +28,12 @@ const pct = (n: number, digits = 1) =>
     maximumFractionDigits: digits,
   })}%`;
 
-// 모노톤 + 강조 두 색 (signal: floor, warn: market). 중간 두 단계는 흰계열.
+const pctRaw = (n: number, digits = 0) =>
+  `${(n * 100).toLocaleString("en-US", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  })}%`;
+
 const LAYER_COLORS = {
   floor: "#3DDC97",
   yieldFair: "#C9CDD4",
@@ -40,6 +47,9 @@ export default function FairValue() {
   >("base");
   const [reflexMode, setReflexMode] = useState<ReflexivityMode>("soft");
   const live = useLiveMetrics(1_000);
+  const locale = useLocale();
+  const t = useT();
+  const isEN = locale === "en";
 
   const fwdYield = useMemo(() => {
     if (yieldMode === "conservative") return DEFAULT_FWD_STAKE_APR;
@@ -63,35 +73,39 @@ export default function FairValue() {
   const domainMax = fv.market * 1.1;
   const xPct = (v: number) => (v / domainMax) * 100;
 
+  const yieldFairDescEN = `Forward yield ${pct(fwdYield)} reduced by reflexivity discount ${pct(fv.reflexivityFactor)} → adjusted yield ${pct(fwdYield * (1 - fv.reflexivityFactor))} added to NAV. NPV of one year of stake/commit distribution, risk-adjusted for Schelling weakening.`;
+  const yieldFairDescKO = `forward yield ${pct(fwdYield)} 에 reflexivity 디스카운트 ${pct(fv.reflexivityFactor)} 를 적용한 ${pct(fwdYield * (1 - fv.reflexivityFactor))} 를 NAV 에 더한 값입니다. Stake 와 Commit 분배의 1 년치 NPV 에 셸링 약화 가능성을 반영한 위험조정 공정가입니다.`;
+  const bondEffDescEN = `Market price × (1 − ${pct(fv.maxBondDiscount)}). The effective cost per RBT received at maturity through the 30-day bond.`;
+  const bondEffDescKO = `시장가에 1 빼기 ${pct(fv.maxBondDiscount)} 를 곱한 값입니다. 30 일 본드로 들어가 만기에 받게 되는 RBT 1 개당 effective 비용입니다.`;
+
   const layers = [
     {
       key: "floor" as const,
-      label: "Floor (NAV)",
+      label: t("fv.layer.floor"),
       value: fv.floor,
       color: LAYER_COLORS.floor,
-      description:
-        "Reserves per RBT 입니다. 시장가가 이 아래로 빠지면 BAM 이 매수와 소각으로 받쳐주는 절대 하한선입니다.",
+      description: t("fv.layer.floor.desc"),
     },
     {
       key: "yieldFair" as const,
-      label: "Yield-adjusted Fair",
+      label: t("fv.layer.yieldFair"),
       value: fv.yieldFair,
       color: LAYER_COLORS.yieldFair,
-      description: `forward yield ${pct(fwdYield)} 에 reflexivity 디스카운트 ${pct(fv.reflexivityFactor)} 를 적용한 ${pct(fwdYield * (1 - fv.reflexivityFactor))} 를 NAV 에 더한 값입니다. Stake 와 Commit 분배의 1 년치 NPV 에 셸링 약화 가능성을 반영한 위험조정 공정가입니다.`,
+      description: isEN ? yieldFairDescEN : yieldFairDescKO,
     },
     {
       key: "bondEffective" as const,
-      label: "Bond Effective",
+      label: t("fv.layer.bondEffective"),
       value: fv.bondEffective,
       color: LAYER_COLORS.bondEffective,
-      description: `시장가에 1 빼기 ${pct(fv.maxBondDiscount)} 를 곱한 값입니다. 30 일 본드로 들어가 만기에 받게 되는 RBT 1 개당 effective 비용입니다.`,
+      description: isEN ? bondEffDescEN : bondEffDescKO,
     },
     {
       key: "market" as const,
-      label: "Market",
+      label: t("fv.layer.market"),
       value: fv.market,
       color: LAYER_COLORS.market,
-      description: "현재 RBT 와 USDm 의 시장가입니다.",
+      description: t("fv.layer.market.desc"),
     },
   ];
 
@@ -107,8 +121,8 @@ export default function FairValue() {
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="chip">Fair Value</span>
-              <span className="chip">4-layer model</span>
+              <span className="chip">{t("fv.title")}</span>
+              <span className="chip">{t("fv.layerModel")}</span>
               <span className={live.error ? "chip-warn" : "chip-signal"}>
                 <span
                   className={[
@@ -116,22 +130,20 @@ export default function FairValue() {
                     live.error ? "bg-warn" : "bg-signal animate-pulseDot",
                   ].join(" ")}
                 />
-                {live.error ? "stale" : "Live, 1초 간격 업데이트"}
+                {live.error ? t("common.stale") : t("live.polling")}
               </span>
             </div>
             <h2 className="mt-4 text-[26px] headline text-ink-50">
-              RBT 공정가는 얼마일까요
+              {t("fv.heading")}
             </h2>
             <p className="mt-2 text-[13px] text-ink-300 max-w-2xl leading-relaxed">
-              하나의 정답 가격이 아니라{" "}
-              <span className="text-ink-50">네 단계의 가격대</span> 로 봅니다.
-              각 단계는 서로 다른 가정에서 나오는 다른 종류의 공정함입니다.
+              {t("fv.intro")}
             </p>
           </div>
           <div className="flex flex-col gap-1 text-[11px]">
             <div className="flex flex-wrap items-center gap-1">
               <span className="text-ink-400 font-mono mr-2 w-[88px]">
-                Forward yield
+                {t("fv.forwardYield")}
               </span>
               {yieldButtons.map((b) => (
                 <button
@@ -151,9 +163,9 @@ export default function FairValue() {
             <div className="flex flex-wrap items-center gap-1">
               <span
                 className="text-ink-400 font-mono mr-2 w-[88px]"
-                title="OHM 류 게임이론의 셸링이 깨질 가능성에 대한 디스카운트"
+                title={t("fv.reflexivity.tooltip")}
               >
-                Reflexivity
+                {t("fv.reflexivity")}
               </span>
               {(["none", "soft", "hard"] as ReflexivityMode[]).map((m) => (
                 <button
@@ -165,7 +177,7 @@ export default function FairValue() {
                       ? "bg-ink-700 text-ink-50"
                       : "text-ink-400 hover:text-ink-50",
                   ].join(" ")}
-                  title={REFLEXIVITY_DISCOUNT[m].detail}
+                  title={lc(REFLEXIVITY_DISCOUNT[m].detail, locale)}
                 >
                   {REFLEXIVITY_DISCOUNT[m].label}
                 </button>
@@ -277,54 +289,60 @@ export default function FairValue() {
         {/* Conclusion */}
         <div className="mt-7 grid md:grid-cols-2 gap-3">
           <div className="card-2 p-5 border-signal/20">
-            <div className="eyebrow text-signal">사용자 진입 결론</div>
+            <div className="eyebrow text-signal">{t("fv.entryConclusion")}</div>
             <ul className="mt-3 space-y-1.5 text-[12.5px] text-ink-100 leading-relaxed">
               <li>
-                <span className="text-ink-400">Floor </span>
-                NAV {fmt(fv.floor)} 이며 절대 하한입니다.
+                <span className="text-ink-400">
+                  {t("fv.entryConclusion.floor.label")}{" "}
+                </span>
+                {t("fv.entryConclusion.floor").replace("{x}", fmt(fv.floor))}
               </li>
               <li>
-                <span className="text-ink-400">Fair </span>
-                Yield-adjusted {fmt(fv.yieldFair)} 이며 합리적 진입 상한입니다.
+                <span className="text-ink-400">
+                  {t("fv.entryConclusion.fair.label")}{" "}
+                </span>
+                {t("fv.entryConclusion.fair").replace("{x}", fmt(fv.yieldFair))}
               </li>
               <li>
-                <span className="text-ink-400">Bond </span>
-                Effective {fmt(fv.bondEffective)} 이며 시장가 진입의
-                마지노선입니다.
+                <span className="text-ink-400">
+                  {t("fv.entryConclusion.bond.label")}{" "}
+                </span>
+                {t("fv.entryConclusion.bond").replace(
+                  "{x}",
+                  fmt(fv.bondEffective),
+                )}
               </li>
               <li>
-                <span className="text-ink-400">Market </span>
-                {fmt(fv.market)} 이며 NAV 의{" "}
-                <span className="text-warn">
-                  {fmt(fv.market / fv.floor, 2)} 배
-                </span>{" "}
-                입니다.
+                <span className="text-ink-400">
+                  {t("fv.entryConclusion.market.label")}{" "}
+                </span>
+                {isEN ? (
+                  <>
+                    {fmt(fv.market)},{" "}
+                    <span className="text-warn">
+                      {fmt(fv.market / fv.floor, 2)}× NAV
+                    </span>
+                    .
+                  </>
+                ) : (
+                  <>
+                    {fmt(fv.market)} 이며 NAV 의{" "}
+                    <span className="text-warn">
+                      {fmt(fv.market / fv.floor, 2)} 배
+                    </span>{" "}
+                    입니다.
+                  </>
+                )}
               </li>
             </ul>
           </div>
           <div className="card-2 p-5 border-warn/20">
-            <div className="eyebrow text-warn">어떤 가격대에 진입하느냐</div>
+            <div className="eyebrow text-warn">{t("fv.priceZones")}</div>
             <ul className="mt-3 space-y-1.5 text-[12.5px] text-ink-100 leading-relaxed">
-              <li>
-                <span className="text-ink-50">Floor 이하</span> 의 가격에서는
-                BAM 매수 윈도우가 열려 비대칭이 가장 큽니다.
-              </li>
-              <li>
-                <span className="text-ink-50">Floor 와 Yield-fair 사이</span>{" "}
-                에서는 본드를 거치지 않고 시장가 진입이 가능합니다.
-              </li>
-              <li>
-                <span className="text-ink-50">
-                  Yield-fair 와 Bond Effective 사이
-                </span>{" "}
-                에서는 본드를 통해서만 진입합니다.
-              </li>
-              <li>
-                <span className="text-ink-50">
-                  Bond Effective 와 Market 사이
-                </span>{" "}
-                는 패스하고 다음 라운드를 기다립니다.
-              </li>
+              <li>{t("fv.zone.belowFloor")}</li>
+              <li>{t("fv.zone.floorToFair")}</li>
+              <li>{t("fv.zone.fairToBond")}</li>
+              <li>{t("fv.zone.bondToMarket")}</li>
             </ul>
           </div>
         </div>
@@ -333,32 +351,27 @@ export default function FairValue() {
         <div className="mt-6 card-2 p-5 border-warn/20">
           <div className="flex items-baseline justify-between flex-wrap gap-2">
             <div className="eyebrow text-warn">
-              Reflexivity discount, {reflexInfo.label}
+              {t("fv.reflex.title")}, {reflexInfo.label}
             </div>
             <span className="font-mono text-[11px] text-warn">
-              forward yield 에서 {pct(reflexInfo.factor, 0)} 차감
+              {t("fv.reflex.factor").replace("{x}", pctRaw(reflexInfo.factor))}
             </span>
           </div>
           <p className="mt-2 text-[12.5px] text-ink-200 leading-relaxed">
-            {reflexInfo.detail}
+            {lc(reflexInfo.detail, locale)}
           </p>
           <p className="mt-2 text-[11.5px] text-ink-400 leading-relaxed">
-            OHM 류 게임이론은 (3,3) 셸링이 깨지는 순간 매도가 매도를 부르는 데스
-            스파이럴로 전환되었습니다. Blackhaven 은 BAM 의 자동 양방향
-            차익거래로 이 패턴을 구조적으로 완화하지만, 사용자 행동의 불확실성은
-            남아 있습니다. Reflexivity 디스카운트는 그 불확실성을 forward yield
-            에서 깎는 보수적 가정입니다. NAV (Floor) 자체는 트레저리 백킹이
-            받쳐주므로 영향을 받지 않습니다.
+            {t("fv.reflex.body")}
           </p>
         </div>
 
         {/* Assumptions */}
         <div className="mt-6 pt-5 border-t hairline">
-          <div className="eyebrow">계산에 쓴 가정</div>
+          <div className="eyebrow">{t("fv.assumptions")}</div>
           <div className="mt-3 grid md:grid-cols-4 gap-px bg-white/5 rounded-md overflow-hidden">
             <div className="bg-ink-950 px-4 py-3">
               <div className="text-[10.5px] text-ink-500 font-mono">
-                Forward yield
+                {t("fv.assumption.forwardYield")}
               </div>
               <div className="mt-0.5 text-ink-50 font-mono mono-num">
                 {pct(fwdYield)} {yieldMode}
@@ -366,50 +379,75 @@ export default function FairValue() {
             </div>
             <div className="bg-ink-950 px-4 py-3">
               <div className="text-[10.5px] text-ink-500 font-mono">
-                Reflexivity
+                {t("fv.assumption.reflexivity")}
               </div>
               <div className="mt-0.5 text-ink-50 font-mono mono-num">
-                −{pct(fv.reflexivityFactor, 0)} {reflexInfo.label}
+                −{pctRaw(fv.reflexivityFactor)} {reflexInfo.label}
               </div>
             </div>
             <div className="bg-ink-950 px-4 py-3">
               <div className="text-[10.5px] text-ink-500 font-mono">
-                Max bond discount
+                {t("fv.assumption.maxBondDiscount")}
               </div>
               <div className="mt-0.5 text-ink-50 font-mono mono-num">
-                {pct(fv.maxBondDiscount, 0)}, 30 일 본드
+                {pctRaw(fv.maxBondDiscount)},{" "}
+                {t("fv.assumption.maxBondDiscount.bondLabel")}
               </div>
             </div>
             <div className="bg-ink-950 px-4 py-3">
               <div className="text-[10.5px] text-ink-500 font-mono">
-                Protocol fee
+                {t("fv.assumption.protocolFee")}
               </div>
               <div className="mt-0.5 text-ink-50 font-mono mono-num">
-                {pct(fv.protocolFee, 0)}, Genesis Phase 1
+                {pctRaw(fv.protocolFee)},{" "}
+                {t("fv.assumption.protocolFee.phaseLabel")}
               </div>
             </div>
           </div>
-          <p className="mt-4 text-[11px] text-ink-400 leading-relaxed">
-            Live metrics 은 Reserves per RBT{" "}
-            <span className="text-ink-50 font-mono">
-              {live.metrics.reservesPerRBT} USDm
-            </span>
-            , Circulating{" "}
-            <span className="text-ink-50 font-mono">
-              {live.metrics.circulatingRBT.toLocaleString()} RBT
-            </span>
-            , Market{" "}
-            <span className="text-ink-50 font-mono">
-              {live.metrics.marketPriceUSDm.toFixed(2)} USDm
-            </span>{" "}
-            (마지막 갱신 {formatRelative(live.lastUpdated)}), Stake TVL{" "}
-            <span className="text-ink-50 font-mono">
-              ${STAKE_TVL_USD.toLocaleString()}
-            </span>{" "}
-            입니다. Forward yield 는 stake APR 과 commit annualized 의
-            가중합으로 계산하며, 온체인 또는 attestation 을 통해 갱신할 수
-            있습니다.
-          </p>
+          {isEN ? (
+            <p className="mt-4 text-[11px] text-ink-400 leading-relaxed">
+              Live metrics: Reserves per RBT{" "}
+              <span className="text-ink-50 font-mono">
+                {live.metrics.reservesPerRBT} USDm
+              </span>
+              , Circulating{" "}
+              <span className="text-ink-50 font-mono">
+                {live.metrics.circulatingRBT.toLocaleString()} RBT
+              </span>
+              , Market{" "}
+              <span className="text-ink-50 font-mono">
+                {live.metrics.marketPriceUSDm.toFixed(2)} USDm
+              </span>{" "}
+              (last updated {formatRelative(live.lastUpdated)}), Stake TVL{" "}
+              <span className="text-ink-50 font-mono">
+                ${STAKE_TVL_USD.toLocaleString()}
+              </span>
+              . Forward yield is computed as a weighted sum of stake APR and
+              annualized commit, refreshable via onchain or attestation.
+            </p>
+          ) : (
+            <p className="mt-4 text-[11px] text-ink-400 leading-relaxed">
+              Live metrics 은 Reserves per RBT{" "}
+              <span className="text-ink-50 font-mono">
+                {live.metrics.reservesPerRBT} USDm
+              </span>
+              , Circulating{" "}
+              <span className="text-ink-50 font-mono">
+                {live.metrics.circulatingRBT.toLocaleString()} RBT
+              </span>
+              , Market{" "}
+              <span className="text-ink-50 font-mono">
+                {live.metrics.marketPriceUSDm.toFixed(2)} USDm
+              </span>{" "}
+              (마지막 갱신 {formatRelative(live.lastUpdated)}), Stake TVL{" "}
+              <span className="text-ink-50 font-mono">
+                ${STAKE_TVL_USD.toLocaleString()}
+              </span>{" "}
+              입니다. Forward yield 는 stake APR 과 commit annualized 의
+              가중합으로 계산하며, 온체인 또는 attestation 을 통해 갱신할 수
+              있습니다.
+            </p>
+          )}
         </div>
       </div>
     </section>

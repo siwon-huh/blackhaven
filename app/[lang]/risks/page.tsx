@@ -7,7 +7,7 @@ import UserRisks from "@/components/risks/UserRisks";
 import RisksFooter from "@/components/risks/RisksFooter";
 
 export const metadata = {
-  title: "Risks · Blackhaven",
+  title: "Risks, Blackhaven",
   description:
     "Zellic 외부 감사 finding 과 프로토콜 리스크, 사용자 진입 시나리오 리스크.",
 };

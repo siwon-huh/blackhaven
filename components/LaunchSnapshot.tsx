@@ -1,15 +1,38 @@
 "use client";
 
 import { LAUNCH_SNAPSHOT, VERDICT_TONE } from "@/lib/launch";
-import { computeFairValue, entryVerdict, LIVE_BONDS } from "@/lib/fairValue";
+import {
+  computeFairValue,
+  entryVerdict,
+  LIVE_BONDS,
+  type EntryZone,
+} from "@/lib/fairValue";
 import { formatRelative, useLiveMetrics } from "@/lib/useLiveMetrics";
 import { useBondMetrics } from "@/lib/useBondMetrics";
 import { useCommitMetrics } from "@/lib/useCommitMetrics";
 import type { BondMetric } from "@/lib/bondMetrics";
+import { lc } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/locale-context";
 
 const SIGNAL_TONE = {
   warn: { color: "var(--warn)", label: "Warn" },
   ok: { color: "var(--signal)", label: "OK" },
+};
+
+const VERDICT_KEY: Record<EntryZone, { label: string; detail: string }> = {
+  undervalued: {
+    label: "verdict.undervalued.label",
+    detail: "verdict.undervalued.detail",
+  },
+  fair: { label: "verdict.fair.label", detail: "verdict.fair.detail" },
+  "bond-only": {
+    label: "verdict.bondOnly.label",
+    detail: "verdict.bondOnly.detail",
+  },
+  overvalued: {
+    label: "verdict.overvalued.label",
+    detail: "verdict.overvalued.detail",
+  },
 };
 
 const fmtUsd = (n: number, digits = 2) =>
@@ -26,12 +49,16 @@ const fmtCount = (n: number) =>
 
 export default function LaunchSnapshot() {
   const s = LAUNCH_SNAPSHOT;
+  const locale = useLocale();
+  const t = useT();
   const { remote, lastUpdated, loading, error, metrics } =
     useLiveMetrics(1_000);
   const bondLive = useBondMetrics(1_000);
   const commitLive = useCommitMetrics(1_000);
   const fv = computeFairValue(metrics, LIVE_BONDS);
   const verdict = entryVerdict(fv);
+  const verdictLabel = t(VERDICT_KEY[verdict.zone].label);
+  const verdictDetail = t(VERDICT_KEY[verdict.zone].detail);
 
   const price = remote ? fmtUsd(remote.market.priceUSD) : s.metrics.price;
   const priceUSDm = remote
@@ -74,6 +101,7 @@ export default function LaunchSnapshot() {
   const livePriceUSDm = remote?.market.priceUSDm ?? 18.66;
   const premiumNum = (livePriceUSDm - navNumber) / navNumber;
   const premiumLabel = `${(premiumNum * 100).toFixed(1)}%`;
+  const navTreasuryFallback = lc(s.metrics.navTreasury, locale);
 
   return (
     <section id="live" className="max-w-6xl mx-auto px-6 pb-14">
@@ -88,16 +116,16 @@ export default function LaunchSnapshot() {
                     error ? "bg-warn" : "bg-signal animate-pulseDot",
                   ].join(" ")}
                 />
-                {error ? "Live, stale" : "Live, 1초 간격 업데이트"}
+                {error ? t("live.stale") : t("live.polling")}
               </span>
               <span className="chip">{s.venue}</span>
             </div>
             <h2 className="mt-4 text-[26px] headline text-ink-50">
-              실시간 현황
+              {t("live.title")}
             </h2>
             <p className="mt-1.5 text-[12px] text-ink-400 font-mono">
-              마지막 갱신 {formatRelative(lastUpdated)}
-              {loading && !lastUpdated && ", loading"}
+              {t("live.lastUpdated")} {formatRelative(lastUpdated)}
+              {loading && !lastUpdated && `, ${t("live.loading")}`}
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-[11.5px] font-mono">
@@ -132,8 +160,10 @@ export default function LaunchSnapshot() {
         <div className="mt-7 grid md:grid-cols-[2fr_1.4fr_1fr] gap-px bg-white/5 rounded-xl overflow-hidden">
           <div className="bg-ink-950 px-6 py-6">
             <div className="flex items-center justify-between">
-              <div className="eyebrow">RBT Market Price</div>
-              <span className="text-[10px] font-mono text-signal">live</span>
+              <div className="eyebrow">{t("live.market.label")}</div>
+              <span className="text-[10px] font-mono text-signal">
+                {t("common.live")}
+              </span>
             </div>
             <div className="mt-2 flex items-baseline gap-3 flex-wrap">
               <span className="text-[40px] font-medium tracking-tightest text-ink-50 mono-num">
@@ -149,32 +179,32 @@ export default function LaunchSnapshot() {
                   background: `${verdict.color}12`,
                   borderColor: `${verdict.color}40`,
                 }}
-                title={verdict.detail}
+                title={verdictDetail}
               >
                 <span
                   className="h-1.5 w-1.5 rounded-full"
                   style={{ background: verdict.color }}
                 />
-                {verdict.label}
+                {verdictLabel}
               </span>
             </div>
             <div className="mt-1 text-[12px] text-ink-400 font-mono">
               24h {delta24h}, 6h {delta6h}, 1h {delta1h}
             </div>
             <div className="mt-2 text-[11.5px] text-ink-300 leading-relaxed">
-              {verdict.detail}
+              {verdictDetail}
             </div>
           </div>
           <div className="bg-ink-950 px-6 py-6">
             <div className="flex items-center justify-between">
-              <div className="eyebrow text-signal">NAV</div>
+              <div className="eyebrow text-signal">{t("live.nav.label")}</div>
               <span
                 className="text-[10px] font-mono"
                 style={{
                   color: navIsLive ? "var(--signal)" : "var(--text-3, #9AA0AB)",
                 }}
               >
-                {navIsLive ? "live" : "static"}
+                {navIsLive ? t("common.live") : t("common.static")}
               </span>
             </div>
             <div className="mt-2 flex items-baseline gap-2">
@@ -185,16 +215,19 @@ export default function LaunchSnapshot() {
             <div className="mt-1 text-[12px] text-ink-400 font-mono">
               {navIsLive && reservesUSDm && totalSupplyRBT
                 ? `reserves $${(reservesUSDm / 1000).toFixed(1)}K / supply ${totalSupplyRBT.toFixed(0)} RBT`
-                : s.metrics.navTreasury}
+                : navTreasuryFallback}
             </div>
           </div>
           <div className="bg-ink-950 px-6 py-6">
-            <div className="eyebrow text-warn">Premium</div>
+            <div className="eyebrow text-warn">{t("live.premium.label")}</div>
             <div className="mt-2 text-[28px] font-medium tracking-tightest text-warn mono-num">
               {premiumLabel}
             </div>
             <div className="mt-1 text-[12px] text-ink-400 font-mono">
-              NAV 의 {(livePriceUSDm / navNumber).toFixed(2)} 배
+              {t("live.premium.multipleOfNAV").replace(
+                "{x}",
+                (livePriceUSDm / navNumber).toFixed(2),
+              )}
             </div>
           </div>
         </div>
@@ -202,35 +235,40 @@ export default function LaunchSnapshot() {
         {/* Sub metrics */}
         <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-[11.5px]">
           <SubMetric
-            label="Liquidity"
+            label={t("live.liquidity")}
             value={liquidity}
             sub={`FDV ${fdv}`}
             live
           />
           <SubMetric
-            label="Volume 24h"
+            label={t("live.volume24")}
             value={volume}
             sub={`Buy ${buys}, Sell ${sells}`}
             live
           />
-          <SubMetric label="Pool" value={poolRBT} sub={poolUSDm} live />
           <SubMetric
-            label="Supply"
+            label={t("live.pool")}
+            value={poolRBT}
+            sub={poolUSDm}
+            live
+          />
+          <SubMetric
+            label={t("live.supply")}
             value={s.metrics.circulating}
-            sub="circulating, total"
+            sub={t("live.supply.sub")}
           />
         </div>
 
         {/* Bond TVL with live recommendations */}
         <div className="mt-5">
           <div className="flex items-baseline justify-between mb-2">
-            <div className="eyebrow">Bond pools</div>
+            <div className="eyebrow">{t("live.bondPools")}</div>
             <span className="text-[10px] font-mono text-ink-500">
               {bondLive.snapshot.source === "static"
-                ? "static, manual sync"
-                : "onchain"}
+                ? t("live.source.staticManual")
+                : t("live.source.onchain")}
               {bondLive.lastUpdated &&
-                `, 갱신 ${formatRelative(bondLive.lastUpdated)}`}
+                `, ${t("common.updated")} ${formatRelative(bondLive.lastUpdated)}`}
             </span>
           </div>
           <div className="grid grid-cols-3 gap-3">
@@ -242,7 +280,7 @@ export default function LaunchSnapshot() {
 
         <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-[11.5px]">
           <SubMetric
-            label="Stake TVL"
+            label={t("live.stake.tvl")}
             value={(() => {
               const backingRBT = commitLive.snapshot?.stake.backingRBT;
               if (
@@ -260,11 +298,14 @@ export default function LaunchSnapshot() {
             sub={(() => {
               const backingRBT = commitLive.snapshot?.stake.backingRBT;
               if (backingRBT !== undefined && backingRBT > 0) {
-                return `${backingRBT.toFixed(0)} RBT staked`;
+                return t("live.stake.staked").replace(
+                  "{n}",
+                  backingRBT.toFixed(0),
+                );
               }
               return commitLive.snapshot?.source === "onchain"
-                ? "onchain"
-                : "static, manual sync";
+                ? t("live.source.onchain")
+                : t("live.source.staticManual");
             })()}
             live={
               commitLive.snapshot?.source === "onchain" &&
@@ -272,7 +313,7 @@ export default function LaunchSnapshot() {
             }
           />
           <SubMetric
-            label="Commit TVL"
+            label={t("live.commit.tvl")}
             value={(() => {
               const tvlSRBT = commitLive.snapshot?.commit.tvlSRBT;
               if (
@@ -286,44 +327,48 @@ export default function LaunchSnapshot() {
                   ? `$${(usd / 1000).toFixed(1)}K`
                   : `$${usd.toFixed(0)}`;
               }
-              return "—";
+              return "...";
             })()}
             sub={(() => {
               const tvlSRBT = commitLive.snapshot?.commit.tvlSRBT;
               if (tvlSRBT !== null && tvlSRBT !== undefined && tvlSRBT > 0) {
-                return `${tvlSRBT.toFixed(0)} sRBT locked`;
+                return t("live.commit.locked").replace(
+                  "{n}",
+                  tvlSRBT.toFixed(0),
+                );
               }
-              return "no commits";
+              return t("live.commit.noCommits");
             })()}
             live={commitLive.snapshot?.source === "onchain"}
           />
           <SubMetric
-            label="Commit 24w reward"
+            label={t("live.commit.reward")}
             value={
               commitLive.snapshot
                 ? `${(commitLive.snapshot.commit.reward24w * 100).toFixed(1)}%`
-                : s.metrics.commit24wReward
+                : lc(s.metrics.commit24wReward, locale)
             }
             sub={
               commitLive.snapshot?.commit.rewardPoolRBT !== undefined
-                ? `pool ${commitLive.snapshot.commit.rewardPoolRBT.toFixed(0)} RBT`
-                : "static"
+                ? t("live.commit.pool").replace(
+                    "{n}",
+                    commitLive.snapshot.commit.rewardPoolRBT.toFixed(0),
+                  )
+                : t("common.static")
             }
             live={commitLive.snapshot?.source === "onchain"}
           />
-          <SubMetric label="TXNS 24h" value={txns} live />
+          <SubMetric label={t("live.txns24")} value={txns} live />
         </div>
 
         <div className="mt-3 text-[11px] text-ink-400 leading-relaxed">
-          본드 풀, Stake, Commit 모두 onchain 라이브입니다. 본드별 권장 max 는
-          풀 깊이의 5퍼센트로 그 이상 들어가면 디스카운트가 빠르게 잠식되고,
-          shallow 등급 (TVL ≤ $50K) 풀은 작은 자본 외에는 비효율입니다.
+          {t("live.disclaimer.bond")}
         </div>
 
         {/* Signals + Live priority */}
         <div className="mt-7 grid lg:grid-cols-2 gap-3">
           <div className="space-y-2">
-            <div className="eyebrow mb-1">Signals</div>
+            <div className="eyebrow mb-1">{t("live.signals")}</div>
             {s.signals.map((sig, i) => {
               const tone = SIGNAL_TONE[sig.tone];
               return (
@@ -346,11 +391,11 @@ export default function LaunchSnapshot() {
                       {tone.label}
                     </span>
                     <span className="text-[12.5px] font-medium text-ink-50">
-                      {sig.label}
+                      {lc(sig.label, locale)}
                     </span>
                   </div>
                   <p className="mt-1.5 text-[11.5px] text-ink-300 leading-relaxed">
-                    {sig.detail}
+                    {lc(sig.detail, locale)}
                   </p>
                 </div>
               );
@@ -358,17 +403,20 @@ export default function LaunchSnapshot() {
           </div>
 
           <div>
-            <div className="eyebrow mb-1">지금 이 순간 플레이 우선순위</div>
+            <div className="eyebrow mb-1">{t("live.priority")}</div>
             <div className="space-y-2">
               {s.livePriority.map((p) => {
                 let dynVerdict = p.verdict;
-                let dynNote = p.note;
+                let dynNote = lc(p.note, locale);
 
-                if (p.play.startsWith("30일 본드")) {
+                if (p.kind === "bond30d") {
                   const discPct = fv.maxBondDiscount * 100;
                   const savedPct = (1 - fv.bondEffective / fv.market) * 100;
-                  dynNote = `최대 디스카운트입니다. 본드의 effective entry 는 약 ${fv.bondEffective.toFixed(2)} USDm 으로, 라이브 시장가 ${fv.market.toFixed(2)} USDm 대비 약 ${savedPct.toFixed(1)}퍼센트 낮습니다 (디스카운트 ${discPct.toFixed(0)} 퍼센트).`;
-                } else if (p.play.startsWith("NAV 근처")) {
+                  dynNote =
+                    locale === "en"
+                      ? `Largest discount available. Bond effective entry is ~${fv.bondEffective.toFixed(2)} USDm, ~${savedPct.toFixed(1)}% below live market ${fv.market.toFixed(2)} USDm (discount ${discPct.toFixed(0)}%).`
+                      : `최대 디스카운트입니다. 본드의 effective entry 는 약 ${fv.bondEffective.toFixed(2)} USDm 으로, 라이브 시장가 ${fv.market.toFixed(2)} USDm 대비 약 ${savedPct.toFixed(1)}퍼센트 낮습니다 (디스카운트 ${discPct.toFixed(0)} 퍼센트).`;
+                } else if (p.kind === "navSeed") {
                   const ratio = fv.market / fv.floor;
                   const reentry = fv.floor * 1.5;
                   dynVerdict =
@@ -380,18 +428,27 @@ export default function LaunchSnapshot() {
                           ? "GO"
                           : "WAIT";
                   if (ratio <= 1.5) {
-                    dynNote = `시장가가 NAV 의 ${ratio.toFixed(2)} 배입니다. 비대칭 진입 구간에 가까워졌습니다. 추가 매수 시 BAM 쿨다운 직후를 활용하세요.`;
+                    dynNote =
+                      locale === "en"
+                        ? `Market is ${ratio.toFixed(2)}× NAV, close to the asymmetric entry zone. For follow-on buys, time it just after the BAM cooldown.`
+                        : `시장가가 NAV 의 ${ratio.toFixed(2)} 배입니다. 비대칭 진입 구간에 가까워졌습니다. 추가 매수 시 BAM 쿨다운 직후를 활용하세요.`;
                   } else {
-                    dynNote = `시장가가 NAV 의 ${ratio.toFixed(2)} 배에 머무릅니다. 비대칭이 사라진 상태이며, 시장가가 약 ${reentry.toFixed(2)} USDm (NAV 위 50퍼센트) 아래로 빠지면 재평가합니다.`;
+                    dynNote =
+                      locale === "en"
+                        ? `Market sits at ${ratio.toFixed(2)}× NAV with no asymmetry. Re-evaluate when price falls under ~${reentry.toFixed(2)} USDm (50% above NAV).`
+                        : `시장가가 NAV 의 ${ratio.toFixed(2)} 배에 머무릅니다. 비대칭이 사라진 상태이며, 시장가가 약 ${reentry.toFixed(2)} USDm (NAV 위 50퍼센트) 아래로 빠지면 재평가합니다.`;
                   }
                 }
 
                 const tone = VERDICT_TONE[dynVerdict];
                 return (
-                  <div key={p.play} className="rounded-lg border p-3 hairline">
+                  <div
+                    key={lc(p.play, locale)}
+                    className="rounded-lg border p-3 hairline"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="text-[12.5px] font-medium text-ink-50">
-                        {p.play}
+                        {lc(p.play, locale)}
                       </span>
                       <span
                         className="font-mono text-[10.5px] px-2 py-0.5 rounded"
@@ -428,11 +485,16 @@ function SubMetric({
   sub?: string;
   live?: boolean;
 }) {
+  const t = useT();
   return (
     <div className="card-2 px-3 py-2.5">
       <div className="flex items-center justify-between">
         <div className="eyebrow">{label}</div>
-        {live && <span className="text-[9px] text-signal font-mono">live</span>}
+        {live && (
+          <span className="text-[9px] text-signal font-mono">
+            {t("common.live")}
+          </span>
+        )}
       </div>
       <div className="mt-1 text-[13px] text-ink-50 font-mono mono-num">
         {value}
@@ -460,12 +522,13 @@ const DEPTH_TONE: Record<
 };
 
 function BondPoolCard({ bond }: { bond: BondMetric }) {
+  const t = useT();
   const tone = DEPTH_TONE[bond.depthTier];
   return (
     <div className="card-2 px-4 py-3">
       <div className="flex items-baseline justify-between">
         <div className="font-mono text-[12px] text-ink-50">
-          {bond.days}일 본드
+          {t("live.bond.dayLabel").replace("{n}", String(bond.days))}
         </div>
         <span
           className="font-mono text-[10px] px-1.5 py-0.5 rounded"
@@ -483,7 +546,7 @@ function BondPoolCard({ bond }: { bond: BondMetric }) {
         </span>
       </div>
       <div className="mt-2 pt-2 border-t hairline text-[11px] font-mono text-ink-400">
-        권장 max{" "}
+        {t("live.bond.recommendedMax")}{" "}
         <span style={{ color: tone.color }}>
           {fmtCompact(bond.recommendedMaxUSDm)}
         </span>

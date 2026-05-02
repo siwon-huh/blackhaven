@@ -4,6 +4,7 @@ import { LAUNCH_SNAPSHOT } from "@/lib/launch";
 import { formatRelative, useLiveMetrics } from "@/lib/useLiveMetrics";
 import { useBondMetrics } from "@/lib/useBondMetrics";
 import { useCommitMetrics } from "@/lib/useCommitMetrics";
+import { useLocale, useT } from "@/lib/locale-context";
 
 type Strength = "strong" | "moderate" | "weak";
 type Tone = "signal" | "neutral" | "warn";
@@ -14,10 +15,10 @@ const TONE_COLOR: Record<Tone, string> = {
   warn: "var(--warn)",
 };
 
-const STRENGTH_LABEL: Record<Strength, string> = {
-  strong: "강함",
-  moderate: "보통",
-  weak: "약함",
+const STRENGTH_KEY: Record<Strength, string> = {
+  strong: "md.strength.strong",
+  moderate: "md.strength.moderate",
+  weak: "md.strength.weak",
 };
 
 const fmtUsdK = (n: number) =>
@@ -27,6 +28,9 @@ const fmtUsdK = (n: number) =>
 const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
 
 export default function MarketDynamics() {
+  const t = useT();
+  const locale = useLocale();
+  const isEN = locale === "en";
   const live = useLiveMetrics(1_000);
   const bond = useBondMetrics(1_000);
   const commit = useCommitMetrics(1_000);
@@ -52,95 +56,137 @@ export default function MarketDynamics() {
   const lockRatioPct = fdv > 0 ? (stakeTVL / fdv) * 100 : 0;
 
   // 시그널 분류 (단순 임계값)
-  const navPump: { strength: Strength; tone: Tone; reason: string } = (() => {
-    // Treasury 빠르게 차오를수록 강함. 라이브로는 본드 outstanding 합계 + Premium 둘 다 큰 것이 강한 펌프 신호.
-    if (bondTotalUSDm > 400_000 && premiumMult > 2.5) {
+  const navPump: { strength: Strength; tone: Tone; reasonKey: string } =
+    (() => {
+      if (bondTotalUSDm > 400_000 && premiumMult > 2.5) {
+        return {
+          strength: "strong",
+          tone: "signal",
+          reasonKey: "md.signal.navPump.strong",
+        };
+      }
+      if (bondTotalUSDm > 150_000) {
+        return {
+          strength: "moderate",
+          tone: "signal",
+          reasonKey: "md.signal.navPump.moderate",
+        };
+      }
       return {
-        strength: "strong",
-        tone: "signal",
-        reason:
-          "Premium 이 큰 상태에서 본드 inflow 도 빠릅니다. BAM 위쪽 매도와 신규 본드가 함께 reserves 를 빠르게 채우는 중.",
+        strength: "weak",
+        tone: "warn",
+        reasonKey: "md.signal.navPump.weak",
       };
-    }
-    if (bondTotalUSDm > 150_000) {
-      return {
-        strength: "moderate",
-        tone: "signal",
-        reason:
-          "본드 풀에 의미있는 자본이 누적 중입니다. NAV 가 안정적으로 추격합니다.",
-      };
-    }
-    return {
-      strength: "weak",
-      tone: "warn",
-      reason: "본드 inflow 가 둔화되어 있습니다. NAV 추격 페이스가 떨어집니다.",
-    };
-  })();
+    })();
 
-  const flow: { label: string; tone: Tone; reason: string } = (() => {
+  const flowReasonEN = (label: string) =>
+    label === "buy"
+      ? `24h buys are ${txnRatio.toFixed(2)}× sells, 1h ${fmtPct(delta1h)}.`
+      : label === "sell"
+        ? `Sell tx ratio above buys (${txnRatio.toFixed(2)}). 1h ${fmtPct(delta1h)}.`
+        : `Buys/sells near 1:1 (${txnRatio.toFixed(2)}). 1h ${fmtPct(delta1h)}.`;
+  const flowReasonKO = (label: string) =>
+    label === "buy"
+      ? `24h 매수 트랜잭션이 매도의 ${txnRatio.toFixed(2)} 배, 1h 가격 ${fmtPct(delta1h)}.`
+      : label === "sell"
+        ? `매도 트랜잭션 비율이 매수보다 큽니다 (${txnRatio.toFixed(2)}). 1h ${fmtPct(delta1h)}.`
+        : `매수/매도 거의 1:1 (${txnRatio.toFixed(2)}). 1h ${fmtPct(delta1h)}.`;
+
+  const flow: { labelKey: string; tone: Tone; reason: string } = (() => {
     if (txnRatio > 1.15 && delta1h > 1) {
       return {
-        label: "매수 우세",
+        labelKey: "md.flow.buyDominant",
         tone: "signal",
-        reason: `24h 매수 트랜잭션이 매도의 ${txnRatio.toFixed(2)} 배, 1h 가격 ${fmtPct(delta1h)}.`,
+        reason: isEN ? flowReasonEN("buy") : flowReasonKO("buy"),
       };
     }
     if (txnRatio < 0.85 || delta1h < -2) {
       return {
-        label: "매도 우세",
+        labelKey: "md.flow.sellDominant",
         tone: "warn",
-        reason: `매도 트랜잭션 비율이 매수보다 큽니다 (${txnRatio.toFixed(2)}). 1h ${fmtPct(delta1h)}.`,
+        reason: isEN ? flowReasonEN("sell") : flowReasonKO("sell"),
       };
     }
     return {
-      label: "균형",
+      labelKey: "md.flow.balanced",
       tone: "neutral",
-      reason: `매수/매도 거의 1:1 (${txnRatio.toFixed(2)}). 1h ${fmtPct(delta1h)}.`,
+      reason: isEN ? flowReasonEN("balanced") : flowReasonKO("balanced"),
     };
   })();
 
-  const lock: { label: string; tone: Tone; reason: string } = (() => {
+  const lockReasonEN = (kind: string) =>
+    kind === "expanding"
+      ? `Stake TVL ${fmtUsdK(stakeTVL)} is ${lockRatioPct.toFixed(1)}% of FDV. A meaningful share of sellable RBT is locked.`
+      : kind === "early"
+        ? `Stake TVL ${fmtUsdK(stakeTVL)}. ${lockRatioPct.toFixed(1)}% of FDV, lock ratio is still small.`
+        : `Stake TVL ${fmtUsdK(stakeTVL)}. ${lockRatioPct.toFixed(1)}% of FDV, sellable RBT share is large.`;
+  const lockReasonKO = (kind: string) =>
+    kind === "expanding"
+      ? `Stake TVL ${fmtUsdK(stakeTVL)} 가 FDV 의 ${lockRatioPct.toFixed(1)}퍼센트. 매도 가능 RBT 가 의미있게 잠겨 있습니다.`
+      : kind === "early"
+        ? `Stake TVL ${fmtUsdK(stakeTVL)}. FDV 의 ${lockRatioPct.toFixed(1)}퍼센트로 lock 비율이 아직 작습니다.`
+        : `Stake TVL ${fmtUsdK(stakeTVL)}. FDV 의 ${lockRatioPct.toFixed(1)}퍼센트. 유통 매도 가능 RBT 비중이 큽니다.`;
+
+  const lock: { labelKey: string; tone: Tone; reason: string } = (() => {
     if (lockRatioPct > 5) {
       return {
-        label: "확장 중",
+        labelKey: "md.lock.expanding",
         tone: "signal",
-        reason: `Stake TVL ${fmtUsdK(stakeTVL)} 가 FDV 의 ${lockRatioPct.toFixed(1)}퍼센트. 매도 가능 RBT 가 의미있게 잠겨 있습니다.`,
+        reason: isEN ? lockReasonEN("expanding") : lockReasonKO("expanding"),
       };
     }
     if (lockRatioPct > 1.5) {
       return {
-        label: "성장 초기",
+        labelKey: "md.lock.early",
         tone: "neutral",
-        reason: `Stake TVL ${fmtUsdK(stakeTVL)}. FDV 의 ${lockRatioPct.toFixed(1)}퍼센트로 lock 비율이 아직 작습니다.`,
+        reason: isEN ? lockReasonEN("early") : lockReasonKO("early"),
       };
     }
     return {
-      label: "낮음",
+      labelKey: "md.lock.low",
       tone: "warn",
-      reason: `Stake TVL ${fmtUsdK(stakeTVL)}. FDV 의 ${lockRatioPct.toFixed(1)}퍼센트. 유통 매도 가능 RBT 비중이 큽니다.`,
+      reason: isEN ? lockReasonEN("low") : lockReasonKO("low"),
     };
   })();
 
-  const wave: { label: string; tone: Tone; reason: string } = (() => {
-    // 본드 outstanding 의 absolute 값. 클수록 만기 도래 시 유통량 점프 wave.
+  const waveReasonEN = (kind: string, n: number) =>
+    kind === "large"
+      ? `Outstanding ${n.toFixed(0)} RBT will distribute as bonds mature. Short-term sell pressure is possible on supply jumps.`
+      : kind === "medium"
+        ? `Outstanding ${n.toFixed(0)} RBT. Maturity distribution gradually grows circulating supply.`
+        : `Outstanding ${n.toFixed(0)} RBT. Short-term sell pressure from bond maturity is small.`;
+  const waveReasonKO = (kind: string, n: number) =>
+    kind === "large"
+      ? `outstanding ${n.toFixed(0)} RBT 가 본드 만기에 점진 분배됩니다. 유통량 점프 시 단기 매도 압력.`
+      : kind === "medium"
+        ? `outstanding ${n.toFixed(0)} RBT. 만기 분배가 점진적으로 유통량을 늘립니다.`
+        : `outstanding ${n.toFixed(0)} RBT. 본드 만기 wave 의 단기 매도 압력은 작습니다.`;
+
+  const wave: { labelKey: string; tone: Tone; reason: string } = (() => {
     if (bondOutstandingRBT > 25_000) {
       return {
-        label: "큰 wave 가능",
+        labelKey: "md.wave.large",
         tone: "warn",
-        reason: `outstanding ${bondOutstandingRBT.toFixed(0)} RBT 가 본드 만기에 점진 분배됩니다. 유통량 점프 시 단기 매도 압력.`,
+        reason: isEN
+          ? waveReasonEN("large", bondOutstandingRBT)
+          : waveReasonKO("large", bondOutstandingRBT),
       };
     }
     if (bondOutstandingRBT > 8_000) {
       return {
-        label: "중간",
+        labelKey: "md.wave.medium",
         tone: "neutral",
-        reason: `outstanding ${bondOutstandingRBT.toFixed(0)} RBT. 만기 분배가 점진적으로 유통량을 늘립니다.`,
+        reason: isEN
+          ? waveReasonEN("medium", bondOutstandingRBT)
+          : waveReasonKO("medium", bondOutstandingRBT),
       };
     }
     return {
-      label: "작음",
+      labelKey: "md.wave.small",
       tone: "signal",
-      reason: `outstanding ${bondOutstandingRBT.toFixed(0)} RBT. 본드 만기 wave 의 단기 매도 압력은 작습니다.`,
+      reason: isEN
+        ? waveReasonEN("small", bondOutstandingRBT)
+        : waveReasonKO("small", bondOutstandingRBT),
     };
   })();
 
@@ -151,51 +197,48 @@ export default function MarketDynamics() {
     (lock.tone === "signal" ? 1 : lock.tone === "warn" ? -1 : 0) +
     (wave.tone === "warn" ? -1 : 0);
 
-  const outlook: { label: string; tone: Tone; summary: string } = (() => {
+  const outlook: { labelKey: string; tone: Tone; summaryKey: string } = (() => {
     if (score >= 2) {
       return {
-        label: "우상향 가능",
+        labelKey: "md.outlook.bullish",
         tone: "signal",
-        summary:
-          "NAV 가 빠르게 차오르고 매수 우세에 lock 비율도 받쳐주는 상태. Premium 이 유지되며 시장가가 NAV 를 따라 절대 가격이 상승합니다.",
+        summaryKey: "md.outlook.bullish.summary",
       };
     }
     if (score <= -2) {
       return {
-        label: "하방 압력",
+        labelKey: "md.outlook.bearish",
         tone: "warn",
-        summary:
-          "NAV 펌프 페이스가 약하고 매도 우세 또는 본드 만기 wave 가 임박해 있습니다. Premium 가 빠르게 NAV 부근까지 축소될 수 있습니다.",
+        summaryKey: "md.outlook.bearish.summary",
       };
     }
     return {
-      label: "균형",
+      labelKey: "md.outlook.balanced",
       tone: "neutral",
-      summary:
-        "NAV 추격과 매도 압력이 균형 상태. BAM 이 가격을 NAV 위 일정 배율에서 진동시키는 구간입니다. 다음 큰 움직임은 Stake/Commit lock 증가, HVN TGE, 외부 등재 같은 외생 트리거에 달려 있습니다.",
+      summaryKey: "md.outlook.balanced.summary",
     };
   })();
 
   const triggers = [
     {
       done: lockRatioPct > 5,
-      label: "Stake TVL 가 FDV 의 5퍼센트 이상으로 차오름",
-      detail: "유통 매도 가능 RBT 감소 → Premium 안정",
+      labelKey: "md.triggers.stake",
+      detailKey: "md.triggers.stake.detail",
     },
     {
       done: bondTotalUSDm > 400_000,
-      label: "본드 풀 합계 $400K 이상 도달",
-      detail: "NAV 펌프 가속, Treasury 우상향 명확",
+      labelKey: "md.triggers.bondTotal",
+      detailKey: "md.triggers.bondTotal.detail",
     },
     {
       done: txnRatio > 1.2 && delta1h > 0,
-      label: "Buy/Sell 비율 1.2 이상에서 1h 양수 흐름 지속",
-      detail: "외부 수요 유입 또는 신규 등재 사이클 시작",
+      labelKey: "md.triggers.flow",
+      detailKey: "md.triggers.flow.detail",
     },
     {
       done: false,
-      label: "RBT 가 외부 lending 또는 perp 에 담보로 등재",
-      detail: "수요 다각화로 Premium buoy",
+      labelKey: "md.triggers.external",
+      detailKey: "md.triggers.external.detail",
     },
   ];
 
@@ -207,7 +250,7 @@ export default function MarketDynamics() {
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="chip">Market Dynamics</span>
+              <span className="chip">{t("md.title")}</span>
               <span
                 className="chip"
                 style={{
@@ -219,42 +262,40 @@ export default function MarketDynamics() {
                   className="h-1.5 w-1.5 rounded-full animate-pulseDot"
                   style={{ background: TONE_COLOR[outlook.tone] }}
                 />
-                {outlook.label}
+                {t(outlook.labelKey)}
               </span>
             </div>
             <h2 className="mt-4 text-[26px] headline text-ink-50">
-              어떤 움직임이 보여야 RBT 가 오를까
+              {t("md.heading")}
             </h2>
             <p className="mt-2 text-[13px] text-ink-300 max-w-2xl leading-relaxed">
-              가격은 <span className="text-ink-50">NAV × Premium 배수</span> 로
-              분해됩니다. NAV 펌프와 매도 압력, 락업 비율, 본드 만기 wave 네
-              가지 동력을 1초 단위로 갱신합니다.
+              {t("md.intro")}
             </p>
           </div>
           <span className="text-[10.5px] text-ink-500 font-mono">
-            updated {formatRelative(live.lastUpdated)}
+            {t("common.updated")} {formatRelative(live.lastUpdated)}
           </span>
         </header>
 
         <div className="mt-7 grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/5 rounded-xl overflow-hidden">
           <SignalCard
-            label="NAV Pump"
-            value={STRENGTH_LABEL[navPump.strength]}
+            label={t("md.signals.navPump")}
+            value={t(STRENGTH_KEY[navPump.strength])}
             tone={navPump.tone}
             sub={`NAV ${nav.toFixed(2)} USDm${reservesUSDm ? `, reserves ${fmtUsdK(reservesUSDm)}` : ""}, Premium ${premiumMult.toFixed(2)}×`}
-            detail={navPump.reason}
+            detail={t(navPump.reasonKey)}
             sourceLabel={bond.snapshot.source}
           />
           <SignalCard
-            label="Buy / Sell Pressure"
-            value={flow.label}
+            label={t("md.signals.flow")}
+            value={t(flow.labelKey)}
             tone={flow.tone}
             sub={`24h Buy ${buys24.toLocaleString()} / Sell ${sells24.toLocaleString()}, ratio ${txnRatio.toFixed(2)}`}
             detail={flow.reason}
             sourceLabel={live.remote ? "live" : "stale"}
           />
           <SignalCard
-            label="Lock Ratio"
+            label={t("md.signals.lock")}
             value={`${lockRatioPct.toFixed(1)}%`}
             tone={lock.tone}
             sub={`Stake TVL ${fmtUsdK(stakeTVL)} / FDV ${fmtUsdK(fdv)}`}
@@ -264,10 +305,14 @@ export default function MarketDynamics() {
             }
           />
           <SignalCard
-            label="Bond Maturity Wave"
-            value={wave.label}
+            label={t("md.signals.wave")}
+            value={t(wave.labelKey)}
             tone={wave.tone}
-            sub={`outstanding ${bondTotalRBT.toFixed(0)} RBT 분배 예정`}
+            sub={
+              isEN
+                ? `outstanding ${bondTotalRBT.toFixed(0)} RBT pending`
+                : `outstanding ${bondTotalRBT.toFixed(0)} RBT 분배 예정`
+            }
             detail={wave.reason}
             sourceLabel={bond.snapshot.source}
           />
@@ -278,45 +323,47 @@ export default function MarketDynamics() {
           style={{ borderColor: `${TONE_COLOR[outlook.tone]}30` }}
         >
           <div className="eyebrow" style={{ color: TONE_COLOR[outlook.tone] }}>
-            진단, {outlook.label}
+            {t("md.diagnosis")}, {t(outlook.labelKey)}
           </div>
           <p className="mt-2 text-[13.5px] text-ink-100 leading-relaxed">
-            {outlook.summary}
+            {t(outlook.summaryKey)}
           </p>
         </div>
 
         <div className="mt-5">
-          <div className="eyebrow mb-2">우상향 트리거 체크리스트</div>
+          <div className="eyebrow mb-2">{t("md.triggers.heading")}</div>
           <div className="grid md:grid-cols-2 gap-2">
-            {triggers.map((t) => (
+            {triggers.map((tr) => (
               <div
-                key={t.label}
+                key={tr.labelKey}
                 className="card-2 p-3 flex items-start gap-3"
                 style={{
-                  borderColor: t.done
+                  borderColor: tr.done
                     ? "rgba(61,220,151,0.3)"
                     : "rgba(255,255,255,0.06)",
-                  background: t.done ? "rgba(61,220,151,0.05)" : undefined,
+                  background: tr.done ? "rgba(61,220,151,0.05)" : undefined,
                 }}
               >
                 <span
                   className="mt-0.5 inline-flex items-center justify-center h-4 w-4 rounded-sm border text-[10px] font-mono shrink-0"
                   style={{
-                    color: t.done ? "var(--signal)" : "var(--text-3, #9AA0AB)",
-                    borderColor: t.done
+                    color: tr.done ? "var(--signal)" : "var(--text-3, #9AA0AB)",
+                    borderColor: tr.done
                       ? "rgba(61,220,151,0.5)"
                       : "rgba(255,255,255,0.15)",
-                    background: t.done ? "rgba(61,220,151,0.1)" : "transparent",
+                    background: tr.done
+                      ? "rgba(61,220,151,0.1)"
+                      : "transparent",
                   }}
                 >
-                  {t.done ? "✓" : ""}
+                  {tr.done ? "✓" : ""}
                 </span>
                 <div className="min-w-0">
                   <div className="text-[12.5px] text-ink-100 leading-snug">
-                    {t.label}
+                    {t(tr.labelKey)}
                   </div>
                   <div className="text-[11px] text-ink-400 mt-0.5 leading-relaxed">
-                    {t.detail}
+                    {t(tr.detailKey)}
                   </div>
                 </div>
               </div>
@@ -325,10 +372,7 @@ export default function MarketDynamics() {
         </div>
 
         <p className="mt-5 text-[11px] text-ink-400 leading-relaxed">
-          NAV 자체는 정적 fallback (앱 Metrics 페이지 수기 sync) 이라 NAV 가
-          천천히 차오르는 추세 자체는 이 패널에서 직접 측정되지 않습니다.
-          시그널은 본드 onchain 잔액과 dexscreener 라이브 데이터, Stake 정적 TVL
-          의 조합으로 추정합니다.
+          {t("md.disclaimer")}
         </p>
       </div>
     </section>

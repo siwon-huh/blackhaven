@@ -3,6 +3,7 @@
 // 컨트랙트 주소가 확보되면 useBondMetrics hook 내부만 onchain fetch 로 교체하면 됩니다.
 
 import { BondTerm, LIVE_BONDS } from "@/lib/fairValue";
+import type { LocaleString } from "@/lib/i18n";
 
 export type BondMetric = BondTerm & {
   // TVL 의 5퍼센트입니다. 큰 자본 진입 시 디스카운트가 빠르게 잠식되는 임계점입니다.
@@ -62,56 +63,77 @@ export type CapitalTier = "small" | "medium" | "large";
 
 export type CapitalRange = {
   tier: CapitalTier;
-  label: string;
-  range: string;
-  guidance: string;
+  label: LocaleString;
+  range: LocaleString;
+  guidance: LocaleString;
+};
+
+export type BondRecommendation = {
+  picked: BondMetric;
+  reasonKey: "fits" | "over";
+  reasonParams: { days: number; tvlUSDm: number; discountPct: number };
 };
 
 export function recommendBond(
   capitalUSDm: number,
   bonds: BondMetric[],
-): { picked: BondMetric; reason: string } {
+): BondRecommendation {
   // 가장 큰 디스카운트부터 보면서 capitalUSDm 이 recommendedMaxUSDm 이내인 본드 선택
   const sorted = [...bonds].sort((a, b) => b.discountPct - a.discountPct);
   for (const b of sorted) {
     if (capitalUSDm <= b.recommendedMaxUSDm) {
       return {
         picked: b,
-        reason: `${b.days} 일 본드의 풀 ($${(b.tvlUSDm / 1000).toFixed(1)}K) 깊이 안에서 디스카운트 ${b.discountPct}퍼센트가 보전되는 사이즈입니다.`,
+        reasonKey: "fits",
+        reasonParams: {
+          days: b.days,
+          tvlUSDm: b.tvlUSDm,
+          discountPct: b.discountPct,
+        },
       };
     }
   }
-  // 모든 본드의 권장 max 를 초과하는 자본 — 가장 깊은 풀로 분산 권장
   const deepest = bonds.reduce(
     (p, c) => (c.tvlUSDm > p.tvlUSDm ? c : p),
     bonds[0],
   );
   return {
     picked: deepest,
-    reason: `자본이 모든 본드의 권장 max 를 초과합니다. 가장 깊은 풀인 ${deepest.days} 일 본드로 분산하거나 여러 본드에 나누어 진입하세요.`,
+    reasonKey: "over",
+    reasonParams: {
+      days: deepest.days,
+      tvlUSDm: deepest.tvlUSDm,
+      discountPct: deepest.discountPct,
+    },
   };
 }
 
 export const CAPITAL_TIERS: CapitalRange[] = [
   {
     tier: "small",
-    label: "Small",
-    range: "1K USDm 이하",
-    guidance:
-      "모든 만기 본드를 자유롭게 사용할 수 있습니다. 14 일 본드의 디스카운트 10퍼센트가 의외로 저평가된 옵션입니다.",
+    label: { ko: "Small", en: "Small" },
+    range: { ko: "1K USDm 이하", en: "Up to 1K USDm" },
+    guidance: {
+      ko: "모든 만기 본드를 자유롭게 사용할 수 있습니다. 14 일 본드의 디스카운트 10퍼센트가 의외로 저평가된 옵션입니다.",
+      en: "Any tenor works freely. The 14-day bond's 10% discount is an underrated option at this size.",
+    },
   },
   {
     tier: "medium",
-    label: "Medium",
-    range: "1K ~ 10K USDm",
-    guidance:
-      "30 일 본드를 메인으로, 14 일은 풀 깊이 안에서만 보조로 사용합니다. 7 일은 짧은 회전용입니다.",
+    label: { ko: "Medium", en: "Medium" },
+    range: { ko: "1K ~ 10K USDm", en: "1K ~ 10K USDm" },
+    guidance: {
+      ko: "30 일 본드를 메인으로, 14 일은 풀 깊이 안에서만 보조로 사용합니다. 7 일은 짧은 회전용입니다.",
+      en: "Use the 30-day bond as your main; the 14-day only as backup within pool depth. The 7-day is for short rotations.",
+    },
   },
   {
     tier: "large",
-    label: "Large",
-    range: "10K USDm 이상",
-    guidance:
-      "30 일과 7 일에 분산합니다. 14 일은 풀 깊이가 얕아 디스카운트 잠식 위험이 큽니다.",
+    label: { ko: "Large", en: "Large" },
+    range: { ko: "10K USDm 이상", en: "10K USDm and above" },
+    guidance: {
+      ko: "30 일과 7 일에 분산합니다. 14 일은 풀 깊이가 얕아 디스카운트 잠식 위험이 큽니다.",
+      en: "Split between 30-day and 7-day. The 14-day pool is too shallow, so discount erosion risk is high.",
+    },
   },
 ];

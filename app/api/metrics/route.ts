@@ -112,7 +112,7 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     capturedAt: new Date().toISOString(),
-    source: onchain ? "dexscreener + onchain" : "dexscreener · onchain stale",
+    source: onchain ? "dexscreener + onchain" : "dexscreener, onchain stale",
     pair: KUMBAYA_PAIR,
     base: pair.baseToken?.symbol ?? "RBT",
     quote: pair.quoteToken?.symbol ?? "USDm",

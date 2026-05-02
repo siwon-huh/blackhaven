@@ -3,7 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/lib/theme";
 
 export const metadata: Metadata = {
-  title: "Blackhaven · Live Dashboard",
+  title: "Blackhaven, Live Dashboard",
   description:
     "Reserve-Backed Treasury on MegaETH. Live metrics, fair value, playbook, and risks.",
 };
@@ -27,9 +27,7 @@ export default function RootLayout({
     <html data-theme="dark">
       <head>
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script
-          dangerouslySetInnerHTML={{ __html: themeInitScript }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-screen font-display antialiased">
         <ThemeProvider>{children}</ThemeProvider>

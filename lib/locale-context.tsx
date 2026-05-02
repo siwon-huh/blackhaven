@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { Locale, DEFAULT_LOCALE, t, TKey } from "@/lib/i18n";
+import { Locale, DEFAULT_LOCALE, t } from "@/lib/i18n";
 
 const LocaleContext = createContext<Locale>(DEFAULT_LOCALE);
 
@@ -20,5 +20,5 @@ export function LocaleProvider({
 export const useLocale = () => useContext(LocaleContext);
 export const useT = () => {
   const locale = useLocale();
-  return (key: TKey) => t(locale, key);
+  return (key: string) => t(locale, key);
 };

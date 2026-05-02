@@ -1,11 +1,23 @@
-import type { ScenarioDefinition } from "@/lib/scenarios";
+"use client";
 
-const TAG_DOT: Record<ScenarioDefinition["weekly"][number]["tag"], string> = {
-  본드: "#FFFFFF",
-  Commit: "#3DDC97",
-  트레이드: "#C9CDD4",
-  클레임: "#F4C756",
-  지켜보기: "#6E7480",
+import type { ScenarioDefinition, WeekTag } from "@/lib/scenarios";
+import { lc } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/locale-context";
+
+const TAG_DOT: Record<WeekTag, string> = {
+  bond: "#FFFFFF",
+  commit: "#3DDC97",
+  trade: "#C9CDD4",
+  claim: "#F4C756",
+  watch: "#6E7480",
+};
+
+const TAG_KEY: Record<WeekTag, string> = {
+  bond: "tag.bond",
+  commit: "tag.commit",
+  trade: "tag.trade",
+  claim: "tag.claim",
+  watch: "tag.watch",
 };
 
 export default function WeekPlan({
@@ -13,11 +25,13 @@ export default function WeekPlan({
 }: {
   weekly: ScenarioDefinition["weekly"];
 }) {
+  const t = useT();
+  const locale = useLocale();
   return (
     <div className="card p-5">
-      <div className="eyebrow">Action sequence</div>
+      <div className="eyebrow">{t("week.eyebrow")}</div>
       <div className="text-[14px] font-medium mt-1 mb-4 text-ink-50">
-        주차별 실행 순서
+        {t("week.title")}
       </div>
 
       <ol className="relative pl-6 space-y-3">
@@ -35,10 +49,10 @@ export default function WeekPlan({
                   {w.week}
                 </span>
                 <span className="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 border border-white/10 text-ink-300">
-                  {w.tag}
+                  {t(TAG_KEY[w.tag])}
                 </span>
                 <span className="text-[12.5px] text-ink-100 leading-relaxed">
-                  {w.action}
+                  {lc(w.action, locale)}
                 </span>
               </div>
             </li>

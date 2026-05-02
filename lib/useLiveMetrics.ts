@@ -125,7 +125,7 @@ export function useLiveMetrics(intervalMs: number = 1_000): LiveState {
 }
 
 export function formatRelative(date: Date | null): string {
-  if (!date) return "—";
+  if (!date) return "...";
   const seconds = Math.max(0, Math.round((Date.now() - date.getTime()) / 1000));
   if (seconds < 5) return "just now";
   if (seconds < 60) return `${seconds}s ago`;
