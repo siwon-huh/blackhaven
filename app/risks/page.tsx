@@ -18,8 +18,8 @@ export default function RisksPage() {
       <SiteHeader />
       <RisksHero />
       <AuditFindings />
-      <ProtocolRisks />
       <UserRisks />
+      <ProtocolRisks />
       <RisksFooter />
       <SiteFooter />
     </main>
