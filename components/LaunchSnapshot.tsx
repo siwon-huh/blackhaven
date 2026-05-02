@@ -305,7 +305,32 @@ export default function LaunchSnapshot() {
             <div className="eyebrow mb-1">지금 이 순간 플레이 우선순위</div>
             <div className="space-y-2">
               {s.livePriority.map((p) => {
-                const tone = VERDICT_TONE[p.verdict];
+                let dynVerdict = p.verdict;
+                let dynNote = p.note;
+
+                if (p.play.startsWith("30일 본드")) {
+                  const discPct = fv.maxBondDiscount * 100;
+                  const savedPct = (1 - fv.bondEffective / fv.market) * 100;
+                  dynNote = `최대 디스카운트입니다. 본드의 effective entry 는 약 ${fv.bondEffective.toFixed(2)} USDm 으로, 라이브 시장가 ${fv.market.toFixed(2)} USDm 대비 약 ${savedPct.toFixed(1)}퍼센트 낮습니다 (디스카운트 ${discPct.toFixed(0)} 퍼센트).`;
+                } else if (p.play.startsWith("NAV 근처")) {
+                  const ratio = fv.market / fv.floor;
+                  const reentry = fv.floor * 1.5;
+                  dynVerdict =
+                    verdict.zone === "undervalued"
+                      ? "GO+"
+                      : verdict.zone === "fair"
+                        ? "GO"
+                        : verdict.zone === "bond-only"
+                          ? "GO"
+                          : "WAIT";
+                  if (ratio <= 1.5) {
+                    dynNote = `시장가가 NAV 의 ${ratio.toFixed(2)} 배입니다. 비대칭 진입 구간에 가까워졌습니다. 추가 매수 시 BAM 쿨다운 직후를 활용하세요.`;
+                  } else {
+                    dynNote = `시장가가 NAV 의 ${ratio.toFixed(2)} 배에 머무릅니다. 비대칭이 사라진 상태이며, 시장가가 약 ${reentry.toFixed(2)} USDm (NAV 위 50퍼센트) 아래로 빠지면 재평가합니다.`;
+                  }
+                }
+
+                const tone = VERDICT_TONE[dynVerdict];
                 return (
                   <div key={p.play} className="rounded-lg border p-3 hairline">
                     <div className="flex items-center justify-between">
@@ -323,7 +348,7 @@ export default function LaunchSnapshot() {
                       </span>
                     </div>
                     <p className="mt-1.5 text-[11.5px] text-ink-300 leading-relaxed">
-                      {p.note}
+                      {dynNote}
                     </p>
                   </div>
                 );
