@@ -1,24 +1,23 @@
 import Link from "next/link";
 
-const BANNER_URL =
-  "https://pbs.twimg.com/profile_banners/1983180959446118404/1767471793/1500x500";
-
 export default function HomeHero() {
   return (
     <section className="relative">
-      {/* Banner backdrop */}
+      {/* Banner backdrop, 자연 톤 살리되 모노톤과 충돌 안 하도록 보정 */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={BANNER_URL}
+          src="/haven-banner.png"
           alt=""
           aria-hidden
-          className="w-full h-[420px] object-cover opacity-25"
+          className="w-full h-[460px] object-cover opacity-55"
+          style={{ filter: "saturate(0.85) contrast(1.05) brightness(0.85)" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink-950/40 via-ink-950/70 to-ink-950" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/55 to-ink-950/15" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink-950/40 via-ink-950/55 to-ink-950" />
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 pt-20 pb-12">
+      <div className="max-w-6xl mx-auto px-6 pt-24 pb-14">
         <div className="flex items-center gap-2 mb-6">
           <span className="chip-signal">
             <span className="h-1.5 w-1.5 rounded-full bg-signal animate-pulseDot" />
@@ -26,13 +25,13 @@ export default function HomeHero() {
           </span>
           <span className="chip">RBT / USDm</span>
         </div>
-        <h1 className="text-[48px] md:text-[64px] headline text-ink-50">
+        <h1 className="text-[48px] md:text-[68px] headline text-ink-50">
           Blackhaven Live
         </h1>
         <p className="mt-5 text-[15px] text-ink-200 max-w-xl">
           RBT 시장가, NAV, 공정가.
         </p>
-        <div className="mt-7 flex items-center gap-5 text-[13px] text-ink-300">
+        <div className="mt-8 flex items-center gap-5 text-[13px] text-ink-300">
           <Link
             href="/about"
             className="hover:text-ink-50 inline-flex items-center gap-1.5"

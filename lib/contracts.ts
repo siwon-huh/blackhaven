@@ -9,6 +9,11 @@ export const BOND_CONTRACTS = {
 
 export const COMMIT_CONTRACT = "0x7c6773C78d22D8754A194f272232B33F0623F8d0";
 
+// Stake 컨트랙트 + sRBT 토큰 주소가 알려지면 여기에 추가합니다.
+// 현재는 Stake 페이지 TVL($42.05K) 과 Commit 24w reward(~15.8%) 가 정적 fallback 입니다.
+export const STAKE_CONTRACT: string | null = null;
+export const SRBT_TOKEN: string | null = null;
+
 // RBT/USDm Kumbaya pool.
 export const KUMBAYA_PAIR = "0x3fa634c81ee8aa78c4f37364e6feccb8a89c0032";
 

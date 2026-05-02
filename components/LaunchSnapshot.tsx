@@ -4,6 +4,7 @@ import { LAUNCH_SNAPSHOT, VERDICT_TONE } from "@/lib/launch";
 import { computeFairValue, entryVerdict, LIVE_BONDS } from "@/lib/fairValue";
 import { formatRelative, useLiveMetrics } from "@/lib/useLiveMetrics";
 import { useBondMetrics } from "@/lib/useBondMetrics";
+import { useCommitMetrics } from "@/lib/useCommitMetrics";
 import type { BondMetric } from "@/lib/bondMetrics";
 
 const SIGNAL_TONE = {
@@ -28,6 +29,7 @@ export default function LaunchSnapshot() {
   const { remote, lastUpdated, loading, error, metrics } =
     useLiveMetrics(1_000);
   const bondLive = useBondMetrics(1_000);
+  const commitLive = useCommitMetrics(1_000);
   const fv = computeFairValue(metrics, LIVE_BONDS);
   const verdict = entryVerdict(fv);
 
@@ -224,8 +226,34 @@ export default function LaunchSnapshot() {
         </div>
 
         <div className="mt-3 grid grid-cols-3 gap-3 text-[11.5px]">
-          <SubMetric label="Stake TVL" value={s.metrics.stakeTVL} />
-          <SubMetric label="Commit 24w" value={s.metrics.commit24wReward} />
+          <SubMetric
+            label="Stake TVL"
+            value={
+              commitLive.snapshot
+                ? `$${(commitLive.snapshot.stake.tvlUSD / 1000).toFixed(1)}K`
+                : s.metrics.stakeTVL
+            }
+            sub={
+              commitLive.snapshot?.source === "onchain"
+                ? "onchain"
+                : "static, manual sync"
+            }
+            live={commitLive.snapshot?.source === "onchain"}
+          />
+          <SubMetric
+            label="Commit 24w reward"
+            value={
+              commitLive.snapshot
+                ? `${(commitLive.snapshot.commit.reward24w * 100).toFixed(1)}%`
+                : s.metrics.commit24wReward
+            }
+            sub={
+              commitLive.snapshot?.commit.rewardPoolRBT !== undefined
+                ? `pool ${commitLive.snapshot.commit.rewardPoolRBT.toFixed(0)} RBT`
+                : "static"
+            }
+            live={commitLive.snapshot?.source === "onchain"}
+          />
           <SubMetric label="TXNS 24h" value={txns} live />
         </div>
 
