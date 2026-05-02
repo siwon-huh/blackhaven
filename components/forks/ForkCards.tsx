@@ -113,7 +113,7 @@ export default function ForkCards() {
           프로젝트별 케이스
         </h2>
         <p className="mt-2 text-[12.5px] text-ink-400">
-          헤더를 클릭해 정렬할 수 있고, row 를 클릭하면 정규화 곡선과 상세
+          헤더를 클릭해 정렬할 수 있고, row 를 클릭하면 정규화된 곡선과 상세
           분석을 펼쳐볼 수 있습니다.
         </p>
       </div>

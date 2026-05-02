@@ -5,7 +5,7 @@ export default function StopSignals({ stop }: { stop: string[] }) {
         <div>
           <div className="eyebrow text-warn">Stop signals</div>
           <div className="text-[14px] font-medium mt-0.5 text-ink-50">
-            이 신호가 보이면 플레이를 정지합니다
+            이 신호가 보이면 플레이를 중단하세요
           </div>
         </div>
       </div>

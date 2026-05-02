@@ -12,7 +12,7 @@ export const MECHANICS = [
     oneLine:
       "USDm을 디스카운트로 RBT와 교환합니다. 만기까지 선형으로 베스팅되며, 약정 자본의 90 퍼센트는 트레저리, 10 퍼센트는 운영비입니다.",
     analogy:
-      "OHM 본드와 본질이 동일합니다. 디스카운트는 본드 수요가 적을 때 두꺼워집니다.",
+      "OHM 본드와 본질이 동일합니다. 디스카운트는 본드 수요가 적을 때 커집니다.",
     color: "#7C6BFF",
   },
   {
@@ -37,7 +37,7 @@ export const MECHANICS = [
     code: "BAM",
     title: "BAM (Backing Arbitrage Module)",
     oneLine:
-      "RBT 시장가가 NAV 에서 벗어나면 자동으로 양방향 차익거래를 수행합니다. 위쪽이면 매도하여 트레저리로 환류시키고, 아래쪽이면 매수하여 소각합니다.",
+      "RBT 시장가가 NAV 에서 벗어나면 자동으로 양방향 차익거래를 수행합니다. 위쪽이면 매도하여 트레저리로 환류하고, 아래쪽이면 매수하여 소각합니다.",
     analogy:
       "OHM 의 inverse bond 를 자동, 양방향으로 확장한 모듈입니다. 사용자 입장에서는 자동 페그 봇으로 이해해도 됩니다.",
     color: "#FF6A1F",
@@ -48,7 +48,7 @@ export const MECHANICS = [
     oneLine:
       "본드로 들어온 USDm 일부가 Liquidity Manager 가 영구 보유하는 Uniswap V3 NFT 가 됩니다. 거래 수수료는 트레저리로 환류됩니다.",
     analogy:
-      "OlympusDAO 와 동일합니다. 본드는 결국 POL 을 사기 위한 메커니즘입니다.",
+      "OlympusDAO 와 동일합니다. 본드는 결국 POL 을 확보하기 위한 메커니즘입니다.",
     color: "#F4C756",
   },
 ];
@@ -117,7 +117,7 @@ const SCENARIOS: ScenarioDefinition[] = [
       ],
       reward:
         "디스카운트 15퍼센트와 30일 만기를 결합한 진입가는 시장가 직매수보다 약 15퍼센트 낮습니다. 만기 시점의 RBT 가치와 Stake/Commit 진입을 동시에 확보할 수 있습니다.",
-      loss: "베스팅 중 RBT 시장가가 NAV 부근으로 빠르게 수렴하면 디스카운트 효과가 잠식됩니다. 본드 자본은 만기까지 회수가 어렵습니다.",
+      loss: "베스팅 중 RBT 시장가가 NAV 부근으로 빠르게 수렴하면 디스카운트 효과가 줄어듭니다. 본드 자본은 만기까지 회수가 어렵습니다.",
       apr: "30 ~ 80퍼센트",
       effort: "쉬움",
     },
@@ -134,7 +134,7 @@ const SCENARIOS: ScenarioDefinition[] = [
         ],
         reward:
           "Commit 24주 약 15.8퍼센트의 RBT 분배와 본드 추가 디스카운트가 결합되어 시드 베이스라인을 만듭니다.",
-        loss: "Commit 자본은 약정 기간 동안 회수가 어렵습니다. 만기 전 해지 패널티가 docs 에 명시되어 있습니다.",
+        loss: "Commit 자본은 약정 기간 동안 회수가 어렵습니다. 중도 해지 페널티가 docs 에 명시되어 있습니다.",
         apr: "12 ~ 25퍼센트",
         effort: "보통",
       },
@@ -143,10 +143,10 @@ const SCENARIOS: ScenarioDefinition[] = [
         title: "BAM 시동 전 비대칭 진입",
         why: "BAM 이 작은 규모로만 작동하는 첫 며칠은 RBT 가 NAV 아래로 더 깊이 빠지는 윈도우가 자주 옵니다. NAV 는 온체인으로 검증할 수 있는 하한선이라 비대칭이 큽니다.",
         steps: [
-          "Backing ratio 를 reserves 나누기 circulating 으로 직접 계산하거나 attestation 으로 확인합니다.",
-          "시장가가 NAV 의 플러스마이너스 1퍼센트 안쪽일 때만 매수합니다.",
+          "Backing ratio 를 reserves 를 circulating supply 로 나누어 직접 계산하거나 attestation 으로 확인합니다.",
+          "시장가가 NAV 의 ±1 퍼센트 안쪽일 때만 매수합니다.",
           "BAM 쿨다운 직후가 진입 적기입니다.",
-          "다음 시간축에서 NAV 위 5퍼센트 도달 시 일부를 익절합니다.",
+          "다음 시간축에서 NAV 위 5퍼센트에 도달하면 일부를 익절합니다.",
         ],
         reward: "NAV 의 우상향과 시장가 동반 상승의 비대칭 구조입니다.",
         loss: "NAV 위 3퍼센트보다 높은 가격에서 사면 본드보다 효율이 떨어집니다.",
@@ -164,7 +164,7 @@ const SCENARIOS: ScenarioDefinition[] = [
       {
         week: "D-1",
         action:
-          "USDm을 사전 준비하고, 본드 라운치 시각과 Commit 슬라이더 옵션을 확인합니다.",
+          "USDm을 사전 준비하고, 본드 출시 시각과 Commit 슬라이더 옵션을 확인합니다.",
         tag: "지켜보기",
       },
       {
@@ -226,7 +226,7 @@ const SCENARIOS: ScenarioDefinition[] = [
       ],
       reward:
         "Commit 분배에 본드 디스카운트와 베스팅 가속이 더해져 연환산 35 ~ 55퍼센트 수익을 만듭니다.",
-      loss: "Commit 곡선이 분배 축소 방향으로 가면 효율이 30 ~ 40퍼센트 하락합니다.",
+      loss: "Commit 곡선이 분배 축소 쪽으로 결정되면 효율이 30 ~ 40퍼센트 하락합니다.",
       apr: "35 ~ 55퍼센트",
       effort: "보통",
     },
@@ -238,7 +238,7 @@ const SCENARIOS: ScenarioDefinition[] = [
         steps: [
           "Live 페이지의 verdict 가 저평가 또는 공정 구간에 들어왔을 때 매수합니다.",
           "verdict 가 본드 권장 구간 위로 올라오면 1차 익절합니다.",
-          "고평가 구간에 진입하면 추가 매수를 중단하고 보유분도 점진 매도합니다.",
+          "고평가 구간에 진입하면 추가 매수를 중단하고 보유분도 점진적으로 매도합니다.",
           "BAM 쿨다운 직후가 가격 변동성이 가장 크므로 진입과 청산 모두 그 윈도우를 활용합니다.",
         ],
         reward:
@@ -331,7 +331,7 @@ const SCENARIOS: ScenarioDefinition[] = [
       {
         week: "M5",
         action:
-          "Commit 곡선의 거버넌스 표결을 추적합니다. 축소 방향이면 신규 commit 을 정지합니다.",
+          "Commit 곡선의 거버넌스 표결을 추적합니다. 축소 쪽으로 결정되면 신규 commit 을 정지합니다.",
         tag: "지켜보기",
       },
       {

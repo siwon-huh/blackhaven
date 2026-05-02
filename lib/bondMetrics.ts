@@ -5,11 +5,11 @@
 import { BondTerm, LIVE_BONDS } from "@/lib/fairValue";
 
 export type BondMetric = BondTerm & {
-  // TVL 의 5퍼센트 — 큰 자본 진입 시 디스카운트가 빠르게 잠식되는 임계점입니다.
+  // TVL 의 5퍼센트입니다. 큰 자본 진입 시 디스카운트가 빠르게 잠식되는 임계점입니다.
   recommendedMaxUSDm: number;
   // 디스카운트 1퍼센트당 풀 깊이 (USDm). 작을수록 풀이 얕아 변동성이 큽니다.
   depthPerDiscountPoint: number;
-  // 본드 풀 깊이 등급. 작은 풀은 selecting 시 사용자에게 경고로 표시합니다.
+  // 본드 풀 깊이 등급. 작은 풀은 선택 시 사용자에게 경고로 표시합니다.
   depthTier: "deep" | "medium" | "shallow";
 };
 
@@ -82,7 +82,10 @@ export function recommendBond(
     }
   }
   // 모든 본드의 권장 max 를 초과하는 자본 — 가장 깊은 풀로 분산 권장
-  const deepest = bonds.reduce((p, c) => (c.tvlUSDm > p.tvlUSDm ? c : p), bonds[0]);
+  const deepest = bonds.reduce(
+    (p, c) => (c.tvlUSDm > p.tvlUSDm ? c : p),
+    bonds[0],
+  );
   return {
     picked: deepest,
     reason: `자본이 모든 본드의 권장 max 를 초과합니다. 가장 깊은 풀인 ${deepest.days} 일 본드로 분산하거나 여러 본드에 나누어 진입하세요.`,
@@ -95,7 +98,7 @@ export const CAPITAL_TIERS: CapitalRange[] = [
     label: "Small",
     range: "1K USDm 이하",
     guidance:
-      "모든 만기 본드를 자유롭게 사용할 수 있습니다. 14 일 본드의 디스카운트 10퍼센트가 underrated 입니다.",
+      "모든 만기 본드를 자유롭게 사용할 수 있습니다. 14 일 본드의 디스카운트 10퍼센트가 의외로 저평가된 옵션입니다.",
   },
   {
     tier: "medium",

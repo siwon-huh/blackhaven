@@ -136,13 +136,13 @@ export const FORKS: Fork[] = [
     status: "rugged",
     hook: "Avalanche의 첫 OHM 포크입니다. Daniele Sestagalli의 후광으로 폭발적으로 성장했습니다.",
     whyItGrew:
-      "OHM 메커니즘에 AVAX 시즌과 카리스마 있는 리더십이 더해졌습니다. TVL이 $1.5B에 도달했고, 한때 가격 표면이 OHM보다 컸습니다.",
+      "OHM 메커니즘에 AVAX 시즌과 카리스마 있는 리더십이 결합되었습니다. TVL이 $1.5B에 도달했고, 한때 시가총액이 OHM보다 컸습니다.",
     whyItBroke:
-      "2022년 1월, 트레저리 운영자였던 0xSifu가 QuadrigaCX 공동창립자 Michael Patryn 으로 폭로되었습니다. 신뢰가 붕괴되며 거버넌스 청산 표결로 이어졌고, 사실상 종료되었습니다.",
+      "2022년 1월, 트레저리 운영자였던 0xSifu가 QuadrigaCX 공동창립자 Michael Patryn 임이 폭로되었습니다. 신뢰가 붕괴되며 거버넌스 청산 표결로 이어졌고, 사실상 종료되었습니다.",
     ending:
       "트레저리 청산 표결이 통과되며 운영이 사실상 중단되었습니다. OHM 포크 시즌의 가장 유명한 사망 사례입니다.",
     signature:
-      "메커니즘은 작동했지만 사람이 결국 이슈였습니다. 디파이의 신뢰 가정이 무엇을 의미하는지 보여주는 사례입니다.",
+      "메커니즘은 작동했지만 결국 사람이 문제였습니다. 디파이의 신뢰 가정이 무엇을 의미하는지 보여주는 사례입니다.",
   },
   {
     id: "klima",
@@ -161,7 +161,7 @@ export const FORKS: Fork[] = [
     whyItGrew:
       "ESG 내러티브와 OHM 게임이론이 결합되었습니다. 탄소 가격이 오를수록 KLIMA가 오른다는 스토리가 통했습니다.",
     whyItBroke:
-      "백킹 자산인 토큰화 탄소 크레딧 자체의 유동성과 신뢰성이 약했습니다. 실제 카본 마켓이 OHM 게임이론의 속도를 따라가지 못해 backing이 무너졌고, 일반적인 OHM 데스 사이클이 더해졌습니다.",
+      "백킹 자산인 토큰화 탄소 크레딧 자체의 유동성과 신뢰성이 약했습니다. 실제 카본 마켓이 OHM 게임이론의 속도를 따라가지 못해 backing이 무너졌고, 일반적인 OHM 데스 사이클이 겹쳐졌습니다.",
     ending:
       "운영은 유지되지만 거래량과 활동이 거의 없습니다. 카테고리 자체가 거의 사망 상태입니다.",
     signature:
@@ -188,7 +188,7 @@ export const FORKS: Fork[] = [
     ending:
       "트레저리 잔여 자산을 토큰홀더에 redemption 형태로 분배한 뒤 정식 종료했습니다. OHM 포크 중 드물게 질서있는 종료 사례입니다.",
     signature:
-      "메커니즘이 깨졌을 때 어떻게 마무리하는지의 모범입니다. 그래도 사용자 평균 진입가의 회수에는 미치지 못했습니다.",
+      "메커니즘이 깨졌을 때 어떻게 마무리하는지의 모범 사례입니다. 그래도 사용자 평균 진입가의 회수에는 미치지 못했습니다.",
   },
   {
     id: "btrfly",
@@ -246,7 +246,7 @@ export const FORKS: Fork[] = [
     recentPriceUSD: 0.05,
     drawdown: "정점 대비 99퍼센트 이상 하락",
     status: "abandoned",
-    hook: "Fantom의 카피캣 OHM 포크입니다.",
+    hook: "Fantom의 OHM 카피캣 포크입니다.",
     whyItGrew: "Fantom 시즌과 OHM 메커니즘이 결합되었습니다.",
     whyItBroke: "차별점이 없었고 메커니즘만 카피했습니다.",
     ending: "사용자가 이탈했고 운영이 정지되었습니다.",
@@ -318,7 +318,7 @@ export const COMMON_PATTERNS: Pattern[] = [
     code: "P7",
     title: "사람 리스크",
     detail:
-      "익명 운영자의 신원 폭로, 핵심 인물 이탈, 자체 권력 집중 같은 사람 측 리스크가 있었습니다. 메커니즘이 작동해도 운영 신뢰가 무너지면 끝입니다.",
+      "익명 운영자의 신원 폭로, 핵심 인물 이탈, 자체 권력 집중 같은 사람과 관련된 리스크가 있었습니다. 메커니즘이 작동해도 운영 신뢰가 무너지면 끝입니다.",
     examples: ["TIME 의 0xSifu = M.Patryn", "여러 포크의 익명 팀 이슈"],
   },
 ];
@@ -338,7 +338,7 @@ export const LESSONS: Lesson[] = [
   {
     pattern: "P2, P6 차단",
     blackhavenDoes: "BAM, 자동, 양방향, 편차 비례, 쿨다운",
-    why: "OHM 이 수동으로 했던 inverse bond 를 자동, 양방향으로 확장했습니다. 시장가가 NAV 위로 폭주하면 즉시 매도하여 트레저리로 환류시키고, 아래로 빠지면 매수하여 소각합니다. 가격 폭주가 시작되기 전에 흡수합니다.",
+    why: "OHM 이 수동으로 했던 inverse bond 를 자동, 양방향으로 확장했습니다. 시장가가 NAV 위로 폭주하면 즉시 매도하여 트레저리로 환류하고, 아래로 빠지면 매수하여 소각합니다. 가격 폭주가 시작되기 전에 흡수합니다.",
   },
   {
     pattern: "P4 차단",
@@ -352,13 +352,13 @@ export const LESSONS: Lesson[] = [
   },
   {
     pattern: "P1, P2 보강",
-    blackhavenDoes: "본드 자본의 90퍼센트 트레저리, 10퍼센트 운영비 하드코딩",
-    why: "OHM 포크들이 DAO 운영비 명목으로 트레저리를 자의적으로 끌어 쓴 패턴을 차단합니다. 부트스트랩 단계에서는 100퍼센트 POL과 운영으로 명시적으로 분리됩니다.",
+    blackhavenDoes: "본드 자본의 90퍼센트 트레저리, 10퍼센트 운영자금 하드코딩",
+    why: "OHM 포크들이 DAO 운영자금 명목으로 트레저리를 자의적으로 끌어다 쓴 패턴을 차단합니다. 부트스트랩 단계에서는 100퍼센트 POL과 운영으로 명시적으로 분리됩니다.",
   },
   {
     pattern: "P2 보강",
-    blackhavenDoes: "TOS 에 redemption right 명시 부재",
-    why: "사용자가 RFV 직접 redemption 을 기대하지 않게 합니다. OHM 포크들의 백킹과 환매가의 환상을 사전에 제거합니다.",
+    blackhavenDoes: "TOS 에 redemption right 미명시",
+    why: "사용자가 RFV 직접 redemption 을 기대하지 않게 합니다. OHM 포크들의 '백킹이 곧 환매가'라는 환상을 사전에 제거합니다.",
   },
   {
     pattern: "P7 보강",

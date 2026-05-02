@@ -63,7 +63,7 @@ export default function SiteHeader() {
             >
               @c4lvin
             </a>
-            <span className="text-ink-600">·</span>
+            <span className="text-ink-600">,</span>
             <a
               href="https://4pillars.io"
               target="_blank"
