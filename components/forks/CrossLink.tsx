@@ -1,10 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import { useLocale } from "@/lib/locale-context";
 
 export default function CrossLink() {
+  const locale = useLocale();
   return (
     <section className="max-w-6xl mx-auto px-6 pb-20">
       <Link
-        href="/about"
+        href={`/${locale}/about`}
         className="card p-5 flex items-center justify-between gap-4 hover:border-signal/30 transition-colors"
       >
         <div>
@@ -13,7 +17,8 @@ export default function CrossLink() {
             그래서 Blackhaven 에서는 무엇을 플레이해야 할까요
           </div>
           <div className="mt-1 text-[12.5px] text-ink-300">
-            초단기, 초기, 중기 시간축의 메인 플레이와 자본 배분, 액션 시퀀스로 이동합니다.
+            초단기, 초기, 중기 시간축의 메인 플레이와 자본 배분, 액션 시퀀스로
+            이동합니다.
           </div>
         </div>
         <div className="text-[14px] text-ink-300 font-mono">{"->"}</div>

@@ -1,19 +1,6 @@
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
-import HomeHero from "@/components/home/HomeHero";
-import LaunchSnapshot from "@/components/LaunchSnapshot";
-import MarketDynamics from "@/components/MarketDynamics";
-import FairValue from "@/components/FairValue";
+import { redirect } from "next/navigation";
+import { DEFAULT_LOCALE } from "@/lib/i18n";
 
-export default function Page() {
-  return (
-    <main>
-      <SiteHeader />
-      <HomeHero />
-      <LaunchSnapshot />
-      <MarketDynamics />
-      <FairValue />
-      <SiteFooter />
-    </main>
-  );
+export default function RootPage() {
+  redirect(`/${DEFAULT_LOCALE}`);
 }

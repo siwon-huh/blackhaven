@@ -2,104 +2,158 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isLocale, Locale, LOCALES } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/locale-context";
+import { useTheme } from "@/lib/theme";
 
-const NAV = [
-  { href: "/", label: "Live" },
-  { href: "/about", label: "About" },
-  { href: "/playbook", label: "Playbook" },
-  { href: "/forks", label: "Forks" },
-  { href: "/risks", label: "Risks" },
+const NAV: Array<{ href: string; key: Parameters<ReturnType<typeof useT>>[0] }> = [
+  { href: "", key: "nav.live" },
+  { href: "/about", key: "nav.about" },
+  { href: "/playbook", key: "nav.playbook" },
+  { href: "/forks", key: "nav.forks" },
+  { href: "/risks", key: "nav.risks" },
 ];
 
 const LOGO_URL =
   "https://pbs.twimg.com/profile_images/2014565643828277248/tQJgxJPb_400x400.jpg";
 
+// 현재 path 에서 lang segment 를 분리합니다.
+function splitPath(path: string | null): { locale: Locale | null; rest: string } {
+  if (!path) return { locale: null, rest: "" };
+  const seg = path.split("/").filter(Boolean);
+  if (seg.length === 0) return { locale: null, rest: "" };
+  if (isLocale(seg[0])) {
+    return {
+      locale: seg[0] as Locale,
+      rest: seg.length > 1 ? "/" + seg.slice(1).join("/") : "",
+    };
+  }
+  return { locale: null, rest: path };
+}
+
 export default function SiteHeader() {
   const path = usePathname();
-  const current = (href: string) =>
-    href === "/" ? path === "/" : path?.startsWith(href);
+  const ctxLocale = useLocale();
+  const { theme, toggle } = useTheme();
+  const t = useT();
+
+  const { locale: pathLocale, rest } = splitPath(path);
+  const locale: Locale = pathLocale ?? ctxLocale;
+  const otherLocale: Locale = LOCALES.find((l) => l !== locale) ?? "ko";
+
+  const langPrefix = `/${locale}`;
+  const otherPrefix = `/${otherLocale}`;
+
+  const isCurrent = (rel: string) => {
+    if (rel === "") return rest === "" || rest === "/";
+    return rest.startsWith(rel);
+  };
+
   return (
-    <header className="sticky top-0 z-30 border-b hairline backdrop-blur bg-ink-950/85">
+    <header
+      className="sticky top-0 z-30 border-b backdrop-blur"
+      style={{
+        borderColor: "var(--line)",
+        background: "color-mix(in oklab, var(--bg) 85%, transparent)",
+      }}
+    >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-3 min-w-0">
+        <Link href={langPrefix} className="flex items-center gap-3 min-w-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={LOGO_URL}
             alt="Blackhaven"
             width={28}
             height={28}
-            className="h-7 w-7 rounded-md object-cover ring-1 ring-white/10"
+            className="h-7 w-7 rounded-md object-cover ring-1"
+            style={{ boxShadow: "0 0 0 1px var(--line)" }}
           />
           <div className="leading-tight min-w-0">
-            <div className="text-[14px] font-medium tracking-tight text-ink-50 truncate">
+            <div
+              className="text-[14px] font-medium tracking-tight truncate"
+              style={{ color: "var(--text-1)" }}
+            >
               Blackhaven
             </div>
-            <div className="text-[10.5px] text-ink-400 font-mono truncate">
-              Reserve-Backed Treasury, unofficial dashboard
+            <div
+              className="text-[10.5px] font-mono truncate"
+              style={{ color: "var(--text-3)" }}
+            >
+              {t("header.subtitle")}
             </div>
           </div>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6 text-[12.5px] text-ink-300">
+        <nav
+          className="hidden md:flex items-center gap-6 text-[12.5px]"
+          style={{ color: "var(--text-2)" }}
+        >
           {NAV.map((n) => (
             <Link
               key={n.href}
-              href={n.href}
-              className="nav-link hover:text-ink-50"
-              aria-current={current(n.href) ? "page" : undefined}
+              href={`${langPrefix}${n.href}`}
+              className="nav-link hover:text-[color:var(--text-1)]"
+              aria-current={isCurrent(n.href) ? "page" : undefined}
             >
-              {n.label}
+              {t(n.key)}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3 shrink-0">
-          <span className="hidden sm:flex items-center gap-2 text-[11px] text-ink-400 font-mono">
-            built by
-            <a
-              href="https://x.com/c4lvin"
-              target="_blank"
-              rel="noreferrer"
-              className="text-ink-50 underline underline-offset-4 decoration-ink-600 hover:decoration-ink-100"
-            >
-              @c4lvin
-            </a>
-            <span className="text-ink-600">,</span>
-            <a
-              href="https://4pillars.io"
-              target="_blank"
-              rel="noreferrer"
-              className="text-ink-300 hover:text-ink-50"
-            >
-              Four Pillars
-            </a>
-          </span>
+        <div className="flex items-center gap-2 shrink-0">
+          <Link
+            href={`${otherPrefix}${rest || ""}`}
+            className="px-2 py-1 rounded-md text-[11px] font-mono border transition-colors"
+            style={{
+              borderColor: "var(--line)",
+              color: "var(--text-2)",
+              background: "transparent",
+            }}
+            title={`Switch to ${otherLocale.toUpperCase()}`}
+          >
+            <span style={{ color: "var(--text-1)" }}>
+              {locale.toUpperCase()}
+            </span>
+            <span className="mx-1" style={{ color: "var(--text-4)" }}>
+              /
+            </span>
+            <span>{otherLocale.toUpperCase()}</span>
+          </Link>
+          <button
+            onClick={toggle}
+            className="px-2 py-1 rounded-md text-[11px] font-mono border transition-colors"
+            style={{
+              borderColor: "var(--line)",
+              color: "var(--text-2)",
+              background: "transparent",
+            }}
+            title={
+              theme === "dark"
+                ? "Switch to light mode"
+                : "Switch to dark mode"
+            }
+            aria-label="theme toggle"
+          >
+            {theme === "dark" ? "Light" : "Dark"}
+          </button>
         </div>
       </div>
 
       {/* Mobile nav */}
-      <div className="md:hidden border-t hairline px-6 py-2 flex items-center gap-5 text-[12px] text-ink-300 overflow-x-auto scrollbar-none">
+      <div
+        className="md:hidden border-t px-6 py-2 flex items-center gap-5 text-[12px] overflow-x-auto scrollbar-none"
+        style={{ borderColor: "var(--line)", color: "var(--text-2)" }}
+      >
         {NAV.map((n) => (
           <Link
             key={n.href}
-            href={n.href}
-            className="nav-link hover:text-ink-50 shrink-0"
-            aria-current={current(n.href) ? "page" : undefined}
+            href={`${langPrefix}${n.href}`}
+            className="nav-link hover:text-[color:var(--text-1)] shrink-0"
+            aria-current={isCurrent(n.href) ? "page" : undefined}
           >
-            {n.label}
+            {t(n.key)}
           </Link>
         ))}
-        <span className="ml-auto text-[10.5px] text-ink-500 font-mono shrink-0">
-          built by{" "}
-          <a
-            href="https://x.com/c4lvin"
-            target="_blank"
-            rel="noreferrer"
-            className="text-ink-200 underline underline-offset-4"
-          >
-            @c4lvin
-          </a>
-        </span>
       </div>
     </header>
   );

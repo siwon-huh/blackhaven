@@ -1,6 +1,10 @@
+"use client";
+
 import { AUDIT_FINDINGS } from "@/lib/risks";
+import { useT } from "@/lib/locale-context";
 
 export default function RisksHero() {
+  const t = useT();
   const counts = AUDIT_FINDINGS.reduce(
     (acc, f) => {
       acc[f.severity] = (acc[f.severity] ?? 0) + 1;
@@ -17,36 +21,60 @@ export default function RisksHero() {
       <div className="flex items-center gap-2 mb-6">
         <span className="chip">Risks</span>
       </div>
-      <h1 className="text-[48px] md:text-[64px] headline text-ink-50">
-        리스크
+      <h1
+        className="text-[48px] md:text-[64px] headline"
+        style={{ color: "var(--text-1)" }}
+      >
+        {t("risks.hero.title")}
       </h1>
-      <p className="mt-5 text-[15px] text-ink-300 max-w-xl">
-        오딧 finding, 프로토콜 리스크, 사용자 진입 시나리오.
+      <p
+        className="mt-5 text-[15px] max-w-xl"
+        style={{ color: "var(--text-2)" }}
+      >
+        {t("risks.hero.subtitle")}
       </p>
       <div className="mt-9 grid md:grid-cols-4 gap-px bg-white/5 rounded-xl overflow-hidden">
-        <div className="bg-ink-950 px-5 py-5">
-          <div className="eyebrow">Audit findings</div>
-          <div className="mt-1 text-[18px] font-medium text-ink-50">
-            {AUDIT_FINDINGS.length} 건
-          </div>
-        </div>
-        <div className="bg-ink-950 px-5 py-5">
-          <div className="eyebrow">Medium 등급</div>
-          <div className="mt-1 text-[18px] font-medium text-warn">
-            {counts.Medium ?? 0} 건
-          </div>
-        </div>
-        <div className="bg-ink-950 px-5 py-5">
-          <div className="eyebrow">Critical 또는 High</div>
-          <div className="mt-1 text-[18px] font-medium text-signal">0 건</div>
-        </div>
-        <div className="bg-ink-950 px-5 py-5">
-          <div className="eyebrow">수정 완료</div>
-          <div className="mt-1 text-[18px] font-medium text-ink-50">
-            {fixed} / {AUDIT_FINDINGS.length}
-          </div>
-        </div>
+        <Stat label={t("risks.hero.findings")} value={`${AUDIT_FINDINGS.length}`} />
+        <Stat
+          label={t("risks.hero.medium")}
+          value={`${counts.Medium ?? 0}`}
+          tone="warn"
+        />
+        <Stat
+          label={t("risks.hero.criticalHigh")}
+          value="0"
+          tone="signal"
+        />
+        <Stat
+          label={t("risks.hero.fixed")}
+          value={`${fixed} / ${AUDIT_FINDINGS.length}`}
+        />
       </div>
     </section>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "warn" | "signal";
+}) {
+  const color =
+    tone === "warn"
+      ? "var(--warn)"
+      : tone === "signal"
+        ? "var(--signal)"
+        : "var(--text-1)";
+  return (
+    <div className="px-5 py-5" style={{ background: "var(--surface)" }}>
+      <div className="eyebrow">{label}</div>
+      <div className="mt-1 text-[18px] font-medium" style={{ color }}>
+        {value}
+      </div>
+    </div>
   );
 }
