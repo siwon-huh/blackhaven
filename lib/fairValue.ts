@@ -39,6 +39,53 @@ export type FairValueModel = {
   maxBondDiscount: number;
 };
 
+// 진입 verdict — 시장가가 어느 구간에 있는지에 따른 권고.
+export type EntryZone = "undervalued" | "fair" | "bond-only" | "overvalued";
+
+export type EntryVerdict = {
+  zone: EntryZone;
+  label: string;
+  detail: string;
+  color: string;
+};
+
+export function entryVerdict(fv: FairValueModel): EntryVerdict {
+  if (fv.market <= fv.floor) {
+    return {
+      zone: "undervalued",
+      label: "저평가",
+      detail:
+        "시장가가 NAV 이하입니다. BAM 매수 윈도우가 열린 비대칭 진입 구간입니다.",
+      color: "#3DDC97",
+    };
+  }
+  if (fv.market <= fv.yieldFair) {
+    return {
+      zone: "fair",
+      label: "공정",
+      detail:
+        "Yield-adjusted Fair 이하입니다. 본드를 거치지 않고 스팟 매수가 합리적인 구간입니다.",
+      color: "#3DDC97",
+    };
+  }
+  if (fv.market <= fv.bondEffective) {
+    return {
+      zone: "bond-only",
+      label: "본드 권장",
+      detail:
+        "Bond Effective 이하입니다. 시장가 직매수보다 본드를 통한 진입이 효율적입니다.",
+      color: "#F4C756",
+    };
+  }
+  return {
+    zone: "overvalued",
+    label: "고평가",
+    detail:
+      "Bond Effective 위입니다. 본드도 비효율이며 다음 라운드를 기다리는 구간입니다.",
+    color: "#FF6A4A",
+  };
+}
+
 // 기본 가정 — 거버넌스나 데이터에 따라 갱신
 export const DEFAULT_PROTOCOL_FEE = 0.1; // Genesis Phase 1: 10% fee at bond issuance
 export const DEFAULT_FWD_STAKE_APR = 0.05; // 보수적 — 실제 stake reward rate 활성화 전

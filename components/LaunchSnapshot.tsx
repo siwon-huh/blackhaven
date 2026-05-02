@@ -1,6 +1,7 @@
 "use client";
 
 import { LAUNCH_SNAPSHOT, VERDICT_TONE } from "@/lib/launch";
+import { computeFairValue, entryVerdict, LIVE_BONDS } from "@/lib/fairValue";
 import { formatRelative, useLiveMetrics } from "@/lib/useLiveMetrics";
 
 const SIGNAL_TONE = {
@@ -22,7 +23,10 @@ const fmtCount = (n: number) =>
 
 export default function LaunchSnapshot() {
   const s = LAUNCH_SNAPSHOT;
-  const { remote, lastUpdated, loading, error } = useLiveMetrics(1_000);
+  const { remote, lastUpdated, loading, error, metrics } =
+    useLiveMetrics(1_000);
+  const fv = computeFairValue(metrics, LIVE_BONDS);
+  const verdict = entryVerdict(fv);
 
   const price = remote ? fmtUsd(remote.market.priceUSD) : s.metrics.price;
   const priceUSDm = remote
@@ -117,19 +121,37 @@ export default function LaunchSnapshot() {
         <div className="mt-7 grid md:grid-cols-[2fr_1.4fr_1fr] gap-px bg-white/5 rounded-xl overflow-hidden">
           <div className="bg-ink-950 px-6 py-6">
             <div className="flex items-center justify-between">
-              <div className="eyebrow">Market</div>
+              <div className="eyebrow">RBT Market Price</div>
               <span className="text-[10px] font-mono text-signal">live</span>
             </div>
-            <div className="mt-2 flex items-baseline gap-3">
+            <div className="mt-2 flex items-baseline gap-3 flex-wrap">
               <span className="text-[40px] font-medium tracking-tightest text-ink-50 mono-num">
                 {price}
               </span>
               <span className="text-[14px] text-ink-300 font-mono">
                 {priceUSDm}
               </span>
+              <span
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border"
+                style={{
+                  color: verdict.color,
+                  background: `${verdict.color}12`,
+                  borderColor: `${verdict.color}40`,
+                }}
+                title={verdict.detail}
+              >
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ background: verdict.color }}
+                />
+                {verdict.label}
+              </span>
             </div>
             <div className="mt-1 text-[12px] text-ink-400 font-mono">
               24h {delta24h}, 6h {delta6h}, 1h {delta1h}
+            </div>
+            <div className="mt-2 text-[11.5px] text-ink-300 leading-relaxed">
+              {verdict.detail}
             </div>
           </div>
           <div className="bg-ink-950 px-6 py-6">
