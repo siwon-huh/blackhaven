@@ -63,8 +63,14 @@ export default function LaunchSnapshot() {
     ? `${(remote.market.poolQuote / 1000).toFixed(2)}K USDm`
     : s.metrics.poolUSDm;
 
-  const navStatic = s.metrics.nav;
-  const navNumber = parseFloat(navStatic);
+  // NAV 는 onchain 응답이 있으면 라이브, 없으면 정적 fallback.
+  const navLive = remote?.onchain?.navUSDm;
+  const navNumber =
+    navLive && navLive > 0 ? navLive : parseFloat(s.metrics.nav);
+  const navDisplay = `${navNumber.toFixed(2)} USDm`;
+  const navIsLive = !!(navLive && navLive > 0);
+  const reservesUSDm = remote?.onchain?.reservesUSDm;
+  const totalSupplyRBT = remote?.onchain?.totalSupplyRBT;
   const livePriceUSDm = remote?.market.priceUSDm ?? 18.66;
   const premiumNum = (livePriceUSDm - navNumber) / navNumber;
   const premiumLabel = `${(premiumNum * 100).toFixed(1)}%`;
@@ -162,15 +168,24 @@ export default function LaunchSnapshot() {
           <div className="bg-ink-950 px-6 py-6">
             <div className="flex items-center justify-between">
               <div className="eyebrow text-signal">NAV</div>
-              <span className="text-[10px] font-mono text-ink-500">static</span>
+              <span
+                className="text-[10px] font-mono"
+                style={{
+                  color: navIsLive ? "var(--signal)" : "var(--text-3, #9AA0AB)",
+                }}
+              >
+                {navIsLive ? "live" : "static"}
+              </span>
             </div>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-[32px] font-medium tracking-tightest text-signal mono-num">
-                {navStatic}
+                {navDisplay}
               </span>
             </div>
             <div className="mt-1 text-[12px] text-ink-400 font-mono">
-              {s.metrics.navTreasury}
+              {navIsLive && reservesUSDm && totalSupplyRBT
+                ? `reserves $${(reservesUSDm / 1000).toFixed(1)}K / supply ${totalSupplyRBT.toFixed(0)} RBT`
+                : s.metrics.navTreasury}
             </div>
           </div>
           <div className="bg-ink-950 px-6 py-6">

@@ -24,17 +24,20 @@ const fmtUsdK = (n: number) =>
   n >= 1_000_000
     ? `$${(n / 1_000_000).toFixed(2)}M`
     : `$${(n / 1_000).toFixed(0)}K`;
-const fmtPct = (n: number) =>
-  `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
+const fmtPct = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
 
 export default function MarketDynamics() {
   const live = useLiveMetrics(1_000);
   const bond = useBondMetrics(1_000);
   const commit = useCommitMetrics(1_000);
 
-  const navStatic = parseFloat(LAUNCH_SNAPSHOT.metrics.nav); // 5.23
+  // NAV 는 onchain 응답이 있으면 라이브, 없으면 정적 fallback.
+  const navLive = live.remote?.onchain?.navUSDm;
+  const navIsLive = !!(navLive && navLive > 0);
+  const nav = navIsLive ? navLive! : parseFloat(LAUNCH_SNAPSHOT.metrics.nav);
   const market = live.metrics.marketPriceUSDm || 0;
-  const premiumMult = market > 0 ? market / navStatic : 0;
+  const premiumMult = market > 0 ? market / nav : 0;
+  const reservesUSDm = live.remote?.onchain?.reservesUSDm ?? null;
 
   const buys24 = live.remote?.flow.buys24h ?? 0;
   const sells24 = live.remote?.flow.sells24h ?? 0;
@@ -42,8 +45,7 @@ export default function MarketDynamics() {
   const delta1h = live.remote?.delta.h1 ?? 0;
 
   const bondTotalUSDm = bond.snapshot.totalTVLUSDm;
-  const bondOutstandingRBT =
-    market > 0 ? bondTotalUSDm / market : 0;
+  const bondOutstandingRBT = market > 0 ? bondTotalUSDm / market : 0;
 
   const stakeTVL = commit.snapshot?.stake.tvlUSD ?? 42_050;
   const fdv = live.remote?.market.fdvUSD ?? 1_160_000;
@@ -56,14 +58,16 @@ export default function MarketDynamics() {
       return {
         strength: "strong",
         tone: "signal",
-        reason: "Premium 이 큰 상태에서 본드 inflow 도 빠릅니다. BAM 위쪽 매도와 신규 본드가 함께 reserves 를 빠르게 채우는 중.",
+        reason:
+          "Premium 이 큰 상태에서 본드 inflow 도 빠릅니다. BAM 위쪽 매도와 신규 본드가 함께 reserves 를 빠르게 채우는 중.",
       };
     }
     if (bondTotalUSDm > 150_000) {
       return {
         strength: "moderate",
         tone: "signal",
-        reason: "본드 풀에 의미있는 자본이 누적 중입니다. NAV 가 안정적으로 추격합니다.",
+        reason:
+          "본드 풀에 의미있는 자본이 누적 중입니다. NAV 가 안정적으로 추격합니다.",
       };
     }
     return {
@@ -222,8 +226,9 @@ export default function MarketDynamics() {
               어떤 움직임이 보여야 RBT 가 오를까
             </h2>
             <p className="mt-2 text-[13px] text-ink-300 max-w-2xl leading-relaxed">
-              가격은{" "}
-              <span className="text-ink-50">NAV × Premium 배수</span> 로 분해됩니다. NAV 펌프와 매도 압력, 락업 비율, 본드 만기 wave 네 가지 동력을 1초 단위로 갱신합니다.
+              가격은 <span className="text-ink-50">NAV × Premium 배수</span> 로
+              분해됩니다. NAV 펌프와 매도 압력, 락업 비율, 본드 만기 wave 네
+              가지 동력을 1초 단위로 갱신합니다.
             </p>
           </div>
           <span className="text-[10.5px] text-ink-500 font-mono">
@@ -236,7 +241,7 @@ export default function MarketDynamics() {
             label="NAV Pump"
             value={STRENGTH_LABEL[navPump.strength]}
             tone={navPump.tone}
-            sub={`본드 풀 합계 ${fmtUsdK(bondTotalUSDm)}, Premium ${premiumMult.toFixed(2)}×`}
+            sub={`NAV ${nav.toFixed(2)} USDm${reservesUSDm ? `, reserves ${fmtUsdK(reservesUSDm)}` : ""}, Premium ${premiumMult.toFixed(2)}×`}
             detail={navPump.reason}
             sourceLabel={bond.snapshot.source}
           />
@@ -272,10 +277,7 @@ export default function MarketDynamics() {
           className="mt-6 card-2 p-5"
           style={{ borderColor: `${TONE_COLOR[outlook.tone]}30` }}
         >
-          <div
-            className="eyebrow"
-            style={{ color: TONE_COLOR[outlook.tone] }}
-          >
+          <div className="eyebrow" style={{ color: TONE_COLOR[outlook.tone] }}>
             진단, {outlook.label}
           </div>
           <p className="mt-2 text-[13.5px] text-ink-100 leading-relaxed">
@@ -294,9 +296,7 @@ export default function MarketDynamics() {
                   borderColor: t.done
                     ? "rgba(61,220,151,0.3)"
                     : "rgba(255,255,255,0.06)",
-                  background: t.done
-                    ? "rgba(61,220,151,0.05)"
-                    : undefined,
+                  background: t.done ? "rgba(61,220,151,0.05)" : undefined,
                 }}
               >
                 <span
@@ -306,9 +306,7 @@ export default function MarketDynamics() {
                     borderColor: t.done
                       ? "rgba(61,220,151,0.5)"
                       : "rgba(255,255,255,0.15)",
-                    background: t.done
-                      ? "rgba(61,220,151,0.1)"
-                      : "transparent",
+                    background: t.done ? "rgba(61,220,151,0.1)" : "transparent",
                   }}
                 >
                   {t.done ? "✓" : ""}
@@ -327,7 +325,10 @@ export default function MarketDynamics() {
         </div>
 
         <p className="mt-5 text-[11px] text-ink-400 leading-relaxed">
-          NAV 자체는 정적 fallback (앱 Metrics 페이지 수기 sync) 이라 NAV 가 천천히 차오르는 추세 자체는 이 패널에서 직접 측정되지 않습니다. 시그널은 본드 onchain 잔액과 dexscreener 라이브 데이터, Stake 정적 TVL 의 조합으로 추정합니다.
+          NAV 자체는 정적 fallback (앱 Metrics 페이지 수기 sync) 이라 NAV 가
+          천천히 차오르는 추세 자체는 이 패널에서 직접 측정되지 않습니다.
+          시그널은 본드 onchain 잔액과 dexscreener 라이브 데이터, Stake 정적 TVL
+          의 조합으로 추정합니다.
         </p>
       </div>
     </section>

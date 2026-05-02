@@ -28,6 +28,11 @@ export type RemoteMetrics = {
     txns24h: number;
   };
   delta: { h24: number; h6: number; h1: number; m5: number };
+  onchain: {
+    reservesUSDm: number;
+    totalSupplyRBT: number;
+    navUSDm: number;
+  } | null;
 };
 
 export type LiveState = {
@@ -66,13 +71,27 @@ export function useLiveMetrics(intervalMs: number = 1_000): LiveState {
         if (cancelled) return;
         setState((prev) => ({
           metrics: {
-            ...prev.metrics, // NAV/reserves는 정적 유지
+            ...prev.metrics,
             marketPriceUSDm:
               remote.market.priceUSDm || prev.metrics.marketPriceUSDm,
             liquidityUSD:
               remote.market.liquidityUSD || prev.metrics.liquidityUSD,
             poolRBT: remote.market.poolBase || prev.metrics.poolRBT,
             poolUSDm: remote.market.poolQuote || prev.metrics.poolUSDm,
+            // NAV / reserves / supply 는 onchain 응답이 있으면 라이브로 갱신
+            reservesPerRBT:
+              remote.onchain?.navUSDm && remote.onchain.navUSDm > 0
+                ? remote.onchain.navUSDm
+                : prev.metrics.reservesPerRBT,
+            circulatingRBT:
+              remote.onchain?.totalSupplyRBT &&
+              remote.onchain.totalSupplyRBT > 0
+                ? remote.onchain.totalSupplyRBT
+                : prev.metrics.circulatingRBT,
+            totalReservesUSDm:
+              remote.onchain?.reservesUSDm && remote.onchain.reservesUSDm > 0
+                ? remote.onchain.reservesUSDm
+                : prev.metrics.totalReservesUSDm,
             capturedAt: remote.capturedAt,
             source: remote.source,
           },
