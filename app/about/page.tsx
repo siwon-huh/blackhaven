@@ -3,6 +3,7 @@ import SiteFooter from "@/components/SiteFooter";
 import AboutHero from "@/components/about/AboutHero";
 import FlowDiagram from "@/components/about/FlowDiagram";
 import MechanicsCards from "@/components/about/MechanicsCards";
+import Contracts from "@/components/about/Contracts";
 
 export const metadata = {
   title: "About · Blackhaven",
@@ -16,6 +17,7 @@ export default function AboutPage() {
       <AboutHero />
       <FlowDiagram />
       <MechanicsCards />
+      <Contracts />
       <SiteFooter />
     </main>
   );
