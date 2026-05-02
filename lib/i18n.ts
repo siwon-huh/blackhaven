@@ -104,7 +104,7 @@ const ko: Dict = {
   "forks.hero.stat.drawdown.label": "평균 드로우다운",
   "forks.hero.stat.drawdown.value": "약 −98%",
   "playbook.section.eyebrow": "Playbook",
-  "playbook.section.heading": "사용자가 어떤 플레이를 할 수 있는가",
+  "playbook.section.heading": "어떤 플레이를 할 수 있을까",
   "playbook.section.intro":
     "시간축 하나만 고르면 그 시기의 메인 플레이와 보조 플레이, 자본 배분, 주차별 액션, 정지 신호까지 한 화면에 정리합니다.",
   "playbook.scenario.selected": "selected",

@@ -154,12 +154,12 @@ const SCENARIOS: ScenarioDefinition[] = [
     tagline: { ko: "Launch Week", en: "Day 0 to 7" },
     window: { ko: "0~7일", en: "0~7d" },
     state: {
-      ko: "메인넷 출시 직후 7일의 윈도우입니다. 30일 본드 디스카운트가 가장 두껍게 표시되어 있고, BAM 은 시동 단계라 NAV 이탈 폭이 큽니다. Stake 와 Commit 은 활성화되었지만 reward 곡선이 정착되기 전 구간입니다.",
-      en: "The 7-day window right after mainnet launch. The 30-day bond discount is at its widest, BAM is still spinning up so deviation from NAV runs large. Stake and Commit are live but the reward curve has not stabilized yet.",
+      ko: "메인넷 출시 직후 7일의 윈도우입니다. 30일 본드 디스카운트가 가장 두껍게 표시되어 있고, BAM 은 시동 단계라 NAV 이탈 폭이 큽니다. Stake 는 활성화되어 있지만 Commit 은 available yield 가 채워지기 전이라 아직 라이브되지 않았습니다. Commit 이 라이브되는 시점이 트리거입니다.",
+      en: "The 7-day window right after mainnet launch. The 30-day bond discount is at its widest, BAM is still spinning up so deviation from NAV runs large. Stake is live, but Commit is not yet live, it waits for available yield to fill. The moment Commit goes live is the trigger.",
     },
     ifPickThis: {
-      ko: "회전이 아니라 시드 포지션을 한 번에 잡습니다. 30일 본드 진입과 Stake 후 Commit 셋업, 시장가 매수까지 첫 주 안에 끝내고 다음 시간축에서 회수합니다.",
-      en: "Build a seed position once, not on a rotation. Finish the 30-day bond entry, the Stake plus Commit setup, and the spot buy within the first week, and harvest in the next horizon.",
+      ko: "회전이 아니라 시드 포지션을 한 번에 잡습니다. 30일 본드 진입과 Stake 까지 첫 주 안에 끝내고, Commit 은 라이브되는 즉시 약정해 다음 시간축에서 회수합니다.",
+      en: "Build a seed position once, not on a rotation. Finish the 30-day bond entry and Stake within the first week, and commit the moment Commit goes live so you can harvest in the next horizon.",
     },
     hero: {
       badge: {
@@ -184,8 +184,12 @@ const SCENARIOS: ScenarioDefinition[] = [
           en: "Commit the 30-day bond when the displayed discount is above its running average. 90% of USDm goes to treasury, 10% to operations.",
         },
         {
-          ko: "베스팅이 시작되면 받는 RBT 를 다음 시간축에서 Stake 와 Commit 으로 굴립니다.",
-          en: "Once vesting starts, roll the received RBT into Stake and Commit in the next horizon.",
+          ko: "베스팅이 시작되면 받는 RBT 를 우선 Stake 로 sRBT 화합니다. Commit 은 라이브 전이라 sRBT 만 확보해 둡니다.",
+          en: "Once vesting starts, stake the received RBT into sRBT first. Commit is not yet live, so just hold sRBT in reserve.",
+        },
+        {
+          ko: "Commit 페이지에서 available yield 가 채워져 라이브되는 즉시 24주 슬라이더로 sRBT 를 약정합니다.",
+          en: "The moment Commit goes live (available yield is filled), commit the staged sRBT for 24 weeks.",
         },
         {
           ko: "30일 본드 만기 도래 시 즉시 클레임합니다.",
@@ -206,25 +210,29 @@ const SCENARIOS: ScenarioDefinition[] = [
     extras: [
       {
         badge: {
-          ko: "2순위, Stake 후 Commit 셋업",
-          en: "2nd pick, Stake then Commit setup",
+          ko: "2순위, Stake 우선, Commit 라이브 시 즉시 약정",
+          en: "2nd pick, Stake first, commit the moment Commit goes live",
         },
         title: {
-          ko: "활성 commit 으로 본드 디스카운트 가속",
-          en: "Active commit accelerates bond discount",
+          ko: "Commit 라이브 트리거 대기",
+          en: "Wait for the Commit-live trigger",
         },
         why: {
-          ko: "활성 commit 은 같은 주에 약정하는 본드의 디스카운트를 가산합니다. 보유 RBT 를 sRBT 로 stake 한 뒤 Commit 슬라이더에서 24주 (앱에서 reward 가 약 15.8퍼센트로 표시되는 두꺼운 구간) 로 약정합니다. 만기 곡선과 cap 같은 매개변수는 docs 에 거버넌스 재량으로만 명시되어 있어 앱 슬라이더 표시값이 기준입니다.",
-          en: "An active commit adds to the discount on bonds committed in the same week. Stake your RBT to sRBT and set the Commit slider to 24 weeks (the deep band where the app shows ~15.8% reward). Curve and cap parameters are governance-discretionary in the docs, so the app slider readings are the reference.",
+          ko: "Commit 은 available yield 가 채워질 때까지 라이브되지 않습니다. 그동안에는 RBT 를 미리 sRBT 로 stake 해 두고 Commit 페이지에서 라이브 여부를 매일 확인합니다. 라이브되는 즉시 24주 슬라이더 (앱에서 reward 가 약 15.8 퍼센트로 표시되는 두꺼운 구간) 로 약정해야 활성 commit 가 본드 디스카운트에 가산됩니다. 만기 곡선과 cap 같은 매개변수는 docs 에 거버넌스 재량으로만 명시되어 있어 앱 슬라이더 표시값이 기준입니다.",
+          en: "Commit stays inactive until available yield fills. While you wait, stake RBT into sRBT in advance and check the Commit page daily for the live state. The moment it goes live, set the slider to 24 weeks (where the app shows ~15.8% reward, the deep band) so the active commit can stack on bond discounts. Curve and cap parameters are governance-discretionary in the docs, so the app slider readings are the reference.",
         },
         steps: [
           {
-            ko: "보유 RBT 를 Stake 페이지에서 sRBT 로 교환합니다.",
-            en: "Convert your RBT to sRBT on the Stake page.",
+            ko: "보유 RBT 를 Stake 페이지에서 sRBT 로 교환합니다 (지금 가능).",
+            en: "Convert your RBT to sRBT on the Stake page (available now).",
           },
           {
-            ko: "Commit 페이지에서 sRBT 를 24주 슬라이더로 설정하고 Commit 을 실행합니다.",
-            en: "Set the Commit slider to 24 weeks on the Commit page and execute.",
+            ko: "Commit 페이지의 available yield 와 라이브 상태를 매일 점검합니다.",
+            en: "Check the Commit page for available yield and live state daily.",
+          },
+          {
+            ko: "Commit 이 라이브되는 즉시 sRBT 를 24주 슬라이더로 설정하고 Commit 을 실행합니다.",
+            en: "The moment Commit goes live, set the slider to 24 weeks and execute the commit.",
           },
           {
             ko: "활성 commit 상태에서 본드를 약정하면 추가 디스카운트가 자동 적용됩니다.",
@@ -236,12 +244,12 @@ const SCENARIOS: ScenarioDefinition[] = [
           },
         ],
         reward: {
-          ko: "Commit 24주 약 15.8퍼센트의 RBT 분배와 본드 추가 디스카운트가 결합되어 시드 베이스라인을 만듭니다.",
-          en: "About 15.8% RBT distribution at 24-week commit, combined with the bond bonus discount, creates the seed baseline.",
+          ko: "Commit 24주 약 15.8퍼센트의 RBT 분배와 본드 추가 디스카운트가 결합되어 시드 베이스라인을 만듭니다. Commit 라이브 시점에 가장 먼저 진입한 자본일수록 분배 큐 위치가 유리합니다.",
+          en: "About 15.8% RBT distribution at 24-week commit combined with the bond bonus discount creates the seed baseline. Capital that enters at the moment Commit goes live gets a better queue position in the distribution.",
         },
         loss: {
-          ko: "Commit 자본은 약정 기간 동안 회수가 어렵습니다. 중도 해지 페널티가 docs 에 명시되어 있습니다.",
-          en: "Committed capital is hard to recover during the lock. The early-exit penalty is documented.",
+          ko: "Commit 자본은 약정 기간 동안 회수가 어렵습니다. 중도 해지 페널티가 docs 에 명시되어 있습니다. 또한 Commit 라이브 일정은 거버넌스 재량이므로 늦어질 수 있습니다.",
+          en: "Committed capital is hard to recover during the lock. The early-exit penalty is documented. Also, the Commit-live schedule is governance-discretionary and can slip.",
         },
         apr: { ko: "12 ~ 25퍼센트", en: "12 ~ 25%" },
         effort: "moderate",
@@ -348,8 +356,16 @@ const SCENARIOS: ScenarioDefinition[] = [
       {
         week: "D1~3",
         action: {
-          ko: "보유 RBT 가 있다면 Stake 후 24주 Commit 으로 셋업해 활성 상태로 만듭니다.",
-          en: "If you hold RBT, set up Stake then 24-week Commit to activate the bonus state.",
+          ko: "보유 RBT 를 Stake 로 sRBT 화해 둡니다. Commit 은 available yield 가 채워지기 전이라 라이브 여부를 매일 점검합니다.",
+          en: "Stake any held RBT into sRBT. Commit is not live yet (available yield is still filling), so check the Commit page daily for live state.",
+        },
+        tag: "commit",
+      },
+      {
+        week: "Commit live",
+        action: {
+          ko: "Commit 이 라이브되는 즉시 sRBT 를 24주 슬라이더로 약정합니다. 라이브 트리거가 가장 중요한 분배 큐 진입 시점입니다.",
+          en: "The moment Commit goes live, commit the staged sRBT for 24 weeks. The live trigger is the most important entry point for the distribution queue.",
         },
         tag: "commit",
       },
@@ -380,6 +396,10 @@ const SCENARIOS: ScenarioDefinition[] = [
         en: "If bond pool TVL drops below 20× your capital (you would exceed 5% of the pool), switch tenor or split your capital.",
       },
       {
+        ko: "Commit 라이브가 2 주 이상 지연되면 sRBT 보유분을 일부 Stake 만 유지하고 일부는 시장 매도 기회를 검토합니다. 분배 큐 진입의 시간 가치가 줄어듭니다.",
+        en: "If Commit-live is delayed for more than 2 weeks, keep part of the sRBT in Stake and consider selling another part. The time value of getting an early queue position shrinks.",
+      },
+      {
         ko: "Commit 분배 곡선이 거버넌스로 축소되거나 신규 commit 이 정지되면 시드 자본을 본드 또는 현금으로 재배치합니다.",
         en: "If the Commit distribution curve is reduced by governance or new commits are paused, reallocate seed capital to bonds or cash.",
       },
@@ -396,8 +416,8 @@ const SCENARIOS: ScenarioDefinition[] = [
     tagline: { ko: "Compounding Lane", en: "Week 1 to month 6" },
     window: { ko: "1주 ~ 6개월", en: "1w ~ 6mo" },
     state: {
-      ko: "출시 첫 주 이후의 구간입니다. 본드와 Commit 매개변수가 안정화되고, HVN TGE 가 발생하며, RBT 가 외부 lending 에 담보로 화이트리스트됩니다. BAM 이 활발하게 양방향으로 작동하고, 비본드 매출 비중이 30퍼센트 안팎까지 상승합니다.",
-      en: "The window after launch week. Bond and Commit parameters stabilize, the HVN TGE happens, and RBT gets whitelisted as collateral on external lending. BAM is actively running both sides, and non-bond revenue share climbs to around 30%.",
+      ko: "출시 첫 주 이후의 구간입니다. 본드와 Commit 매개변수가 안정화되고, HVN TGE 가 발생하며, RBT 가 외부 lending 에 담보로 화이트리스트됩니다. BAM 이 활발하게 양방향으로 작동하고, 비본드 매출 비중이 30퍼센트 안팎까지 상승합니다. 이 시간축의 hero 는 Commit 이 라이브된 이후를 가정합니다, 라이브 전이라면 T0 에 머무르며 Stake 만 미리 셋업해 둡니다.",
+      en: "The window after launch week. Bond and Commit parameters stabilize, the HVN TGE happens, and RBT gets whitelisted as collateral on external lending. BAM is actively running both sides, and non-bond revenue share climbs to around 30%. This horizon's hero assumes Commit has gone live; if it has not yet, stay in T0 and pre-stage with Stake.",
     },
     ifPickThis: {
       ko: "활성 commit 과 본드 약정을 묶는 콤보가 핵심입니다. 동시에 시장가의 4-layer 위치를 보고 매수와 매도 트레이딩으로 RBT 를 굴립니다.",
@@ -525,7 +545,10 @@ const SCENARIOS: ScenarioDefinition[] = [
         effort: "hard",
       },
       {
-        badge: { ko: "4순위, RBT 셀프 레버", en: "4th pick, RBT self-leverage" },
+        badge: {
+          ko: "4순위, RBT 셀프 레버",
+          en: "4th pick, RBT self-leverage",
+        },
         title: {
           ko: "RBT 담보로 USDm 차입 후 본드",
           en: "Borrow USDm against RBT, then bond",
@@ -699,7 +722,10 @@ const SCENARIOS: ScenarioDefinition[] = [
         ko: "1순위, 52주 Commit 과 30일 본드 회전",
         en: "Top pick, 52-week Commit plus 30-day bond rotation",
       },
-      title: { ko: "장기 코어와 단기 회전", en: "Long-term core, short-term rotation" },
+      title: {
+        ko: "장기 코어와 단기 회전",
+        en: "Long-term core, short-term rotation",
+      },
       why: {
         ko: "이 단계에서는 짧은 본드의 디스카운트가 거의 0 에 수렴합니다. 거버넌스로 더 긴 만기 본드가 도입되지 않은 상태에서는 30일 본드의 잔존 디스카운트로 회전하고, 코어 자본은 현재 앱의 최대 commit 인 52주 슬라이더로 잠가 가장 가파른 분배 곡선을 확보합니다.",
         en: "Short bond discounts have converged to near zero. Until governance adds longer tenors, rotate on the residual 30-day bond discount and lock core capital with the current 52-week max Commit for the steepest distribution curve.",
@@ -735,7 +761,10 @@ const SCENARIOS: ScenarioDefinition[] = [
     },
     extras: [
       {
-        badge: { ko: "2순위, Cross-protocol RBT", en: "2nd pick, Cross-protocol RBT" },
+        badge: {
+          ko: "2순위, Cross-protocol RBT",
+          en: "2nd pick, Cross-protocol RBT",
+        },
         title: {
           ko: "RBT 를 워킹 캐피탈로 굴리기",
           en: "Use RBT as working capital",

@@ -107,6 +107,31 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
+          <span
+            className="hidden md:inline-flex items-center gap-1 text-[10.5px] font-mono mr-1 pr-3 border-r"
+            style={{ color: "var(--text-4)", borderColor: "var(--line)" }}
+          >
+            <span>{t("footer.builtBy")}</span>
+            <a
+              href="https://x.com/c4lvin"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-[color:var(--text-1)] underline underline-offset-4"
+              style={{ color: "var(--text-2)" }}
+            >
+              @c4lvin
+            </a>
+            <span>,</span>
+            <a
+              href="https://4pillars.io"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-[color:var(--text-1)]"
+              style={{ color: "var(--text-2)" }}
+            >
+              Four Pillars
+            </a>
+          </span>
           <Link
             href={`${otherPrefix}${rest || ""}`}
             className="px-2 py-1 rounded-md text-[11px] font-mono border transition-colors"
@@ -158,6 +183,30 @@ export default function SiteHeader() {
             {t(n.key)}
           </Link>
         ))}
+      </div>
+      <div
+        className="md:hidden border-t px-6 py-1.5 text-[10.5px] font-mono"
+        style={{ borderColor: "var(--line)", color: "var(--text-4)" }}
+      >
+        <span>{t("footer.builtBy")} </span>
+        <a
+          href="https://x.com/c4lvin"
+          target="_blank"
+          rel="noreferrer"
+          className="underline underline-offset-4"
+          style={{ color: "var(--text-2)" }}
+        >
+          @c4lvin
+        </a>
+        <span>, </span>
+        <a
+          href="https://4pillars.io"
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: "var(--text-2)" }}
+        >
+          Four Pillars
+        </a>
       </div>
     </header>
   );

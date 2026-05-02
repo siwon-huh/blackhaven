@@ -54,31 +54,9 @@ export default function SiteFooter() {
         </div>
 
         <div
-          className="mt-8 pt-6 border-t flex flex-wrap items-center justify-between gap-3 text-[11.5px]"
+          className="mt-8 pt-6 border-t text-right text-[11.5px]"
           style={{ borderColor: "var(--line)", color: "var(--text-4)" }}
         >
-          <span>
-            {t("footer.builtBy")}{" "}
-            <a
-              href="https://x.com/c4lvin"
-              target="_blank"
-              rel="noreferrer"
-              className="underline underline-offset-4"
-              style={{ color: "var(--text-2)" }}
-            >
-              @c4lvin
-            </a>
-            , {t("footer.researcherAt")}{" "}
-            <a
-              href="https://4pillars.io"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:underline underline-offset-4"
-              style={{ color: "var(--text-2)" }}
-            >
-              Four Pillars
-            </a>
-          </span>
           <span className="font-mono">
             {t("footer.unofficial")}, © {t("footer.protocol")}
           </span>
