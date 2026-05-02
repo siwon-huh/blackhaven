@@ -8,6 +8,7 @@ const NAV = [
   { href: "/about", label: "About" },
   { href: "/playbook", label: "Playbook" },
   { href: "/forks", label: "Forks" },
+  { href: "/risks", label: "Risks" },
 ];
 
 const LOGO_URL =
