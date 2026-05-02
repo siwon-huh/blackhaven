@@ -240,19 +240,61 @@ export default function LaunchSnapshot() {
           </div>
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-3 text-[11.5px]">
+        <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-[11.5px]">
           <SubMetric
             label="Stake TVL"
-            value={
-              commitLive.snapshot
-                ? `$${(commitLive.snapshot.stake.tvlUSD / 1000).toFixed(1)}K`
-                : s.metrics.stakeTVL
-            }
-            sub={
-              commitLive.snapshot?.source === "onchain"
+            value={(() => {
+              const backingRBT = commitLive.snapshot?.stake.backingRBT;
+              if (
+                backingRBT !== undefined &&
+                backingRBT > 0 &&
+                livePriceUSDm > 0
+              ) {
+                const usd = backingRBT * livePriceUSDm;
+                return usd >= 1000
+                  ? `$${(usd / 1000).toFixed(1)}K`
+                  : `$${usd.toFixed(0)}`;
+              }
+              return s.metrics.stakeTVL;
+            })()}
+            sub={(() => {
+              const backingRBT = commitLive.snapshot?.stake.backingRBT;
+              if (backingRBT !== undefined && backingRBT > 0) {
+                return `${backingRBT.toFixed(0)} RBT staked`;
+              }
+              return commitLive.snapshot?.source === "onchain"
                 ? "onchain"
-                : "static, manual sync"
+                : "static, manual sync";
+            })()}
+            live={
+              commitLive.snapshot?.source === "onchain" &&
+              (commitLive.snapshot?.stake.backingRBT ?? 0) > 0
             }
+          />
+          <SubMetric
+            label="Commit TVL"
+            value={(() => {
+              const tvlSRBT = commitLive.snapshot?.commit.tvlSRBT;
+              if (
+                tvlSRBT !== null &&
+                tvlSRBT !== undefined &&
+                tvlSRBT > 0 &&
+                livePriceUSDm > 0
+              ) {
+                const usd = tvlSRBT * livePriceUSDm;
+                return usd >= 1000
+                  ? `$${(usd / 1000).toFixed(1)}K`
+                  : `$${usd.toFixed(0)}`;
+              }
+              return "—";
+            })()}
+            sub={(() => {
+              const tvlSRBT = commitLive.snapshot?.commit.tvlSRBT;
+              if (tvlSRBT !== null && tvlSRBT !== undefined && tvlSRBT > 0) {
+                return `${tvlSRBT.toFixed(0)} sRBT locked`;
+              }
+              return "no commits";
+            })()}
             live={commitLive.snapshot?.source === "onchain"}
           />
           <SubMetric
@@ -273,10 +315,9 @@ export default function LaunchSnapshot() {
         </div>
 
         <div className="mt-3 text-[11px] text-ink-400 leading-relaxed">
-          본드별 권장 max 는 풀 깊이 (TVL) 의 5퍼센트입니다. 그 이상이 들어가면
-          디스카운트가 빠르게 잠식되고, shallow 등급 (TVL ≤ $50K) 풀은 작은 자본
-          외에는 비효율입니다. 현재는 정적 fallback 이며 컨트랙트 주소 확보 시
-          자동 라이브로 전환됩니다.
+          본드 풀, Stake, Commit 모두 onchain 라이브입니다. 본드별 권장 max 는
+          풀 깊이의 5퍼센트로 그 이상 들어가면 디스카운트가 빠르게 잠식되고,
+          shallow 등급 (TVL ≤ $50K) 풀은 작은 자본 외에는 비효율입니다.
         </div>
 
         {/* Signals + Live priority */}

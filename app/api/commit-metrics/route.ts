@@ -1,6 +1,5 @@
-// Commit 컨트랙트 메트릭.
-// commit 자체는 sRBT 를 lock 하는 컨트랙트라, 정확한 commit TVL 을 보려면 sRBT 토큰 주소가 필요합니다.
-// 현재는 정적 fallback 응답이며, sRBT 주소가 lib/contracts.ts:SRBT_TOKEN 에 채워지면 onchain fetch 로 자동 전환됩니다.
+// Commit 컨트랙트 메트릭 (RBTNote 가 보유한 sRBT 합계 = commit lock 자본).
+// sRBT.balanceOf(RBTNote) 로 onchain 라이브.
 
 import { NextResponse } from "next/server";
 import { createPublicClient, http, erc20Abi, defineChain } from "viem";
@@ -10,21 +9,18 @@ import {
   MEGAETH_RPC,
   RBT_TOKEN,
   SRBT_TOKEN,
+  STAKE_CONTRACT,
 } from "@/lib/contracts";
 
 export const dynamic = "force-dynamic";
 
-const STATIC_STAKE_TVL_USD = 42_050;
 const STATIC_COMMIT_24W_REWARD = 0.158;
-const STATIC_COMMIT_TVL_SRBT: number | null = null;
 
 const megaeth = defineChain({
   id: MEGAETH_CHAIN_ID,
   name: "MegaETH",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: { http: [MEGAETH_RPC] },
-  },
+  rpcUrls: { default: { http: [MEGAETH_RPC] } },
 });
 
 const client = createPublicClient({
@@ -33,47 +29,51 @@ const client = createPublicClient({
 });
 
 export async function GET() {
-  const fallback = (reason?: string) =>
-    NextResponse.json({
-      ok: true,
-      stake: { tvlUSD: STATIC_STAKE_TVL_USD },
-      commit: {
-        tvlSRBT: STATIC_COMMIT_TVL_SRBT,
-        reward24w: STATIC_COMMIT_24W_REWARD,
-      },
-      capturedAt: new Date().toISOString(),
-      source: "static",
-      reason: reason ?? "no live source available",
-    });
-
-  // sRBT 주소가 알려지지 않은 경우 정적 fallback
-  if (!SRBT_TOKEN) {
-    return fallback("sRBT address not configured");
-  }
-
   try {
-    const lockedSRBT = (await client.readContract({
-      address: SRBT_TOKEN as `0x${string}`,
-      abi: erc20Abi,
-      functionName: "balanceOf",
-      args: [COMMIT_CONTRACT as `0x${string}`],
-    })) as bigint;
+    // 병렬 호출:
+    // 1) sRBT.balanceOf(RBTNote) — commit 락된 sRBT 합계
+    // 2) sRBT.totalSupply() — 전체 sRBT 발행량 (= 전체 stake 합계)
+    // 3) RBT.balanceOf(sRBT) — sRBT 컨트랙트가 보유하는 RBT (stake 자본)
+    // 4) RBT.balanceOf(RBTNote) — commit 컨트랙트가 reward 풀로 보유하는 RBT
+    const [committedSRBT, totalSRBT, stakeRBT, commitRewardPoolRBT] =
+      await Promise.all([
+        client.readContract({
+          address: SRBT_TOKEN as `0x${string}`,
+          abi: erc20Abi,
+          functionName: "balanceOf",
+          args: [COMMIT_CONTRACT as `0x${string}`],
+        }) as Promise<bigint>,
+        client.readContract({
+          address: SRBT_TOKEN as `0x${string}`,
+          abi: erc20Abi,
+          functionName: "totalSupply",
+        }) as Promise<bigint>,
+        client.readContract({
+          address: RBT_TOKEN as `0x${string}`,
+          abi: erc20Abi,
+          functionName: "balanceOf",
+          args: [SRBT_TOKEN as `0x${string}`],
+        }) as Promise<bigint>,
+        client.readContract({
+          address: RBT_TOKEN as `0x${string}`,
+          abi: erc20Abi,
+          functionName: "balanceOf",
+          args: [COMMIT_CONTRACT as `0x${string}`],
+        }) as Promise<bigint>,
+      ]);
 
-    const SRBT_DECIMALS = 18;
-    const tvlSRBT = Number(lockedSRBT) / 10 ** SRBT_DECIMALS;
-
-    // RBT.balanceOf(commit) — commit 이 reward 분배용으로 보유 중인 RBT
-    const rewardRBT = (await client.readContract({
-      address: RBT_TOKEN as `0x${string}`,
-      abi: erc20Abi,
-      functionName: "balanceOf",
-      args: [COMMIT_CONTRACT as `0x${string}`],
-    })) as bigint;
-    const rewardPoolRBT = Number(rewardRBT) / 10 ** 18;
+    const fac = 1e18;
+    const tvlSRBT = Number(committedSRBT) / fac;
+    const totalStakeSRBT = Number(totalSRBT) / fac;
+    const stakeBackingRBT = Number(stakeRBT) / fac;
+    const rewardPoolRBT = Number(commitRewardPoolRBT) / fac;
 
     return NextResponse.json({
       ok: true,
-      stake: { tvlUSD: STATIC_STAKE_TVL_USD },
+      stake: {
+        totalSRBT: totalStakeSRBT,
+        backingRBT: stakeBackingRBT,
+      },
       commit: {
         tvlSRBT,
         reward24w: STATIC_COMMIT_24W_REWARD,
@@ -81,11 +81,24 @@ export async function GET() {
       },
       capturedAt: new Date().toISOString(),
       source: "onchain",
+      addresses: {
+        srbt: SRBT_TOKEN,
+        rbtnote: COMMIT_CONTRACT,
+        stake: STAKE_CONTRACT,
+      },
       reference: {
-        formula: "tvlSRBT = sRBT.balanceOf(commit), rewardPoolRBT = RBT.balanceOf(commit)",
+        formula:
+          "tvlSRBT = sRBT.balanceOf(RBTNote), totalSRBT = sRBT.totalSupply, stakeBackingRBT = RBT.balanceOf(sRBT)",
       },
     });
   } catch (e) {
-    return fallback(e instanceof Error ? e.message : "fetch failed");
+    return NextResponse.json({
+      ok: true,
+      stake: { totalSRBT: 0, backingRBT: 0 },
+      commit: { tvlSRBT: null, reward24w: STATIC_COMMIT_24W_REWARD },
+      capturedAt: new Date().toISOString(),
+      source: "static",
+      reason: e instanceof Error ? e.message : "fetch failed",
+    });
   }
 }

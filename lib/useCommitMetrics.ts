@@ -4,11 +4,15 @@ import { useEffect, useRef, useState } from "react";
 
 export type CommitSnapshot = {
   ok: boolean;
-  stake: { tvlUSD: number };
+  stake: {
+    totalSRBT?: number; // sRBT.totalSupply (전체 stake 합계)
+    backingRBT?: number; // RBT.balanceOf(sRBT) (stake 가 잠근 RBT 자본)
+    tvlUSD?: number; // legacy fallback
+  };
   commit: {
-    tvlSRBT: number | null;
+    tvlSRBT: number | null; // sRBT.balanceOf(RBTNote) (commit 락 자본)
     reward24w: number;
-    rewardPoolRBT?: number;
+    rewardPoolRBT?: number; // RBT.balanceOf(RBTNote) (reward pool)
   };
   capturedAt: string;
   source: "static" | "onchain";
