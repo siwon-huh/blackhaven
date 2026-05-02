@@ -6,7 +6,10 @@ import { isLocale, Locale, LOCALES } from "@/lib/i18n";
 import { useLocale, useT } from "@/lib/locale-context";
 import { useTheme } from "@/lib/theme";
 
-const NAV: Array<{ href: string; key: Parameters<ReturnType<typeof useT>>[0] }> = [
+const NAV: Array<{
+  href: string;
+  key: Parameters<ReturnType<typeof useT>>[0];
+}> = [
   { href: "", key: "nav.live" },
   { href: "/about", key: "nav.about" },
   { href: "/playbook", key: "nav.playbook" },
@@ -18,7 +21,10 @@ const LOGO_URL =
   "https://pbs.twimg.com/profile_images/2014565643828277248/tQJgxJPb_400x400.jpg";
 
 // 현재 path 에서 lang segment 를 분리합니다.
-function splitPath(path: string | null): { locale: Locale | null; rest: string } {
+function splitPath(path: string | null): {
+  locale: Locale | null;
+  rest: string;
+} {
   if (!path) return { locale: null, rest: "" };
   const seg = path.split("/").filter(Boolean);
   if (seg.length === 0) return { locale: null, rest: "" };
@@ -121,20 +127,18 @@ export default function SiteHeader() {
           </Link>
           <button
             onClick={toggle}
-            className="px-2 py-1 rounded-md text-[11px] font-mono border transition-colors"
+            className="w-8 h-8 grid place-items-center rounded-md border transition-colors text-[14px]"
             style={{
               borderColor: "var(--line)",
-              color: "var(--text-2)",
+              color: "var(--text-1)",
               background: "transparent",
             }}
             title={
-              theme === "dark"
-                ? "Switch to light mode"
-                : "Switch to dark mode"
+              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
             }
             aria-label="theme toggle"
           >
-            {theme === "dark" ? "Light" : "Dark"}
+            {theme === "dark" ? "☀" : "🌙"}
           </button>
         </div>
       </div>

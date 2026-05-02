@@ -2,41 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ink scale 은 라이트/다크 모드에서 inversion 됩니다.
+   다크 모드: ink-50 = 흰색 텍스트, ink-950 = 검은 배경
+   라이트 모드: ink-50 = 어두운 텍스트, ink-950 = 흰색 배경
+*/
 :root,
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #06070A;
-  --surface: #0C0E12;
-  --surface-2: #15171C;
-  --line: rgba(255, 255, 255, 0.06);
-  --line-strong: rgba(255, 255, 255, 0.1);
-  --text-1: #F4F5F7;
-  --text-2: #C9CDD4;
-  --text-3: #9AA0AB;
-  --text-4: #6E7480;
-  --signal: #3DDC97;
-  --warn: #F4C756;
-  --critical: #FF6A4A;
-  --signal-soft: rgba(61, 220, 151, 0.06);
-  --warn-soft: rgba(244, 199, 86, 0.06);
+  --ink-0: 255 255 255;
+  --ink-50: 244 245 247;
+  --ink-100: 231 233 237;
+  --ink-200: 201 205 212;
+  --ink-300: 154 160 171;
+  --ink-400: 110 116 128;
+  --ink-500: 77 82 91;
+  --ink-600: 54 58 66;
+  --ink-700: 35 38 44;
+  --ink-800: 21 23 28;
+  --ink-900: 12 14 18;
+  --ink-950: 6 7 10;
+
+  --signal-rgb: 61 220 151;
+  --signal-soft-rgb: 61 220 151;
+  --signal-line-rgb: 61 220 151;
+  --warn-rgb: 244 199 86;
+  --warn-soft-rgb: 244 199 86;
+  --warn-line-rgb: 244 199 86;
+  --critical-rgb: 255 106 74;
+  --critical-soft-rgb: 255 106 74;
+  --critical-line-rgb: 255 106 74;
+
+  --bg: rgb(var(--ink-950));
+  --surface: rgb(var(--ink-900));
+  --surface-2: rgb(var(--ink-800));
+  --line: rgb(var(--ink-200) / 0.06);
+  --line-strong: rgb(var(--ink-200) / 0.1);
+  --text-1: rgb(var(--ink-50));
+  --text-2: rgb(var(--ink-200));
+  --text-3: rgb(var(--ink-300));
+  --text-4: rgb(var(--ink-400));
+  --signal: rgb(var(--signal-rgb));
+  --warn: rgb(var(--warn-rgb));
+  --critical: rgb(var(--critical-rgb));
+  --signal-soft: rgb(var(--signal-rgb) / 0.06);
+  --warn-soft: rgb(var(--warn-rgb) / 0.06);
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #FAFBFC;
-  --surface: #FFFFFF;
-  --surface-2: #F4F5F7;
-  --line: rgba(0, 0, 0, 0.08);
-  --line-strong: rgba(0, 0, 0, 0.14);
-  --text-1: #0C0E12;
-  --text-2: #23262C;
-  --text-3: #4D525B;
-  --text-4: #6E7480;
-  --signal: #16a374;
-  --warn: #B8860B;
-  --critical: #C43A1F;
-  --signal-soft: rgba(22, 163, 116, 0.08);
-  --warn-soft: rgba(184, 134, 11, 0.08);
+  /* ink scale 을 inversion. dark 의 ink-50 (밝은 텍스트) 가 light 의 어두운 텍스트로. */
+  --ink-0: 6 7 10;
+  --ink-50: 12 14 18;
+  --ink-100: 21 23 28;
+  --ink-200: 35 38 44;
+  --ink-300: 77 82 91;
+  --ink-400: 110 116 128;
+  --ink-500: 154 160 171;
+  --ink-600: 201 205 212;
+  --ink-700: 231 233 237;
+  --ink-800: 244 245 247;
+  --ink-900: 250 251 252;
+  --ink-950: 255 255 255;
+
+  /* accent 는 라이트 배경에서 가독성 좋은 톤으로 약간 어둡게 */
+  --signal-rgb: 22 163 116;
+  --warn-rgb: 184 134 11;
+  --critical-rgb: 196 58 31;
+
+  --bg: rgb(var(--ink-950));
+  --surface: rgb(var(--ink-900));
+  --surface-2: rgb(var(--ink-800));
+  --line: rgb(0 0 0 / 0.08);
+  --line-strong: rgb(0 0 0 / 0.14);
+  --text-1: rgb(var(--ink-50));
+  --text-2: rgb(var(--ink-200));
+  --text-3: rgb(var(--ink-300));
+  --text-4: rgb(var(--ink-400));
+  --signal: rgb(var(--signal-rgb));
+  --warn: rgb(var(--warn-rgb));
+  --critical: rgb(var(--critical-rgb));
+  --signal-soft: rgb(var(--signal-rgb) / 0.08);
+  --warn-soft: rgb(var(--warn-rgb) / 0.08);
 }
 
 html,
@@ -91,20 +137,20 @@ body {
   font-weight: 500;
   letter-spacing: 0;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgb(var(--ink-200) / 0.02);
   color: var(--text-2);
 }
 
 .chip-signal {
-  border-color: rgba(61, 220, 151, 0.3);
+  border-color: rgb(var(--signal-rgb) / 0.3);
   color: var(--signal);
-  background: rgba(61, 220, 151, 0.06);
+  background: rgb(var(--signal-rgb) / 0.06);
 }
 
 .chip-warn {
-  border-color: rgba(244, 199, 86, 0.3);
+  border-color: rgb(var(--warn-rgb) / 0.3);
   color: var(--warn);
-  background: rgba(244, 199, 86, 0.06);
+  background: rgb(var(--warn-rgb) / 0.06);
 }
 
 /* mono helpers */
@@ -143,7 +189,7 @@ body {
 
 /* monochrome accents */
 .gradient-text {
-  background: linear-gradient(180deg, #FFFFFF 0%, #C9CDD4 100%);
+  background: linear-gradient(180deg, var(--text-1) 0%, var(--text-3) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -151,7 +197,7 @@ body {
 
 /* nav active */
 .nav-link[aria-current="page"] {
-  color: #FFFFFF;
+  color: var(--text-1);
 }
 
 .nav-link[aria-current="page"]::after {
@@ -159,7 +205,7 @@ body {
   display: block;
   height: 1px;
   margin-top: 4px;
-  background: #FFFFFF;
+  background: var(--text-1);
 }
 
 /* utilities */
@@ -191,7 +237,15 @@ body {
 /* hide focus ring on mouse, keep on keyboard */
 :focus { outline: none; }
 :focus-visible {
-  outline: 1px solid rgba(255, 255, 255, 0.4);
+  outline: 1px solid rgb(var(--ink-300) / 0.4);
   outline-offset: 2px;
   border-radius: 6px;
+}
+
+/* bg-white/* alpha 가 라이트 모드에서 안 보이는 문제 보정 */
+:root[data-theme="light"] .bg-white\/5 {
+  background-color: rgb(0 0 0 / 0.04) !important;
+}
+:root[data-theme="light"] .bg-white\/10 {
+  background-color: rgb(0 0 0 / 0.06) !important;
 }

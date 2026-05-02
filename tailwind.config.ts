@@ -1,5 +1,10 @@
 import type { Config } from "tailwindcss";
 
+// Ink 색은 CSS variable 기반 RGB 로 정의해 라이트/다크 모드에서 자동 inversion 됩니다.
+// signal / warn / critical 도 동일 패턴.
+const ink = (k: string) => `rgb(var(--ink-${k}) / <alpha-value>)`;
+const accent = (k: string) => `rgb(var(--${k}-rgb) / <alpha-value>)`;
+
 const config: Config = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,56 +14,57 @@ const config: Config = {
     extend: {
       colors: {
         ink: {
-          0: "#FFFFFF",
-          50: "#F4F5F7",
-          100: "#E7E9ED",
-          200: "#C9CDD4",
-          300: "#9AA0AB",
-          400: "#6E7480",
-          500: "#4D525B",
-          600: "#363A42",
-          700: "#23262C",
-          800: "#15171C",
-          900: "#0C0E12",
-          950: "#06070A",
+          0: ink("0"),
+          50: ink("50"),
+          100: ink("100"),
+          200: ink("200"),
+          300: ink("300"),
+          400: ink("400"),
+          500: ink("500"),
+          600: ink("600"),
+          700: ink("700"),
+          800: ink("800"),
+          900: ink("900"),
+          950: ink("950"),
         },
         signal: {
-          DEFAULT: "#3DDC97",
-          soft: "#3DDC9720",
-          line: "#3DDC9740",
+          DEFAULT: accent("signal"),
+          soft: accent("signal-soft"),
+          line: accent("signal-line"),
         },
         warn: {
-          DEFAULT: "#F4C756",
-          soft: "#F4C75620",
-          line: "#F4C75640",
+          DEFAULT: accent("warn"),
+          soft: accent("warn-soft"),
+          line: accent("warn-line"),
         },
         critical: {
-          DEFAULT: "#FF6A4A",
-          soft: "#FF6A4A20",
-          line: "#FF6A4A40",
+          DEFAULT: accent("critical"),
+          soft: accent("critical-soft"),
+          line: accent("critical-line"),
         },
+        // legacy aliases (compat with components that still reference these names)
         mist: {
-          50: "#F4F5F7",
-          100: "#E7E9ED",
-          200: "#C9CDD4",
-          300: "#9AA0AB",
-          400: "#6E7480",
-          500: "#4D525B",
+          50: ink("50"),
+          100: ink("100"),
+          200: ink("200"),
+          300: ink("300"),
+          400: ink("400"),
+          500: ink("500"),
         },
         jade: {
-          400: "#3DDC97",
-          500: "#1FB87A",
+          400: accent("signal"),
+          500: accent("signal"),
         },
         amber: {
-          400: "#F4C756",
+          400: accent("warn"),
         },
         ember: {
-          400: "#FF8A4C",
-          500: "#FF6A4A",
+          400: accent("critical"),
+          500: accent("critical"),
         },
         violet: {
-          400: "#9AA0AB",
-          500: "#6E7480",
+          400: ink("300"),
+          500: ink("400"),
         },
       },
       fontFamily: {
@@ -71,21 +77,17 @@ const config: Config = {
           "Roboto",
           "sans-serif",
         ],
-        mono: [
-          "ui-monospace",
-          "SFMono-Regular",
-          "Menlo",
-          "monospace",
-        ],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       letterSpacing: {
         tightest: "-0.04em",
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(255,255,255,0.04), 0 8px 30px rgba(0,0,0,0.35)",
-        ring: "inset 0 0 0 1px rgba(255,255,255,0.06)",
+        glow:
+          "0 0 0 1px rgb(var(--ink-200) / 0.04), 0 8px 30px rgb(var(--ink-950) / 0.35)",
+        ring: "inset 0 0 0 1px rgb(var(--ink-200) / 0.06)",
         accent:
-          "0 0 0 1px rgba(61,220,151,0.15), 0 8px 30px rgba(61,220,151,0.06)",
+          "0 0 0 1px rgb(var(--signal-rgb) / 0.15), 0 8px 30px rgb(var(--signal-rgb) / 0.06)",
       },
     },
   },
