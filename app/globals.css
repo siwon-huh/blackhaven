@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: radial-gradient(1100px 600px at 8% -10%, rgba(124, 107, 255, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 95% 10%, rgba(255, 106, 31, 0.14), transparent 60%),
+    linear-gradient(180deg, #06070A 0%, #0B0D12 100%);
+  background-attachment: fixed;
+  color: #E6EAF1;
+}
+
+body {
+  font-feature-settings: "ss01", "cv02", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+}
+
+.hairline {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #C9D1DE;
+}
+
+.kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: #9AA4B5;
+}
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; }
+
+.gradient-text {
+  background: linear-gradient(90deg, #fff 0%, #C9D1DE 60%, #9C8CFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
