@@ -207,12 +207,12 @@ export default function FairValue() {
               />
             ))}
 
-            {/* Range from Floor to Market filled subtly */}
+            {/* Spectrum baseline: 0 → rightmost layer value */}
             <div
               className="absolute top-1/2 h-px -translate-y-1/2 bg-white/15"
               style={{
-                left: `${xPct(fv.floor)}%`,
-                width: `${xPct(fv.market) - xPct(fv.floor)}%`,
+                left: '0%',
+                width: `${xPct(Math.max(...layers.map((l) => l.value)))}%`,
               }}
             />
 
