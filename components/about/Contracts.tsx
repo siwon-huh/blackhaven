@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   ADMIN_EOA,
+  AMEG_USDM_TOKEN,
   BACKING_CALCULATOR,
   BAM_CONTRACT,
   BOND_CONTRACTS,
@@ -68,6 +69,15 @@ const SECTIONS: Section[] = [
         description: {
           ko: "MegaUSD. 외부 스테이블코인이며 본드 약정과 트레저리 backing 의 단위 자산입니다.",
           en: "MegaUSD. External stablecoin, the unit of account for bond commits and treasury backing.",
+        },
+        certainty: "verified",
+      },
+      {
+        name: "aMegUSDm (Aave)",
+        address: AMEG_USDM_TOKEN,
+        description: {
+          ko: "Aave MegaETH 마켓의 이자 발생 wrapped USDm. 트레저리는 USDm reserves 의 대부분을 여기에 예치해 보유합니다. underlying 1:1 redeem 보장 + 누적 이자가 붙으므로 라이브 reserves 계산은 USDm + aMegUSDm 합산입니다.",
+          en: "Interest-bearing wrapped USDm from the Aave MegaETH market. Treasury holds most of its USDm reserves here. Always 1:1 redeemable for the underlying with accrued interest, so live reserves are computed as USDm + aMegUSDm balances summed.",
         },
         certainty: "verified",
       },
@@ -186,8 +196,8 @@ const SECTIONS: Section[] = [
         name: "Treasury (backingStorage)",
         address: TREASURY_CONTRACT,
         description: {
-          ko: "본드 USDm 의 90퍼센트가 누적되는 backing 컨트랙트입니다. BackingCalculator 의 backingStorage() 호출과 일치합니다.",
-          en: "The backing contract where 90% of bond USDm accumulates. Matches BackingCalculator's backingStorage() call.",
+          ko: "본드 USDm 의 90퍼센트가 누적되는 backing 컨트랙트입니다. BackingCalculator 의 backingStorage() 호출과 일치합니다. 현재 reserves 의 대부분은 Aave MegaETH 마켓에 예치되어 aMegUSDm 형태로 보유 중입니다.",
+          en: "The backing contract where 90% of bond USDm accumulates. Matches BackingCalculator's backingStorage() call. Most reserves currently sit in the Aave MegaETH market as aMegUSDm.",
         },
         certainty: "verified",
       },

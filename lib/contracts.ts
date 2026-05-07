@@ -12,6 +12,13 @@ export const SRBT_TOKEN = "0x52117400f0815c1a3d4652111ac15fbb557b2277";
 // USDm (MegaUSD, ERC20). 외부 토큰.
 export const USDM_TOKEN = "0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7";
 
+// aMegUSDm (Aave 이자 발생 wrapped USDm, ERC20).
+// 트레저리가 USDm 을 Aave MegaETH 마켓에 예치하고 받은 aToken 으로,
+// underlying 은 항상 1:1 redeem 보장 + 누적 이자가 붙습니다.
+// 첫 예치 tx: 0xaff0b0212b73cfeb71630b3833c247b0356846e62119f1e65482809ea3eb7594
+export const AMEG_USDM_TOKEN =
+  "0x5dF82810CB4B8f3e0Da3c031cCc9208ee9cF9500";
+
 // ===== 코어 컴포넌트 (audit 보고서 명시) =====
 // BackingCalculator: NAV(), FDV(), mNAV(), singleNAV(token) view 함수 제공.
 // multi-token backing 도 정확히 합산해 주는 진정한 라이브 NAV 소스.

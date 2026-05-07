@@ -1,7 +1,8 @@
 // 시장 + 온체인 메트릭 server fetch.
 // 1) dexscreener: 시장가, 유동성, 거래 흐름
 // 2) onchain (viem):
-//    - USDm.balanceOf(TREASURY_CONTRACT) → 라이브 reserves
+//    - USDm.balanceOf(TREASURY) + aMegUSDm.balanceOf(TREASURY) → 라이브 reserves
+//      (트레저리가 USDm 일부를 Aave 에 예치해 aMegUSDm 형태로 보유. 1:1 redeem 보장 + 이자 누적)
 //    - RBT.totalSupply() → 라이브 circulating supply
 //    - NAV = reserves / totalSupply
 //
@@ -12,6 +13,7 @@
 import { NextResponse } from "next/server";
 import { createPublicClient, http, erc20Abi, defineChain } from "viem";
 import {
+  AMEG_USDM_TOKEN,
   KUMBAYA_PAIR,
   MEGAETH_CHAIN_ID,
   MEGAETH_RPC,
@@ -110,9 +112,15 @@ async function fetchOnchain(): Promise<OnchainSnapshot | null> {
 
   const p = (async (): Promise<OnchainSnapshot | null> => {
     try {
-      const [reservesRaw, supplyRaw] = await Promise.all([
+      const [usdmRaw, aUsdmRaw, supplyRaw] = await Promise.all([
         client.readContract({
           address: USDM_TOKEN as `0x${string}`,
+          abi: erc20Abi,
+          functionName: "balanceOf",
+          args: [TREASURY_CONTRACT as `0x${string}`],
+        }) as Promise<bigint>,
+        client.readContract({
+          address: AMEG_USDM_TOKEN as `0x${string}`,
           abi: erc20Abi,
           functionName: "balanceOf",
           args: [TREASURY_CONTRACT as `0x${string}`],
@@ -123,7 +131,7 @@ async function fetchOnchain(): Promise<OnchainSnapshot | null> {
           functionName: "totalSupply",
         }) as Promise<bigint>,
       ]);
-      const reserves = Number(reservesRaw) / 1e18;
+      const reserves = Number(usdmRaw + aUsdmRaw) / 1e18;
       const supply = Number(supplyRaw) / 1e18;
       const nav = supply > 0 ? reserves / supply : 0;
       const data = {
