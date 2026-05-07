@@ -102,10 +102,6 @@ export const OHM_TLDR: LocaleString[] = [
     ko: "OHM 이 수동으로 했던 inverse bond 는 BAM 이 자동, 양방향으로 처리합니다. 사용자는 NAV 근처 매수만 신경 쓰면 됩니다.",
     en: "BAM handles, automatically and on both sides, the inverse bond OHM did manually. Users only need to focus on buying near NAV.",
   },
-  {
-    ko: "OHM 은 토큰 하나가 자산과 거버넌스를 겸했지만, 여기서는 RBT (자산) 와 HVN (거버넌스) 가 분리됩니다. 거버넌스 플레이만 따로 잡을 수 있습니다.",
-    en: "OHM bundled asset and governance into one token. Here, RBT (asset) and HVN (governance) are separated, so the governance play can be sized independently.",
-  },
 ];
 
 export type Play = {
@@ -416,8 +412,8 @@ const SCENARIOS: ScenarioDefinition[] = [
     tagline: { ko: "Compounding Lane", en: "Week 1 to month 6" },
     window: { ko: "1주 ~ 6개월", en: "1w ~ 6mo" },
     state: {
-      ko: "출시 첫 주 이후의 구간입니다. 본드와 Commit 매개변수가 안정화되고, HVN TGE 가 발생하며, RBT 가 외부 lending 에 담보로 화이트리스트됩니다. BAM 이 활발하게 양방향으로 작동하고, 비본드 매출 비중이 30퍼센트 안팎까지 상승합니다. 이 시간축의 hero 는 Commit 이 라이브된 이후를 가정합니다, 라이브 전이라면 T0 에 머무르며 Stake 만 미리 셋업해 둡니다.",
-      en: "The window after launch week. Bond and Commit parameters stabilize, the HVN TGE happens, and RBT gets whitelisted as collateral on external lending. BAM is actively running both sides, and non-bond revenue share climbs to around 30%. This horizon's hero assumes Commit has gone live; if it has not yet, stay in T0 and pre-stage with Stake.",
+      ko: "출시 첫 주 이후의 구간입니다. 본드와 Commit 매개변수가 안정화되고, RBT 가 외부 lending 에 담보로 화이트리스트됩니다. BAM 이 활발하게 양방향으로 작동하고, 비본드 매출 비중이 30퍼센트 안팎까지 상승합니다. 이 시간축의 hero 는 Commit 이 라이브된 이후를 가정합니다, 라이브 전이라면 T0 에 머무르며 Stake 만 미리 셋업해 둡니다.",
+      en: "The window after launch week. Bond and Commit parameters stabilize, and RBT gets whitelisted as collateral on external lending. BAM is actively running both sides, and non-bond revenue share climbs to around 30%. This horizon's hero assumes Commit has gone live; if it has not yet, stay in T0 and pre-stage with Stake.",
     },
     ifPickThis: {
       ko: "활성 commit 과 본드 약정을 묶는 콤보가 핵심입니다. 동시에 시장가의 4-layer 위치를 보고 매수와 매도 트레이딩으로 RBT 를 굴립니다.",
@@ -509,45 +505,9 @@ const SCENARIOS: ScenarioDefinition[] = [
         effort: "moderate",
       },
       {
-        badge: { ko: "3순위, HVN TGE 시드", en: "3rd pick, HVN TGE seed" },
-        title: { ko: "거버넌스 토큰 진입", en: "Enter the governance token" },
-        why: {
-          ko: "HVN 은 LP 수수료, BAM 스프레드, 트레저리 잉여의 거버넌스 처분권입니다. 바이백 발표가 가격 트리거이고, 초기 분배가 가장 두껍습니다.",
-          en: "HVN is the governance right over LP fees, BAM spread, and treasury surplus. Buyback announcements are the price trigger, and the initial distribution is the thickest.",
-        },
-        steps: [
-          {
-            ko: "TGE 자격 조건을 확인합니다. Commit 보유와 본드 누적이 자격 요건일 가능성이 높습니다.",
-            en: "Check TGE eligibility. Commit holdings and cumulative bonds are likely qualifiers.",
-          },
-          {
-            ko: "TGE 직후 풀 깊이가 얕을 때 진입합니다.",
-            en: "Enter right after TGE while pool depth is still shallow.",
-          },
-          {
-            ko: "거버넌스 포럼에서 바이백 일정과 수수료 분배 안건을 모니터링합니다.",
-            en: "Monitor buyback schedule and fee distribution proposals on the governance forum.",
-          },
-          {
-            ko: "바이백 발표 약 2주 전 비중을 확대합니다.",
-            en: "Increase weight roughly 2 weeks before a buyback announcement.",
-          },
-        ],
-        reward: {
-          ko: "초기 평가와 바이백 라운드의 시장가 점프가 결합되어 마이너스 50퍼센트에서 플러스 200퍼센트의 비대칭 구조를 만듭니다.",
-          en: "Initial valuation plus buyback-round price jumps creates an asymmetric range from -50% to +200%.",
-        },
-        loss: {
-          ko: "거버넌스 토큰은 항상 실패할 수 있습니다. 자본의 20퍼센트를 상한으로 둡니다.",
-          en: "Governance tokens can always fail. Cap exposure at 20% of capital.",
-        },
-        apr: { ko: "−50 ~ +200퍼센트", en: "-50 ~ +200%" },
-        effort: "hard",
-      },
-      {
         badge: {
-          ko: "4순위, RBT 셀프 레버",
-          en: "4th pick, RBT self-leverage",
+          ko: "3순위, RBT 셀프 레버",
+          en: "3rd pick, RBT self-leverage",
         },
         title: {
           ko: "RBT 담보로 USDm 차입 후 본드",
@@ -590,22 +550,17 @@ const SCENARIOS: ScenarioDefinition[] = [
     allocation: [
       {
         label: { ko: "Commit 과 본드 콤보", en: "Commit and bond combo" },
-        share: 45,
+        share: 50,
         color: "#7C6BFF",
       },
       {
         label: { ko: "RBT 매수/매도 사이클", en: "RBT buy/sell cycle" },
-        share: 20,
+        share: 25,
         color: "#F4C756",
       },
       {
-        label: { ko: "HVN 거버넌스 시드", en: "HVN governance seed" },
-        share: 15,
-        color: "#9C8CFF",
-      },
-      {
         label: { ko: "RBT 셀프 레버", en: "RBT self-leverage" },
-        share: 10,
+        share: 15,
         color: "#3DDC97",
       },
       {
@@ -644,22 +599,6 @@ const SCENARIOS: ScenarioDefinition[] = [
         action: {
           ko: "Live verdict 가 저평가 또는 공정으로 떨어지면 시장가 매수, 본드 권장 위로 회복하면 1차 익절을 진행합니다.",
           en: "Buy spot when the Live verdict drops to undervalued or fair; take first profit when it recovers above bond-only.",
-        },
-        tag: "trade",
-      },
-      {
-        week: "M2~3",
-        action: {
-          ko: "HVN TGE 자격을 점검하고 진입을 준비합니다.",
-          en: "Check HVN TGE eligibility and prepare to enter.",
-        },
-        tag: "watch",
-      },
-      {
-        week: "TGE",
-        action: {
-          ko: "HVN 시드에 진입합니다. 풀 깊이가 얕을 때를 활용합니다.",
-          en: "Enter the HVN seed. Use the early shallow-pool window.",
         },
         tag: "trade",
       },
@@ -710,8 +649,8 @@ const SCENARIOS: ScenarioDefinition[] = [
     tagline: { ko: "Reserve Layer Capture", en: "Month 6 to 18" },
     window: { ko: "6 ~ 18개월", en: "6 ~ 18mo" },
     state: {
-      ko: "Blackhaven 이 MegaETH 의 reserve layer 로 자리잡습니다. 짧은 본드 디스카운트는 거의 0 에 수렴하고, 가치는 거버넌스와 RBT 의 cross-protocol 활용에서 발생합니다. HVN 의 첫 정식 바이백 라운드가 진행됩니다. 더 긴 만기 본드와 Commit 곡선이 거버넌스로 도입될 수 있는 구간이며, 본문에서 명시한 만기는 현재 앱 옵션을 기준으로 합니다.",
-      en: "Blackhaven settles in as the reserve layer of MegaETH. Short bond discounts converge to near zero, and value comes from governance and cross-protocol use of RBT. HVN's first formal buyback round runs. Longer-tenor bonds and Commit curves may be introduced by governance; tenors mentioned here reflect current app options.",
+      ko: "Blackhaven 이 MegaETH 의 reserve layer 로 자리잡습니다. 짧은 본드 디스카운트는 거의 0 에 수렴하고, 가치는 RBT 의 cross-protocol 활용과 트레저리 잉여에서 발생합니다. 더 긴 만기 본드와 Commit 곡선이 거버넌스로 도입될 수 있는 구간이며, 본문에서 명시한 만기는 현재 앱 옵션을 기준으로 합니다.",
+      en: "Blackhaven settles in as the reserve layer of MegaETH. Short bond discounts converge to near zero, and value comes from cross-protocol use of RBT and treasury surplus. Longer-tenor bonds and Commit curves may be introduced by governance; tenors mentioned here reflect current app options.",
     },
     ifPickThis: {
       ko: "디스카운트 사냥은 끝났습니다. 52주 Commit 으로 코어 포지션을 잡고, RBT 를 cross-protocol 워킹 캐피탈로 굴립니다.",
@@ -802,48 +741,6 @@ const SCENARIOS: ScenarioDefinition[] = [
         apr: { ko: "25 ~ 60퍼센트", en: "25 ~ 60%" },
         effort: "hard",
       },
-      {
-        badge: {
-          ko: "3순위, HVN 거버넌스와 바이백 사이클",
-          en: "3rd pick, HVN governance and buyback cycle",
-        },
-        title: {
-          ko: "거버넌스 영향력으로 수익화",
-          en: "Monetize governance influence",
-        },
-        why: {
-          ko: "이 단계의 트레저리는 거버넌스가 처분할 수 있습니다. HVN 은 의사결정권이자 바이백 시 가격 점프 트리거입니다. 거버넌스 일정에 맞춘 포지션 빌드가 핵심입니다.",
-          en: "At this stage, the treasury is governance-disposable. HVN is both decision power and a buyback-driven price-jump trigger. Building position around the governance calendar is key.",
-        },
-        steps: [
-          {
-            ko: "HVN 을 일정 비중으로 누적하고 활성 위임을 설정합니다.",
-            en: "Accumulate HVN to a target weight and set up active delegation.",
-          },
-          {
-            ko: "분기 거버넌스 어젠다에 맞춰 곡선과 수수료, 바이백 표결에 참여합니다.",
-            en: "Vote on curve, fee, and buyback proposals along the quarterly agenda.",
-          },
-          {
-            ko: "바이백 라운드 발표 약 2주 전 비중을 50퍼센트 확대합니다.",
-            en: "Increase weight by 50% roughly 2 weeks before a buyback announcement.",
-          },
-          {
-            ko: "라운드 종료 후 비중을 정상화합니다.",
-            en: "Normalize weight back after the round ends.",
-          },
-        ],
-        reward: {
-          ko: "바이백 라운드별로 HVN 시장가가 20 ~ 60퍼센트 점프하며, 영향력도 함께 누적됩니다.",
-          en: "Each buyback round brings a 20 ~ 60% HVN price jump, with governance influence accumulating in parallel.",
-        },
-        loss: {
-          ko: "어젠다 부결이나 트레저리 우선순위 변경 시 손실이 발생할 수 있습니다.",
-          en: "Failed agendas or shifted treasury priorities can produce losses.",
-        },
-        apr: { ko: "−30 ~ +80퍼센트", en: "-30 ~ +80%" },
-        effort: "hard",
-      },
     ],
     allocation: [
       {
@@ -851,22 +748,17 @@ const SCENARIOS: ScenarioDefinition[] = [
           ko: "52주 Commit 과 30일 본드 회전",
           en: "52-week Commit plus 30-day bond rotation",
         },
-        share: 40,
+        share: 50,
         color: "#7C6BFF",
       },
       {
         label: { ko: "Cross-protocol RBT", en: "Cross-protocol RBT" },
-        share: 30,
+        share: 35,
         color: "#3DDC97",
       },
       {
-        label: { ko: "HVN 거버넌스", en: "HVN governance" },
-        share: 20,
-        color: "#9C8CFF",
-      },
-      {
         label: { ko: "현금 대기", en: "Cash on hand" },
-        share: 10,
+        share: 15,
         color: "#6B7589",
       },
     ],
@@ -904,14 +796,6 @@ const SCENARIOS: ScenarioDefinition[] = [
         tag: "watch",
       },
       {
-        week: "M12",
-        action: {
-          ko: "HVN 첫 정식 바이백 라운드를 앞두고 사전 비중을 확대합니다.",
-          en: "Increase HVN weight ahead of the first formal buyback round.",
-        },
-        tag: "trade",
-      },
-      {
         week: "M18",
         action: {
           ko: "Reserve Layer SDK 출시로 RBT 활용처가 폭증합니다.",
@@ -924,10 +808,6 @@ const SCENARIOS: ScenarioDefinition[] = [
       {
         ko: "통합 프로토콜 한 곳에서 청산 캐스케이드가 발생하면 같은 라인의 노출을 모두 정리합니다.",
         en: "If a liquidation cascade hits one integrated protocol, clean out all exposure on that line.",
-      },
-      {
-        ko: "거버넌스 quorum 이 분기 연속 미달하면 HVN 거버넌스 플레이를 회수합니다.",
-        en: "If governance quorum misses two consecutive quarters, exit the HVN governance play.",
       },
       {
         ko: "Backing ratio 가 1.02 배 아래로 4주 이상 머무르면 52주 Commit 신규 진입을 중단합니다.",

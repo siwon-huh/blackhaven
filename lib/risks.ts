@@ -420,22 +420,4 @@ export const USER_RISKS: UserRiskScenario[] = [
       en: "Check the governance forum quarterly. If a distribution-reduction direction is decided, pause new commits.",
     },
   },
-  {
-    title: {
-      ko: "HVN 거버넌스 토큰 시드 손실",
-      en: "Loss on HVN governance token seed",
-    },
-    trigger: {
-      ko: "HVN TGE 시드에 진입한 뒤 바이백 어젠다가 부결되거나 트레저리 우선순위가 다른 곳으로 가는 시나리오입니다.",
-      en: "You join the HVN TGE seed but the buyback agenda fails to pass, or treasury priorities go elsewhere.",
-    },
-    outcome: {
-      ko: "HVN 시장가가 진입가 아래로 떨어지고 거버넌스 영향력만 남습니다.",
-      en: "HVN market price falls below your entry and only governance influence remains.",
-    },
-    guard: {
-      ko: "거버넌스 토큰은 자본의 20 퍼센트 상한을 두고, 바이백 라운드 시점이 지나면 비중을 정상화합니다.",
-      en: "Cap governance tokens at 20% of capital. After the buyback-round window, normalize the weight back down.",
-    },
-  },
 ];

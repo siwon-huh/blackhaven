@@ -12,7 +12,7 @@ Built by [c4lvin](https://x.com/c4lvin), researcher at [Four Pillars](https://4p
 
 Blackhaven is a reserve-backed treasury protocol on MegaETH. Users commit USDm through bonds and receive RBT (Reserve-Backed Token) at a discount, vesting linearly to maturity. 90% of bonded USDm flows to the treasury, 10% to the LiquidityManager as protocol-owned liquidity. RBT can be staked into sRBT, which can then be committed for 2 to 52 weeks for an additional RBT distribution at maturity. A Backing Arbitrage Module (BAM) automatically restores price toward NAV — selling RBT to treasury when above NAV, buying and burning when below.
 
-The protocol is a structural reworking of the OlympusDAO design. It removes the rebase loop, separates asset (RBT) from governance (HVN), uses a single stablecoin backing (USDm), and runs the inverse-bond mechanism automatically and on both sides via BAM.
+The protocol is a structural reworking of the OlympusDAO design. It removes the rebase loop, uses a single stablecoin backing (USDm), and runs the inverse-bond mechanism automatically and on both sides via BAM.
 
 Audit: [Zellic, January 19, 2026](https://docs.blackhaven.xyz). Project status: post-mainnet, Genesis Phase 1.
 

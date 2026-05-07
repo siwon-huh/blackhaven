@@ -499,17 +499,6 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    pattern: { ko: "P4 차단", en: "Blocks P4" },
-    blackhavenDoes: {
-      ko: "RBT(자산)와 HVN(거버넌스)의 분리",
-      en: "Separation of RBT (asset) and HVN (governance)",
-    },
-    why: {
-      ko: "RBT 는 트레저리 백킹 자산이고, HVN 은 거버넌스 처분권입니다. 거버넌스 신뢰가 흔들려도 RBT 의 NAV 백킹은 영향을 받지 않습니다.",
-      en: "RBT is the treasury-backed asset; HVN is the governance instrument. Even if governance trust wavers, RBT's NAV backing is not affected.",
-    },
-  },
-  {
     pattern: { ko: "P5 차단", en: "Blocks P5" },
     blackhavenDoes: {
       ko: "USDm 스테이블 단일 백킹",

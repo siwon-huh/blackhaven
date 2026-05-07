@@ -12,7 +12,7 @@ MegaETH 위 reserve-backed treasury 프로토콜인 **Blackhaven** 의 비공식
 
 Blackhaven 은 MegaETH 위에 자리잡은 reserve-backed treasury 프로토콜입니다. 사용자는 본드를 통해 USDm 을 약정하고 RBT (Reserve-Backed Token) 를 디스카운트로 받습니다. 받은 RBT 는 만기까지 선형으로 베스팅됩니다. 약정한 USDm 의 90 퍼센트는 트레저리로, 10 퍼센트는 LiquidityManager 의 protocol-owned liquidity 로 들어갑니다. RBT 는 stake 하면 sRBT 가 되고, sRBT 는 2 주에서 52 주까지 commit 으로 약정해 만기에 추가 RBT 분배를 받을 수 있습니다. Backing Arbitrage Module (BAM) 이 시장가를 자동으로 NAV 로 수렴시킵니다. 시장가가 NAV 위면 RBT 를 매도해 트레저리로 환류하고, 아래면 매수해 burn 합니다.
 
-이 프로토콜은 OlympusDAO 설계를 구조적으로 재구성한 것입니다. rebase 루프를 제거하고, 자산 (RBT) 과 거버넌스 (HVN) 를 분리했으며, 단일 스테이블코인 (USDm) 백킹을 채택했습니다. OHM 이 수동으로 했던 inverse bond 는 BAM 이 자동, 양방향으로 처리합니다.
+이 프로토콜은 OlympusDAO 설계를 구조적으로 재구성한 것입니다. rebase 루프를 제거하고, 단일 스테이블코인 (USDm) 백킹을 채택했습니다. OHM 이 수동으로 했던 inverse bond 는 BAM 이 자동, 양방향으로 처리합니다.
 
 외부 감사: [Zellic, 2026 년 1 월 19 일](https://docs.blackhaven.xyz). 현재 상태: 메인넷 출시 후 Genesis Phase 1.
 

@@ -170,7 +170,6 @@ npm start       # 빌드 결과를 production 모드로 서빙
 ## 8. 알려진 한계
 
 - NAV pump 강도 신호는 본드 onchain TVL 합과 premium multiple 만으로 추정합니다. 실제 NAV 의 시간 변화율을 직접 측정하려면 BackingCalculator.NAV() 를 시계열로 저장해야 합니다.
-- HVN 토큰은 아직 TGE 전이라 가격 / 거버넌스 라이브 데이터가 없습니다. 시나리오 본문에는 추정값으로 등장합니다.
 - 라이트 모드에서 일부 SVG 는 dark fixed (예: ink-950 배경) 클래스로 작성되어 있어 읽힘이 떨어질 수 있습니다. CSS 변수 기반 (`var(--surface-2)` 등) 으로 점진적으로 마이그레이션 중입니다.
 
 ## 9. 컨택트

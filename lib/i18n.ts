@@ -319,7 +319,7 @@ const ko: Dict = {
   "md.outlook.bullish.summary":
     "NAV 가 빠르게 차오르고 매수 우세에 lock 비율도 받쳐주는 상태. Premium 이 유지되며 시장가가 NAV 를 따라 절대 가격이 상승합니다.",
   "md.outlook.balanced.summary":
-    "NAV 추격과 매도 압력이 균형 상태. BAM 이 가격을 NAV 위 일정 배율에서 진동시키는 구간입니다. 다음 큰 움직임은 Stake/Commit lock 증가, HVN TGE, 외부 등재 같은 외생 트리거에 달려 있습니다.",
+    "NAV 추격과 매도 압력이 균형 상태. BAM 이 가격을 NAV 위 일정 배율에서 진동시키는 구간입니다. 다음 큰 움직임은 Stake/Commit lock 증가나 외부 등재 같은 외생 트리거에 달려 있습니다.",
   "md.outlook.bearish.summary":
     "NAV 펌프 페이스가 약하고 매도 우세 또는 본드 만기 wave 가 임박해 있습니다. Premium 가 빠르게 NAV 부근까지 축소될 수 있습니다.",
   "md.diagnosis": "진단",
@@ -742,7 +742,7 @@ const en: Dict = {
   "md.outlook.bullish.summary":
     "NAV is filling fast, buy pressure dominates, and lock ratio supports it. Premium holds while market price rises with NAV in absolute terms.",
   "md.outlook.balanced.summary":
-    "NAV catch-up and sell pressure are balanced. BAM oscillates price at a fixed multiple above NAV. The next big move depends on exogenous triggers like Stake/Commit lock growth, HVN TGE, or external listings.",
+    "NAV catch-up and sell pressure are balanced. BAM oscillates price at a fixed multiple above NAV. The next big move depends on exogenous triggers like Stake/Commit lock growth or external listings.",
   "md.outlook.bearish.summary":
     "NAV pump pace is weak, with sell pressure dominating or a bond maturity wave imminent. Premium can compress quickly toward NAV.",
   "md.diagnosis": "Diagnosis",
