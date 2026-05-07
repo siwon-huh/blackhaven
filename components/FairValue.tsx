@@ -70,7 +70,17 @@ export default function FairValue() {
 
   const reflexInfo = REFLEXIVITY_DISCOUNT[reflexMode];
 
-  const domainMax = fv.market * 1.1;
+  const upperBoundYieldFair = useMemo(
+    () =>
+      computeFairValue(live.metrics, LIVE_BONDS, {
+        protocolFee: DEFAULT_PROTOCOL_FEE,
+        forwardYield: estimateForwardYield(0.1, 24, COMMIT_24W_REWARD * 1.2),
+        reflexivity: "none",
+      }).yieldFair,
+    [live.metrics],
+  );
+
+  const domainMax = upperBoundYieldFair;
   const xPct = (v: number) => (v / domainMax) * 100;
 
   const yieldFairDescEN = `Forward yield ${pct(fwdYield)} reduced by reflexivity discount ${pct(fv.reflexivityFactor)} → adjusted yield ${pct(fwdYield * (1 - fv.reflexivityFactor))} added to NAV. NPV of one year of stake/commit distribution, risk-adjusted for Schelling weakening.`;
